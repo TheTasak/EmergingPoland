@@ -1,0 +1,110 @@
+
+html{
+  height: 100%;
+}
+body{
+  min-height: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: Arial;
+  font-size: 16px;
+}
+header{
+  width: 100%;
+  background-color: red;
+  color: white;
+  padding: 10px 0px;
+}
+nav{
+  margin: 5px;
+  padding-left: 3px;
+  width: 75%;
+  float: left;
+}
+header #jezyki{
+  overflow: hidden;
+  right: 0;
+  text-align: right;
+  padding-right: 10px;
+}
+header #jezyki img{
+  height: 30px;
+  width: 50px;
+}
+main{
+  background-color: white;
+  color: black;
+  width: auto;
+  padding: 0px 10px;
+}
+main h1{
+  text-align: center;
+  font-size: 46px;
+}
+main #opis{
+  float: left;
+  width: 50%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: gray;
+  text-align: center;
+  padding-right: 5px;
+}
+main #kurs{
+  width: 100%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: green;
+  text-align: center;
+}
+main #sklad{
+  float: left;
+  width: 50%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: yellow;
+  text-align: center;
+  padding-right: 5px;
+}
+main #kwartal{
+  width: 100%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: orange;
+  text-align: center;
+}
+main #dywidenda{
+  float: left;
+  width: 50%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: purple;
+  text-align: center;
+  padding-right: 5px;
+}
+main #rok{
+  width: 100%;
+  min-height: 300px;
+  height: 20vh;
+  background-color: violet;
+  text-align: center;
+}
+main #mapa{
+  width: 100%;
+  min-height: 500px;
+  height: 40vh;
+  background-color: white;
+  text-align: center;
+}
+main #mapa img{
+  height: 300px;
+  max-width: 100%;
+}
+footer{
+  position: absolute;
+  bottom: 0;
+  background-color: red;
+  width: 100%;
+  text-align: center;
+}
