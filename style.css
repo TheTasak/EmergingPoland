@@ -22,6 +22,20 @@ nav{
   width: 75%;
   float: left;
 }
+nav ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+nav li{
+  float: left;
+}
+nav a{
+  display: block;
+  padding: 6px;
+  text-decoration: none;
+  color: white;
+}
 header #jezyki{
   overflow: hidden;
   right: 0;
@@ -42,53 +56,35 @@ main h1{
   text-align: center;
   font-size: 46px;
 }
-main #opis{
-  float: left;
+main #content{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+}
+main #content div{
   width: 50%;
-  min-height: 300px;
-  height: 20vh;
-  background-color: gray;
+  line-height: 300px;
+  height: 300px;
   text-align: center;
-  padding-right: 5px;
+}
+main #opis{
+  background-color: gray;
 }
 main #kurs{
-  width: 100%;
-  min-height: 300px;
-  height: 20vh;
   background-color: green;
-  text-align: center;
 }
 main #sklad{
-  float: left;
-  width: 50%;
-  min-height: 300px;
-  height: 20vh;
   background-color: yellow;
-  text-align: center;
-  padding-right: 5px;
 }
 main #kwartal{
-  width: 100%;
-  min-height: 300px;
-  height: 20vh;
   background-color: orange;
-  text-align: center;
 }
 main #dywidenda{
-  float: left;
-  width: 50%;
-  min-height: 300px;
-  height: 20vh;
   background-color: purple;
-  text-align: center;
-  padding-right: 5px;
 }
 main #rok{
-  width: 100%;
-  min-height: 300px;
-  height: 20vh;
   background-color: violet;
-  text-align: center;
 }
 main #mapa{
   width: 100%;
@@ -99,7 +95,6 @@ main #mapa{
 }
 main #mapa img{
   height: 300px;
-  max-width: 100%;
 }
 footer{
   position: absolute;
