@@ -81,7 +81,10 @@ main #kwartal{
   background-color: orange;
 }
 main #dywidenda{
-  background-color: purple;
+  background-color: white;
+}
+.bar{
+  fill: red;
 }
 main #rok{
   background-color: violet;
