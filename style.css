@@ -57,17 +57,19 @@ main h1{
   font-size: 46px;
 }
 main #content{
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+  grid-gap: 1rem;
 }
 main #content div{
-  width: 50%;
-  min-width: 500px;
   line-height: 400px;
   height: 400px;
   text-align: center;
+  transition: opacity 0.3s linear;
+  opacity: 0.8;
+}
+main #content div:hover{
+  opacity: 1;
 }
 main #opis{
   background-color: gray;
@@ -83,6 +85,9 @@ main #kwartal{
 }
 main #dywidenda{
   background-color: white;
+}
+.axis{
+  font: 14px sans-serif;
 }
 .bar{
   fill: red;

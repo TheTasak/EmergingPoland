@@ -13,7 +13,7 @@ function redraw() {
   const height = parseInt(container.offsetHeight);
 
   const padding_vertical = 20;
-  const padding_horizontal = 60;
+  const padding_horizontal = 90;
 
   // Usunięcie starego wykresu
   const old_svg = d3.select(container)
@@ -36,20 +36,21 @@ function redraw() {
                   .range([height-padding_vertical,padding_vertical]);
 
   const g = svg.append("g")
-              .attr("transform", "translate(40,0)");
+              .attr("transform", "translate(" + padding_horizontal*(2/3) + ",0)");
   const heightpadding = height-padding_vertical;
   // Dodanie dolnej osi wykresu
   g.append("g")
+    .classed("axis",true)
     .call(d3.axisBottom(xScale))
     .attr("transform","translate(0," + heightpadding + ")");
   // Dodanie lewej osi wykresu
   g.append("g")
+     .classed("axis",true)
      .call(d3.axisLeft(yScale).tickFormat(function(d){
          return "$" + d;
      }).ticks(10))
      .append("text")
      .attr("text-anchor", "end")
-     .attr("font-family", "Arial")
      .text("value");
   // Dodanie słupków wartości
   const bars = svg
@@ -77,7 +78,6 @@ function redraw() {
        .attr("text-anchor", "middle")
        .attr("font-size", "20px")
        .text("Dywidenda");
-    console.log("funkcja");
 }
 redraw();
 // Ustawienie odświeżania po zmianie wielkości okna
