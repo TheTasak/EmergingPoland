@@ -7,53 +7,69 @@ const DATA = [
             ];
 
 const container = document.getElementById("dywidenda");
-const width = parseInt(container.offsetWidth);
-const height = parseInt(container.offsetHeight);
-const padding_vertical = 20;
-const padding_horizontal = 50;
-console.log(padding_vertical);
-const svg = d3.select(container)
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
 
-const xScale = d3.scaleBand()
-                .range([0, width-padding_horizontal])
-                .padding(0.1)
-                .domain(DATA.map((dataPoint) => dataPoint.date));
-const yScale = d3.scaleLinear()
-                .domain([0,d3.max(DATA, d => d.value)*1.1]).nice()
-                .range([height-20,20]);
+function redraw() {
+  const width = parseInt(container.offsetWidth);
+  const height = parseInt(container.offsetHeight);
 
-const g = svg.append("g")
-            .attr("transform", "translate(40,0)");
+  const padding_vertical = 20;
+  const padding_horizontal = 60;
+  // Usunięcie starego wykresu
+  const old_svg = d3.select(container)
+                .selectAll(".chart")
+                .remove();
+  // Dodanie nowego kontenera na wykres
+  const svg = d3.select(container)
+              .append("svg")
+              .attr("width", width)
+              .attr("height", height)
+              .classed("chart",true);
+  // Ustawienie skali i domeny osi x
+  const xScale = d3.scaleBand()
+                  .range([0, width-padding_horizontal])
+                  .padding(0.4)
+                  .domain(DATA.map((dataPoint) => dataPoint.date));
+  // Ustawienie skali i domeny osi y
+  const yScale = d3.scaleLinear()
+                  .domain([0,d3.max(DATA, d => d.value)*1.1]).nice()
+                  .range([height-padding_vertical,padding_vertical]);
 
-g.append("g") //dolna oś
-  .call(d3.axisBottom(xScale))
-  .attr("transform","translate(0,380)");
-g.append("g") //lewa oś
-   .call(d3.axisLeft(yScale).tickFormat(function(d){
-       return "$" + d;
-   }).ticks(10))
-   .append("text")
-   .attr("dy", "1em")
-   .attr("text-anchor", "end")
-   .text("value");
-
-const bars = svg //słupki wykresu
-   .selectAll('.bar')
-   .data(DATA)
-   .enter()
-   .append('rect')
-   .classed('bar',true)
-   .attr('width', xScale.bandwidth())
-   .attr('height', (data) => height - yScale(data.value) - padding_vertical)
-   .attr('x', data => xScale(data.date)+padding_horizontal)
-   .attr('y', data => yScale(data.value));
-
- svg.append("text") //nazwa wykresu
-           .attr("x", (width / 2))
-           .attr("y", 10 + padding_vertical)
-           .attr("text-anchor", "middle")
-           .attr("font-size", "20px")
-           .text("Dywidenda");
+  const g = svg.append("g")
+              .attr("transform", "translate(40,0)");
+  const heightpadding = height-padding_vertical;
+  // Dodanie dolnej osi wykresu
+  g.append("g")
+    .call(d3.axisBottom(xScale))
+    .attr("transform","translate(0," + heightpadding + ")");
+  // Dodanie lewej osi wykresu
+  g.append("g")
+     .call(d3.axisLeft(yScale).tickFormat(function(d){
+         return "$" + d;
+     }).ticks(10))
+     .append("text")
+     .attr("text-anchor", "end")
+     .attr("font-family", "Arial")
+     .text("value");
+  // Dodanie słupków wartości
+  const bars = svg
+     .selectAll('.bar')
+     .data(DATA)
+     .enter()
+     .append('rect')
+     .classed('bar',true)
+     .attr('width', xScale.bandwidth())
+     .attr('height', (data) => height - yScale(data.value) - padding_vertical)
+     .attr('x', data => xScale(data.date)+padding_horizontal-padding_horizontal/3)
+     .attr('y', data => yScale(data.value));
+  // Dodanie tytułu wykresu
+  svg.append("text")
+       .attr("x", (width / 2))
+       .attr("y", padding_vertical/2 + padding_vertical)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "20px")
+       .text("Dywidenda");
+    console.log("funkcja");
+}
+redraw();
+// Ustawienie odświeżania po zmianie wielkości okna
+window.onresize = redraw;
