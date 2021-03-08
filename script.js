@@ -14,6 +14,7 @@ function redraw() {
 
   const padding_vertical = 20;
   const padding_horizontal = 60;
+
   // Usunięcie starego wykresu
   const old_svg = d3.select(container)
                 .selectAll(".chart")
@@ -58,9 +59,17 @@ function redraw() {
      .append('rect')
      .classed('bar',true)
      .attr('width', xScale.bandwidth())
-     .attr('height', (data) => height - yScale(data.value) - padding_vertical)
+     .attr('height', 0)
      .attr('x', data => xScale(data.date)+padding_horizontal-padding_horizontal/3)
-     .attr('y', data => yScale(data.value));
+     .attr('y', data => yScale(0));
+  // Animacja pojawiania się słupków z opóźnieniem
+  svg.selectAll("rect")
+     .transition()
+     .duration(800)
+     .attr("y", data => yScale(data.value) )
+     .attr("height", (data) => height - yScale(data.value) - padding_vertical)
+     .delay(function(d,i){return(i*200)});
+
   // Dodanie tytułu wykresu
   svg.append("text")
        .attr("x", (width / 2))
