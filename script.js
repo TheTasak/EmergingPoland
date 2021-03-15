@@ -5,19 +5,17 @@ const DATA = [
               { id: 'd4', value: 0.135, date: '2019' },
               { id: 'd5', value: 0.1, date: '2020' },
             ];
+d3.json("getdata.php", function(data){
+  console.log(data);
+});
 const container = document.getElementById("dywidenda");
-let chart = new Chart(container, DATA);
+let chart = new Chart(container, DATA, "Dywidenda");
 const cont = document.getElementById("rok");
-let chart2 = new Chart(cont, DATA);
+let chart2 = new Chart(cont, DATA, "Zyski netto");
 function draw()
 {
-  chart.draw();
-  chart2.draw();
-}
-function refresh_data()
-{
-  let number = document.getElementById("liczba");
-  DATA[0].value = number;
+  chart.refresh();
+  chart2.refresh();
 }
 window.onload = draw;
 window.onresize = draw;
