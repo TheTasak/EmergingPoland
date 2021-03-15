@@ -5,13 +5,22 @@ const DATA = [
               { id: 'd4', value: 0.135, date: '2019' },
               { id: 'd5', value: 0.1, date: '2020' },
             ];
-d3.json("getdata.php", function(data){
-  console.log(data);
+let sql_data = [];
+d3.json("getdata.php").then(function(data){
+	let array = data[0];
+	console.log(array);
+	for(let i = 0; i < Object.keys(array).length; i++) {
+		if(!isNaN(parseInt(Object.keys(array)[i]))) {
+			let push_object_data = {id: "d"+(i+1), date: Object.keys(array)[i], value: array[Object.keys(array)[i]]};
+			sql_data.push(push_object_data);
+		}
+	}
 });
+console.log(sql_data);
 const container = document.getElementById("dywidenda");
 let chart = new Chart(container, DATA, "Dywidenda");
-const cont = document.getElementById("rok");
-let chart2 = new Chart(cont, DATA, "Zyski netto");
+const sql_container = document.getElementById("rok");
+let chart2 = new Chart(sql_container, sql_data, "Dane z SQLa");
 function draw()
 {
   chart.refresh();
