@@ -10,31 +10,69 @@ body{
   font-family: Arial;
   font-size: 16px;
 }
+button{
+  display: block;
+  background: none;
+  border: none;
+  border-radius: 20%;
+  cursor: pointer;
+  text-align: center;
+  font-family: sans-serif;
+  text-decoration: none;
+  font-size: 30px;
+  padding: 5px 10px;
+}
+.sidenav{
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: black;
+  overflow-x: hidden;
+  padding-top: 50px;
+  transition: 0.5s;
+}
+.sidenav a{
+  padding: 10px;
+  text-decoration: none;
+  text-align: center;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.5s;
+}
+.sidenav a:hover{
+  background-color: #222222;
+}
+.sidenav .closebtn{
+  position: absolute;
+  top: 0;
+  color: white;
+  right: 25px;
+  margin-left: 50px;
+}
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+    width: 50%;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}
 header{
   width: 100%;
   background-color: red;
   color: white;
   padding: 10px 0px;
+  border-bottom: 1px solid black;
 }
 nav{
-  margin: 5px;
   padding-left: 3px;
-  width: 75%;
+  width: 50%;
   float: left;
-}
-nav ul{
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-nav li{
-  float: left;
-}
-nav a{
-  display: block;
-  padding: 6px;
-  text-decoration: none;
-  color: white;
 }
 header #jezyki{
   overflow: hidden;
