@@ -8,17 +8,19 @@
     <script src="chart.js" defer></script>
     <script src="script.js" defer></script>
   </head>
-  <body>
+  <body id="body">
     <div id="sidenav" class="sidenav">
       <button class="closebtn" type="button" onclick="closeNav()">&times;</button>
-      <a href="#">About</a>
-      <a href="#">About</a>
-      <a href="#">About</a>
-      <a href="#">About</a>
+      <div id="links">
+          <a href="#">About</a>
+          <a href="#">About</a>
+          <a href="#">About</a>
+          <a href="#">About</a>
+        </div>
     </div>
     <header>
       <nav>
-        <button id="navbutton" href="#" onclick="openNav()">&#8801;</button>
+        <button class="openbtn" href="#" onclick="openNav()">&#8801;</button>
       </nav>
       <div id="jezyki">język
         <a href="index.html"><img src="https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg"></a>

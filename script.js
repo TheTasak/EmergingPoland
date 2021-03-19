@@ -33,10 +33,12 @@ function draw() {
   }
 }
 function openNav() {
-  document.getElementById("sidenav").style.width = "25%";
+  document.getElementById("sidenav").style.width = "100%";
+  document.getElementById("body").style.overflow = "hidden";
 }
 function closeNav() {
   document.getElementById("sidenav").style.width = "0px";
+  document.getElementById("body").style.overflow = "auto";
 }
 window.onload = load;
 window.onresize = draw;
