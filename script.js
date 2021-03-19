@@ -9,14 +9,12 @@ var sql_data = [];
 var charts = [];
 function load(){
   d3.json("getdata.php").then(function(data){
-  	let array = data[0];
-  	console.log(array);
-  	for(let i = 0; i < Object.keys(array).length; i++) {
-  		if(!isNaN(parseInt(Object.keys(array)[i]))) {
-  			let push_object_data = {id: "d"+(i+1), date: Object.keys(array)[i], value: array[Object.keys(array)[i]]};
-  			sql_data.push(push_object_data);
-  		}
-  	}
+		let array = data;
+		for(let i = 0; i < array.length; i++) {
+			let date = "20" + (10+i); 
+			let push_object_data = {id: "d"+(i+1), date: date, value: array[i]};
+			sql_data.push(push_object_data);
+		}
   });
   const container = document.getElementById("dywidenda");
   let chart = new Chart(container, DATA, "Dywidenda");
