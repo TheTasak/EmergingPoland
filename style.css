@@ -44,15 +44,6 @@ button{
   display: block;
   transition: 0.5s;
 }
-@media (max-width: 800px){
-  .sidenav a{
-    font-size: 50px;
-    padding: 30px;
-  }
-  button{
-    font-size: 50px;
-  }
-}
 .sidenav a:hover{
   color: gray;
 }
@@ -118,6 +109,11 @@ main #content{
   grid-gap: 1rem;
 }
 @media (max-width: 1000px){
+  main #content{
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+@media (max-width: 500px){
   main #content{
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
