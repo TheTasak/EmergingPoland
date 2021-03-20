@@ -36,13 +36,22 @@ button{
   align-items: center;
 }
 .sidenav a{
-  padding: 10px;
+  padding: 20px;
   text-decoration: none;
   text-align: center;
-  font-size: 25px;
+  font-size: 32px;
   color: white;
   display: block;
   transition: 0.5s;
+}
+@media (max-width: 500px){
+  .sidenav a{
+    font-size: 50px;
+    padding: 30px;
+  }
+  button{
+    font-size: 50px;
+  }
 }
 .sidenav a:hover{
   color: gray;
@@ -70,15 +79,6 @@ button{
 }
 .openbtn:hover{
   color: white;
-}
-@media screen and (max-height: 450px) {
-  .sidenav {
-    padding-top: 15px;
-    width: 50%;
-  }
-  .sidenav a {
-    font-size: 18px;
-  }
 }
 header{
   width: 100%;
