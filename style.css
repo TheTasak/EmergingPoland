@@ -117,9 +117,9 @@ main #content{
   grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
   grid-gap: 1rem;
 }
-@media (max-width: 800px){
+@media (max-width: 1000px){
   main #content{
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 main #content div{
