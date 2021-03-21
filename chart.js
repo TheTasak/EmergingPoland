@@ -2,12 +2,16 @@ class Chart{
   _width = 0;
   _height = 0;
   padding_vertical = 20;
-  padding_horizontal = 90;
+  padding_horizontal = 100;
   chart_title = "Title";
-  constructor(container, data, title){
+  prefix = "";
+  suffix = "";
+  constructor(container, data, title, prefix, suffix){
     this.container = container;
     this.data = data;
     this.chart_title = title;
+    this.prefix = prefix;
+    this.suffix = suffix;
   }
   reset = () => {
     this.width = parseInt(this.container.offsetWidth);
@@ -53,14 +57,37 @@ class Chart{
       .call(d3.axisBottom(xScale))
       .attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
+    let pre = this.prefix;
+    let suf = this.suffix;
     g.append("g")
        .classed("axis",true)
        .call(d3.axisLeft(yScale).tickFormat(function(d){
-           return "$" + d;
+           return d.toString() + pre +  suf;
        }).ticks(10))
        .append("text")
        .attr("text-anchor", "end")
        .text("value");
+    // Dodanie tooltipa
+    var Tooltip = this.svg
+                      .append("div")
+                      .style("opacity", 0)
+                      .style("background-color", "black")
+                      .style("color", "black")
+                      .classed('tooltip', true);
+    var mouseover = function(data) {
+      Tooltip
+          .style("opacity", 1);
+    }
+    var mousemove = function(data) {
+      Tooltip
+         .html(data.value)
+         .style("left", (d3.pointer(event)[0]+70) + "px")
+         .style("top", (d3.pointer(event)[1]) + "px")
+    }
+     var mouseleave = function(data) {
+      Tooltip
+        .style("opacity", 0);
+    }
     // Dodanie słupków wartości
     const bars = this.svg
         .selectAll('.bar')
@@ -71,7 +98,10 @@ class Chart{
         .attr('width', xScale.bandwidth())
         .attr('height', 0)
         .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3)
-        .attr('y', data => yScale(0));
+        .attr('y', data => yScale(0))
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
     // Animacja pojawiania się słupków z opóźnieniem
     this.svg.selectAll("rect")
         .transition()
