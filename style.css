@@ -121,6 +121,17 @@ main #content{
   text-align: justify;
   line-height: 1.5;
   margin: 10px 20px;
+  font-size: 16px;
+}
+@media (max-width: 1000px){
+  .text-div p{
+    font-size: 14px;
+  }
+}
+@media (max-width: 500px){
+  .text-div p{
+    font-size: 13px;
+  }
 }
 .text-div h2{
   text-align: center;
@@ -134,8 +145,24 @@ main #content div{
 main #content div:hover{
   opacity: 1;
 }
-.axis{
+.axis_left{
   font: 14px sans-serif;
+}
+.axis_bottom{
+  font: 14px sans-serif;
+}
+@media (max-width: 500px){
+  .axis_bottom{
+    font: 12px sans-serif;
+  }
+  .axis_left{
+    font: 12px sans-serif;
+  }
+}
+@media (max-width: 400px){
+  .axis_bottom{
+    font: 10px sans-serif;
+  }
 }
 .bar{
   fill: red;

@@ -35,16 +35,16 @@ function load(){
 		}
   });*/
   const dividend_container = document.getElementById("dywidenda");
-  let chart = new Chart(dividend_container, DATA_DIVIDEND, "Dywidenda", "", "$");
+  let chart = new Chart(dividend_container, DATA_DIVIDEND, "Dywidenda", "$");
 
   const sql_container = document.getElementById("kurs");
-  let chart2 = new Chart(sql_container, sql_data, "Dane z SQLa", "mln", "$");
+  let chart2 = new Chart(sql_container, sql_data, "Dane z SQLa", "mln$");
 
   const rok_container = document.getElementById("rok");
-  let chart3 = new Chart(rok_container, DATA_YEAR_PROFIT, "Roczne zyski brutto", "mln", "$");
+  let chart3 = new Chart(rok_container, DATA_YEAR_PROFIT, "Roczne zyski brutto", "mln$");
 
   const kwartal_container = document.getElementById("kwartal");
-  let chart4 = new Chart(kwartal_container, DATA_QUARTER_PROFIT, "Zyski brutto za 2020", "mln", "$");
+  let chart4 = new Chart(kwartal_container, DATA_QUARTER_PROFIT, "Zyski brutto za 2020", "mln$");
 
   charts.push(chart);
   charts.push(chart2);

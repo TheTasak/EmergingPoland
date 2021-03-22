@@ -4,13 +4,11 @@ class Chart{
   padding_vertical = 20;
   padding_horizontal = 100;
   chart_title = "Title";
-  prefix = "";
   suffix = "";
-  constructor(container, data, title, prefix, suffix){
+  constructor(container, data, title, suffix){
     this.container = container;
     this.data = data;
     this.chart_title = title;
-    this.prefix = prefix;
     this.suffix = suffix;
   }
   reset = () => {
@@ -53,17 +51,19 @@ class Chart{
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
     // Dodanie dolnej osi wykresu
     g.append("g")
-      .classed("axis",true)
+      .classed("axis_bottom",true)
       .call(d3.axisBottom(xScale))
       .attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
-    let pre = this.prefix;
     let suf = this.suffix;
+    let min = d3.min(this.data, d => d.value);
+    let max = d3.max(this.data, d => d.value);
+    let domain = (max + min)/(min);
     g.append("g")
-       .classed("axis",true)
+       .classed("axis_left",true)
        .call(d3.axisLeft(yScale).tickFormat(function(d){
-           return d.toString() + pre +  suf;
-       }).ticks(10))
+           return d.toString() + suf;
+       }).ticks(domain))
        .append("text")
        .attr("text-anchor", "end")
        .text("value");
@@ -82,7 +82,7 @@ class Chart{
       Tooltip
          .html(data.value)
          .style("left", (d3.pointer(event)[0]+70) + "px")
-         .style("top", (d3.pointer(event)[1]) + "px")
+         .style("top", (d3.pointer(event)[1]) + "px");
     }
      var mouseleave = function(data) {
       Tooltip
