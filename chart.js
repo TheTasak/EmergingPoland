@@ -12,8 +12,11 @@ class Chart{
     this.suffix = suffix;
   }
   reset = () => {
-    this.width = parseInt(this.container.offsetWidth);
-    this.height = parseInt(this.container.offsetHeight);
+    this.width = parseInt(this.container.clientWidth);
+    if (!this.width) {
+      this.width = parseInt(this.container.node().parentNode.clientWidth);
+    }
+    this.height = parseInt(this.container.clientHeight);
     this.heightpadding = this.height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
     // Usunięcie starego wykresu

@@ -117,33 +117,27 @@ main #content{
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
-.text-div p{
+.text-div{
+  margin: 10px 20px;
+}
+.text-div-content{
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.text-div-content p{
   text-align: justify;
   line-height: 1.5;
-  margin: 10px 20px;
   font-size: 16px;
 }
 @media (max-width: 1000px){
-  .text-div p{
-    font-size: 14px;
+  .text-div-content p{
+    font-size: 15px;
   }
-}
-@media (max-width: 500px){
-  .text-div p{
-    font-size: 13px;
-  }
-}
-.text-div h2{
-  text-align: center;
-  font-size: 32px;
 }
 main #content div{
   height: 400px;
-  transition: opacity 0.3s ease-out;
-  opacity: 0.8;
-}
-main #content div:hover{
-  opacity: 1;
 }
 .axis_left{
   font: 14px sans-serif;
