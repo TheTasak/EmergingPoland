@@ -139,6 +139,11 @@ main #content{
 main #content div{
   height: 400px;
 }
+@media (max-width: 500px){
+  main #content div{
+    min-height: 400px;
+  }
+}
 .axis_left{
   font: 14px sans-serif;
 }
@@ -164,6 +169,10 @@ main #content div{
 }
 .bar:hover{
   fill: #ff8080;
+}
+fieldset{
+  border: none;
+  margin: 2px 20px 0 20px;
 }
 footer{
   position: absolute;
