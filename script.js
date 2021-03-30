@@ -6,7 +6,6 @@ function load(){
 
   charts = [];
   charts.push(chart);
-  draw();
 }
 function draw() {
   for(let i = 0; i < charts.length; i++) {

@@ -1,9 +1,9 @@
 class Chart{
   _width = 0;
   _height = 0;
-  _current_data_index = null;
-  _current_stock_index = null;
+  _current_data_index = "dywidenda";
   _data = [];
+  _columns = [];
   stock_name = "";
   data_name = "";
   padding_vertical = 20;
@@ -16,31 +16,39 @@ class Chart{
     this.chart_title = data_name;
     this.suffix = suffix;
     this.reset();
-    this.#draw_inputs();
     this.#load_data();
   }
   #load_data = () => {
-    this._current_stock_index = 1;
-    this._current_data_index = d3.select(this.container)
-                                .select(".chart-input")
-                                .property("value");
-    let stock = this.stock_name.toLowerCase();
-    console.log(this._current_data_index);
-    //wyszukiwanie indeksu spółki z bazy danych... do zrobienia
-  	this._data = [{ id: 'd1', value: 0.03, date: '2016'},
-                  { id: 'd2', value: 0.06, date: '2017'},
-                  { id: 'd3', value: 0.10, date: '2018'},
-                  { id: 'd4', value: 0.135, date: '2019'},
-                  { id: 'd5', value: 0.1, date: '2020'}
-    ];
-    d3.json("getdata.php?data_index=" + String(this._current_data_index) + "&stock_index=" + String(this._current_stock_index)).then(function(d){
-        let array = d;
-        for(let i = 0; i < array.length; i++) {
-    			let date = "20" + (10+i);
-    			let push_object_data = {id: "d"+(i+1), date: date, value: array[i]};
-    			this._data.push(push_object_data);
-    	  }
-    });
+	let input_value_size = d3.select(this.container).select(".chart-input").size();
+	console.log(input_value_size);
+	if(input_value_size > 0)
+		this._current_data_index = d3.select(this.container).select(".chart-input").property("value");
+	else
+		this._current_data_index = "dywidenda";
+	
+	this.chart_title = this._current_data_index;
+	
+	let temp = [];
+	let json_data = d3.json("getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name)).then( (d) => {
+		let array = d;
+		for(let i = 0; i < array.length; i++) {
+				let date = "20" + (10+i);
+				let push_object_data = {id: "d"+(i+1), value: array[i], date: date};
+				temp.push(push_object_data);
+		  }
+		this._data = temp;
+		temp = [];
+		d3.json("getcolumns.php?stock_name=" + String(this.stock_name)).then( (columns) => {
+			let col_array = columns;
+			for(let i = 0; i < col_array.length; i++) {
+				let column = col_array[i].dane_ksiegowe;
+				temp.push(column);
+			}
+			this._columns = temp;
+			this.refresh();
+		});
+	});
+	
   }
   reset = () => {
     this.width = parseInt(this.container.clientWidth);
@@ -62,14 +70,17 @@ class Chart{
                 .classed("chart",true);
   }
   #draw_inputs = () => {
-    let html_code = `<option value="dywidenda">Dywidenda</option><option value="koszt_sprzedazy">Koszt sprzedaży</option>`;
     const fieldset = d3.select(this.container)
                       .append("fieldset")
                       .classed("chart-input-field", true);
-    fieldset.append("select")
-            .html(html_code)
+    const field = fieldset.append("select")
             .on("blur", this.#load_data)
             .classed("chart-input", true);
+	for(let i = 0; i < this._columns.length; i++){
+		field.append("option")
+			.attr("value", this._columns[i])
+			.text(this._columns[i]);
+	}
   }
   #draw_title = () => {
     // Dodanie tytułu wykresu
@@ -106,7 +117,7 @@ class Chart{
        .classed("axis_left",true)
        .call(d3.axisLeft(yScale).tickFormat(function(d){
            return d.toString() + suf;
-       }).ticks(domain))
+       }).ticks(10))
        .append("text")
        .attr("text-anchor", "end")
        .text("value");
@@ -124,7 +135,7 @@ class Chart{
     // Animacja pojawiania się słupków z opóźnieniem
     this.svg.selectAll("rect")
         .transition()
-        .duration(800)
+        .duration(600)
         .attr("y", data => yScale(data.value) )
         .attr("height", data => this.height - yScale(data.value) - this.padding_vertical)
         .delay(function(d,i){return(i*200)});

@@ -5,10 +5,6 @@
     $database="stronka";
 
     $mysqli = new mysqli($host, $username, $password, $database);
-    if(isset($_GET['data_index']))
-    {
-		$data_index = $_GET['data_index'];
-    }
 	if(isset($_GET['stock_name']))
 	{
 		$stock_name = $_GET['stock_name'];
@@ -17,8 +13,6 @@
   		printf("Connect failed: %s\n", mysqli_connect_error());
   		exit();
   	}
-    $data = array();
-	$stock = array();
 	$myquery = "
 	SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';
 	";
@@ -31,21 +25,25 @@
   	$stock = $query->fetch_assoc();
 	$stock_value = reset($stock);
 	
+    $data = array();
 	$i = 0;
-	for($i = 0; $i <= 10; $i++) {
-		$date = 10+$i;
-  		$myquery = "
-  		SELECT * FROM `20{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';
-  		";
-  		$query = mysqli_query($mysqli, $myquery);
+	$myquery = "
+	SELECT dane_ksiegowe FROM `2010_dane` WHERE idspolki='{$stock_value}';
+	";
+  	$query = mysqli_query($mysqli, $myquery);
 
-  		if ( ! $query ) {
-  			echo mysqli_error($mysqli);
-  			die;
-  		}
-  		$row = $query->fetch_assoc();
-  		$data[$i] = $row["20{$date}"];
-	  }
+	if ( ! $query ) {
+		echo mysqli_error($mysqli);
+		die;
+	}
+  	while($temp = $query->fetch_assoc()) {
+		if($temp != null){
+			$data[$i] = $temp;
+			$i++;
+		}else{
+			break;
+		}
+	}
     echo json_encode($data);
     mysqli_close($mysqli);
 ?>
