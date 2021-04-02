@@ -136,13 +136,8 @@ main #content{
     font-size: 15px;
   }
 }
-main #content div{
-  height: 400px;
-}
-@media (max-width: 500px){
-  main #content div{
-    min-height: 400px;
-  }
+.chart-div{
+  height: 500px;
 }
 .axis_left{
   font: 14px sans-serif;
@@ -164,7 +159,7 @@ main #content div{
   }
 }
 .bar{
-  fill: red;
+  fill: #FC3535;
   transition: fill 0.5s ease-out;
 }
 .bar:hover{
@@ -172,7 +167,26 @@ main #content div{
 }
 fieldset{
   border: none;
-  margin: 2px 20px 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-between;
+}
+.chart-input{
+	margin-right: 20px;
+}
+.chart-input-div select{
+	width: 80%;
+}
+@media (max-width: 400px){
+  .chart-input-div select{
+	width: 40%;
+	}
+}
+.noUi-target{
+	font-size: 12px;
+	width: 40%;
+	z-index: 0;
 }
 footer{
   position: absolute;
