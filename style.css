@@ -107,9 +107,9 @@ main #content{
   grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
   grid-gap: 1rem;
 }
-@media (max-width: 1000px){
+@media (max-width: 900px){
   main #content{
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
   }
 }
 @media (max-width: 500px){
@@ -131,12 +131,15 @@ main #content{
   line-height: 1.5;
   font-size: 16px;
 }
-@media (max-width: 1000px){
+@media (max-width: 900px){
   .text-div-content p{
     font-size: 15px;
   }
 }
 .chart-div{
+  height: 500px;
+}
+.map-div{
   height: 500px;
 }
 .axis_left{
@@ -165,6 +168,15 @@ main #content{
 .bar:hover{
   fill: #ff8080;
 }
+.tooltip{
+	opacity: 0;
+}
+.tooltip-text {
+  z-index: 1;
+  font-size: 16px;
+  color: black;
+  text-anchor: middle;
+}
 fieldset{
   border: none;
   display: flex;
@@ -187,6 +199,12 @@ fieldset{
 	font-size: 12px;
 	width: 40%;
 	z-index: 0;
+}
+.country{
+	transition: 0.5s ease-out;
+}
+.country:hover{
+	fill: #aa2222;
 }
 footer{
   position: absolute;

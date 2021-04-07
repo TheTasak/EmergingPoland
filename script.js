@@ -1,4 +1,5 @@
 var charts = [];
+var maps = [];
 
 function load(){
   const container1 = document.getElementById("kurs");
@@ -7,14 +8,22 @@ function load(){
   let chart2 = new Chart(container2, "Asbis", "koszt_sprzedazy", "$");
   const container3 = document.getElementById("kwartal");
   let chart3 = new Chart(container3, "Asbis", "przychody", "$");
+  
+  const container4 = document.getElementById("mapa");
+  var map = new WorldMap(container4);
   charts = [];
   charts.push(chart1);
   charts.push(chart2);
   charts.push(chart3);
+  maps = [];
+  maps.push(map);
 }
 function draw() {
   for(let i = 0; i < charts.length; i++) {
     charts[i].refresh();
+  }
+  for(let i = 0; i < maps.length; i++) {
+    maps[i].refresh();
   }
 }
 function openNav() {

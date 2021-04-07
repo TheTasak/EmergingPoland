@@ -148,7 +148,7 @@ class Chart{
     const xScale = d3.scaleBand()
                     .range([0, this.width-this.padding_horizontal])
                     .padding(0.4)
-                    .domain(this._data.map((dataPoint) => dataPoint.date));
+                    .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     const yScale = d3.scaleLinear()
                     .domain([0,d3.max(this._data, d => d.value)*1.1]).nice()
@@ -161,14 +161,7 @@ class Chart{
       .call(d3.axisBottom(xScale))
       .attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
-    
-    let min = d3.min(this._data, d => d.value);
-    let max = d3.max(this._data, d => d.value);
 	let suf = this.suffix;
-    /* let domain = 1/(max-min);
-	while(domain < 1){
-		domain *= 10;
-	} */
     g.append("g")
        .classed("axis_left",true)
        .call(d3.axisLeft(yScale).tickFormat(function(d){
@@ -177,6 +170,7 @@ class Chart{
        .append("text")
        .attr("text-anchor", "end")
        .text("value");
+	   
     // Dodanie słupków wartości
     const bars = this.svg
         .selectAll('.bar')
@@ -195,6 +189,41 @@ class Chart{
         .attr("y", data => yScale(data.value) )
         .attr("height", data => this.height - yScale(data.value) - this.padding_vertical)
         .delay(function(d,i){return(i*200)});
+		
+	const tooltip = this.svg.append("rect")
+						.attr("width", "0px")
+						.attr("height", "0px")
+						.style("fill", "white")
+						.style("stroke", "black")
+						.classed("tooltip", true)
+	const tooltiptext = this.svg.append("text")
+						.classed("tooltip-text", true);
+			
+	this.svg.selectAll('.bar')
+			.on("mousemove", (ev, d) => {
+				let tooltippos = [d3.pointer(ev)[0]-55, d3.pointer(ev)[1]-60];
+				let tooltipsize = [this.width / 6, this.height / 8];
+            tooltip
+              .attr("x", tooltippos[0])
+			  .attr("y", tooltippos[1])
+			  .attr("width", tooltipsize[0])
+			  .attr("height", tooltipsize[1])
+              .style("opacity", "0.7");
+			  
+			tooltiptext
+				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+				.attr("display", "inherit")
+				.text(d.value + this.suffix);
+			})
+			.on("mouseout", function(ev){ 
+				tooltip
+					.attr("width", "0px")
+					.attr("height", "0px")
+					.style("opacity", "0");
+				tooltiptext
+					.attr("display", "none");
+			});
   }
   refresh = () => {
     this.reset();
