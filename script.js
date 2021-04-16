@@ -10,7 +10,7 @@ function load(){
   let chart3 = new Chart(container3, "Asbis", "przychody", "$");
   
   const container4 = document.getElementById("mapa");
-  var map = new WorldMap(container4);
+  var map = new WorldMap(container4, "asbis");
   charts = [];
   charts.push(chart1);
   charts.push(chart2);

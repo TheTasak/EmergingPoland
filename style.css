@@ -140,7 +140,12 @@ main #content{
   height: 500px;
 }
 .map-div{
-  height: 500px;
+  height: 800px;
+}
+@media (max-width: 900px){
+  .map-div{
+    height: 500px;
+  }
 }
 .axis_left{
   font: 14px sans-serif;
@@ -177,6 +182,14 @@ main #content{
   color: black;
   text-anchor: middle;
 }
+.grid line {
+	stroke: lightgrey;
+	stroke-opacity: 0.5;
+	shape-rendering: crispEdges;
+}
+.grid path {
+	stroke-width: 0;
+}
 fieldset{
   border: none;
   display: flex;
@@ -184,21 +197,29 @@ fieldset{
   justify-content: center;
   align-content: space-between;
 }
-.chart-input{
-	margin-right: 20px;
-}
-.chart-input-div select{
-	width: 80%;
-}
-@media (max-width: 400px){
-  .chart-input-div select{
-	width: 40%;
-	}
+.chart-input-div{
+	margin-right: 30px;
 }
 .noUi-target{
 	font-size: 12px;
 	width: 40%;
 	z-index: 0;
+}
+.table-div{
+	height: 85%;
+	overflow-y: auto;
+	display: flex;
+	justify-content: center;
+}
+.table-div table{
+	border: 1px solid black;
+	border-collapse: collapse;
+	align-self: center;
+}
+.table-div td{
+	border: 1px solid black;
+	padding: 5px 8px;
+	font-size: 18px;
 }
 .country{
 	transition: 0.5s ease-out;
@@ -206,9 +227,32 @@ fieldset{
 .country:hover{
 	fill: #aa2222;
 }
+.map-button{
+	color: black;
+	transition: 0.5s;
+}
+.map-button:hover{
+	color: #c5c5c5;
+	cursor: pointer;
+}
+.map-country-list{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+	line-height: 1.5;
+	font-size: 22px;
+	padding-top: 50px;
+}
+@media (max-width: 800px){
+  .map-country-list{
+	font-size: 18px;
+	}
+}
 footer{
   position: absolute;
   bottom: 0;
+  padding: 5px 0 5px 0;
   background-color: red;
   width: 100%;
   text-align: center;

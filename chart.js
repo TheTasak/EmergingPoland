@@ -6,6 +6,7 @@ class Chart{
   _columns = [];
   _date_start = 2015;
   _date_end = 2020;
+  _show_chart = true;
   stock_name = "";
   data_name = "";
   padding_vertical = 20;
@@ -86,12 +87,17 @@ class Chart{
     d3.select(this.container)
       .selectAll(".chart-input-field")
       .remove();
+	d3.select(this.container)
+	  .selectAll(".table-div")
+	  .remove();
     // Dodanie nowego kontenera na wykres
-    this.svg = d3.select(this.container)
-                .append("svg")
-                .attr("width", this.width)
-                .attr("height", this.height)
-                .classed("chart",true);
+	if(this._show_chart == true){
+		this.svg = d3.select(this.container)
+					.append("svg")
+					.attr("width", this.width)
+					.attr("height", this.height)
+					.classed("chart",true);
+	}
   }
   #draw_inputs = () => {
     const fieldset = d3.select(this.container)
@@ -133,6 +139,13 @@ class Chart{
     }
 	});
 	drag_slider.noUiSlider.on("change", this.#load_data);
+	fieldset.append("div")
+			.classed("chart-input-div", true)
+				.append("button")
+				.attr("type", "button")
+				.text("\u2666")
+				.on("click", (d) => {this._show_chart = !this._show_chart; this.refresh();})
+				.classed("chart-input", true);
   }
   #draw_title = () => {
     // Dodanie tytułu wykresu
@@ -157,20 +170,21 @@ class Chart{
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
     // Dodanie dolnej osi wykresu
     g.append("g")
-      .classed("axis_bottom",true)
-      .call(d3.axisBottom(xScale))
-      .attr("transform","translate(0," + this.heightpadding + ")");
+		.classed("axis_bottom",true)
+		.call(d3.axisBottom(xScale))
+		.attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
-	let suf = this.suffix;
     g.append("g")
-       .classed("axis_left",true)
-       .call(d3.axisLeft(yScale).tickFormat(function(d){
-           return d.toString() + suf;
-       }).ticks(10))
-       .append("text")
-       .attr("text-anchor", "end")
-       .text("value");
-	   
+		.classed("axis_left",true)
+		.call(d3.axisLeft(yScale).tickFormat( (d) => {
+			return d.toString() + this.suffix;
+		}).ticks(10))
+		.append("text")
+		.attr("text-anchor", "end")
+		.text("value");
+	g.append("g")
+		.classed("grid", true)
+	    .call(d3.axisLeft(yScale).tickSize(-this.width).tickFormat("").ticks(10));
     // Dodanie słupków wartości
     const bars = this.svg
         .selectAll('.bar')
@@ -225,10 +239,28 @@ class Chart{
 					.attr("display", "none");
 			});
   }
+  #draw_table = () => {
+	  let data_string = '<table class="data_table">';
+	  for(let i = 0; i < this._data.length; i++){
+		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + "</td></tr>";
+	  }
+	  data_string += "</table>";
+	  d3.select(this.container)
+		.append("div")
+		.attr("width", this.width)
+		.attr("height", this.height)
+		.html(data_string)
+		.classed("table-div", true);
+  }
   refresh = () => {
     this.reset();
-    this.#draw_inputs();
-    this.#draw_chart();
-    this.#draw_title();
+	if(this._show_chart == true){
+		this.#draw_inputs();
+		this.#draw_chart();
+		this.#draw_title();
+	} else {
+		this.#draw_table();
+		this.#draw_inputs();
+	}
   }
 }
