@@ -183,8 +183,8 @@ main #content{
   text-anchor: middle;
 }
 .grid line {
-	stroke: lightgrey;
-	stroke-opacity: 0.5;
+	stroke: black;
+	stroke-opacity: 0.15;
 	shape-rendering: crispEdges;
 }
 .grid path {
@@ -248,6 +248,14 @@ fieldset{
   .map-country-list{
 	font-size: 18px;
 	}
+}
+.treechart-button{
+  color: black;
+	transition: 0.5s;
+}
+.treechart-button:hover{
+  color: #c5c5c5;
+	cursor: pointer;
 }
 footer{
   position: absolute;

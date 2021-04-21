@@ -24,10 +24,10 @@ class Chart{
   #get_suffix = () => {
 	  let max = d3.max(this._data, d => d.value);
 	  if(max >= 1000000){
-		  this._data.forEach((item) => item.value = item.value / 1000000.0);
+		  this._data.forEach((item) => item.value /= 1000000.0);
 		  this.suffix = "mld$";
 	  } else if(max >= 1000){
-		  this._data.forEach((item) => item.value = item.value / 1000.0);
+		  this._data.forEach((item) => item.value /= 1000.0);
 		  this.suffix = "mln$";
 	  } else if(this._current_data_index == "dywidenda") {
 		  this.suffix = "$";
@@ -43,20 +43,21 @@ class Chart{
 		this._current_data_index = this.chart_title;
 	this.chart_title = this._current_data_index;
 	this.chart_title = this.chart_title.replace(/_/g, " ");
-	
+  this.chart_title = this.chart_title[0].toUpperCase() + this.chart_title.slice(1);
+
 	let slider = this.container.getElementsByClassName("chart-input-div")[1];
 	if(slider != undefined){
 		this._date_start = parseInt(slider.noUiSlider.get()[0]);
 		this._date_end = parseInt(slider.noUiSlider.get()[1]);
 	}
-	
+
 	let temp = [];
 	let json_data = d3.json("getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name)).then( (d) => {
 		let array = d;
 		for(let i = 0; i < array.length; i++) {
 				let date = "20" + (10+i);
 				if(date >= this._date_start && date <= this._date_end) {
-					let push_object_data = {id: "d"+(i+1), value: array[i], date: date};
+					let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]), date: date};
 					temp.push(push_object_data);
 				}
 		  }
@@ -73,7 +74,7 @@ class Chart{
 			this.refresh();
 		});
 	});
-	
+
   }
   reset = () => {
     this.width = parseInt(this.container.clientWidth);
@@ -119,9 +120,9 @@ class Chart{
 	}
 	fieldset.append("div")
 			.classed("chart-input-div", true);
-			
+
 	const drag_slider = this.container.getElementsByClassName("chart-input-div")[1];
-	
+
 	noUiSlider.create(drag_slider, {
     start: [this._date_start, this._date_end],
 	step: 1,
@@ -182,9 +183,10 @@ class Chart{
 		.append("text")
 		.attr("text-anchor", "end")
 		.text("value");
+  // Dodanie poziomych linii pomocniczych
 	g.append("g")
 		.classed("grid", true)
-	    .call(d3.axisLeft(yScale).tickSize(-this.width).tickFormat("").ticks(10));
+	    .call(d3.axisLeft(yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     // Dodanie słupków wartości
     const bars = this.svg
         .selectAll('.bar')
@@ -203,7 +205,7 @@ class Chart{
         .attr("y", data => yScale(data.value) )
         .attr("height", data => this.height - yScale(data.value) - this.padding_vertical)
         .delay(function(d,i){return(i*200)});
-		
+
 	const tooltip = this.svg.append("rect")
 						.attr("width", "0px")
 						.attr("height", "0px")
@@ -212,28 +214,27 @@ class Chart{
 						.classed("tooltip", true)
 	const tooltiptext = this.svg.append("text")
 						.classed("tooltip-text", true);
-			
+
 	this.svg.selectAll('.bar')
 			.on("mousemove", (ev, d) => {
-				let tooltippos = [d3.pointer(ev)[0]-55, d3.pointer(ev)[1]-60];
-				let tooltipsize = [this.width / 6, this.height / 8];
-            tooltip
-              .attr("x", tooltippos[0])
-			  .attr("y", tooltippos[1])
-			  .attr("width", tooltipsize[0])
-			  .attr("height", tooltipsize[1])
-              .style("opacity", "0.7");
-			  
-			tooltiptext
-				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-				.attr("display", "inherit")
-				.text(d.value + this.suffix);
+        let tooltipsize = [String(d.value).length*16, this.height / 8];
+				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+
+        tooltip
+          .attr("x", tooltippos[0])
+  			  .attr("y", tooltippos[1])
+  			  .attr("width", tooltipsize[0])
+  			  .attr("height", tooltipsize[1])
+          .style("opacity", "0.7");
+
+			  tooltiptext
+  				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+  				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+  				.attr("display", "inherit")
+  				.text(d.value + this.suffix);
 			})
-			.on("mouseout", function(ev){ 
+			.on("mouseout", function(ev){
 				tooltip
-					.attr("width", "0px")
-					.attr("height", "0px")
 					.style("opacity", "0");
 				tooltiptext
 					.attr("display", "none");
@@ -247,14 +248,14 @@ class Chart{
 	  data_string += "</table>";
 	  d3.select(this.container)
 		.append("div")
-		.attr("width", this.width)
-		.attr("height", this.height)
-		.html(data_string)
-		.classed("table-div", true);
+  		.attr("width", this.width)
+  		.attr("height", this.height)
+  		.html(data_string)
+  		.classed("table-div", true);
   }
   refresh = () => {
     this.reset();
-	if(this._show_chart == true){
+	if(this._show_chart){
 		this.#draw_inputs();
 		this.#draw_chart();
 		this.#draw_title();
