@@ -71,6 +71,13 @@ class TreeChart{
   #draw_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
+			.append("span")
+			.style("font-size", "30px")
+			.style("padding", "0 10px")
+			.text("Podział przychodów")
+			.classed("chart-title", true);
+    d3.select(this.container)
+			.select(".button-div")
 			.append("button")
 			.attr("type", "button")
 			.text("<")
@@ -140,7 +147,7 @@ class TreeChart{
               .attr("height", "0px")
               .style("fill", "white")
               .style("stroke", "black")
-              .classed("tooltip", true)
+              .classed("tooltip", true);
     const tooltiptext = this.svg.append("text")
               .classed("tooltip-text", true);
     this.svg.selectAll('.treechart-chunk')
@@ -163,7 +170,8 @@ class TreeChart{
   			})
   			.on("mouseout", function(ev, d){
   				tooltip
-  					.style("opacity", "0");
+  					.style("opacity", "0")
+            .attr("width", "0px");
   				tooltiptext
   					.attr("display", "none");
   			});

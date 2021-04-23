@@ -102,23 +102,38 @@ main h1{
   text-align: center;
   font-size: 46px;
 }
-main #content{
+.content{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
   grid-gap: 1rem;
 }
 @media (max-width: 900px){
-  main #content{
+  .content{
     grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
   }
 }
 @media (max-width: 500px){
-  main #content{
+  .content{
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+.content-bottom{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
+  grid-gap: 1rem;
+}
+@media (max-width: 900px){
+  .content-bottom{
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  }
+}
+@media (max-width: 500px){
+  .content-bottom{
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
 .text-div{
-  margin: 10px 20px;
+  margin: 40px 20px 80px 20px;
 }
 .text-div-content{
   overflow-y: auto;
@@ -205,6 +220,10 @@ fieldset{
 	width: 40%;
 	z-index: 0;
 }
+.button-div{
+  text-align: center;
+  margin-bottom: 10px;
+}
 .table-div{
 	height: 85%;
 	overflow-y: auto;
@@ -257,6 +276,7 @@ fieldset{
   color: #c5c5c5;
 	cursor: pointer;
 }
+
 footer{
   position: absolute;
   bottom: 0;

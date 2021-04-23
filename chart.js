@@ -154,7 +154,7 @@ class Chart{
          .attr("x", (this.width / 2))
          .attr("y", this.padding_vertical/2 + this.padding_vertical)
          .attr("text-anchor", "middle")
-         .attr("font-size", "20px")
+         .attr("font-size", "24px")
          .text(this.chart_title);
   }
   #draw_chart = () => {

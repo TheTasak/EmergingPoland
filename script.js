@@ -5,11 +5,11 @@ var piecharts = [];
 
 function load(){
   const container1 = document.getElementById("kurs");
-  let chart1 = new Chart(container1, "Asbis", "dywidenda", "$");
+  let chart1 = new Chart(container1, "Asbis", "przychody", "$");
   const container2 = document.getElementById("sklad");
   let chart2 = new Chart(container2, "Asbis", "koszt_sprzedazy", "$");
   const container3 = document.getElementById("kwartal");
-  let chart3 = new Chart(container3, "Asbis", "przychody", "$");
+  let chart3 = new Chart(container3, "Asbis", "dywidenda", "$");
 
   const container4 = document.getElementById("mapa");
   let map = new WorldMap(container4, "asbis");

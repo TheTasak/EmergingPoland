@@ -113,6 +113,13 @@ class WorldMap{
 	#draw_inputs = () => {
 		d3.select(this.container)
 			.select(".button-div")
+			.append("span")
+				.style("font-size", "30px")
+				.style("padding", "0 10px")
+				.text("Podział przychodów ze względu na kraje")
+				.classed("chart-title", true);
+		d3.select(this.container)
+			.select(".button-div")
 				.append("button")
 				.attr("type", "button")
 				.text("<")
