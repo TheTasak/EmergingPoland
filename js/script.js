@@ -30,7 +30,7 @@ function load(){
 
     treecharts.push(treechart);
     piecharts.push(piechart);
-    d3.json("getallstocks.php").then( d => {
+    d3.json("php/getallstocks.php").then( d => {
       let string = "";
       for(let i = 0; i < d.length; i++)
         string += '<a href="index.php?stock=' + d[i].spolki + '">' + d[i].spolki + '</a>';

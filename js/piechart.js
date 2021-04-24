@@ -47,7 +47,7 @@ class PieChart{
 
   }
   #load_data = () => {
-    d3.json("getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
+    d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
       this._data = d;
       this._data.forEach((item, i) => {
         item.value = parseInt(item.value);

@@ -52,7 +52,7 @@ class Chart{
 	}
 
 	let temp = [];
-	let json_data = d3.json("getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name)).then( (d) => {
+	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name)).then( (d) => {
 		let array = d;
 		for(let i = 0; i < array.length; i++) {
 				let date = "20" + (10+i);
@@ -64,7 +64,7 @@ class Chart{
 		this._data = temp;
 		this.#get_suffix();
 		temp = [];
-		d3.json("getcolumns.php?stock_name=" + String(this.stock_name)).then( (columns) => {
+		d3.json("php/getcolumns.php?stock_name=" + String(this.stock_name)).then( (columns) => {
 			let col_array = columns;
 			for(let i = 0; i < col_array.length; i++) {
 				let column = col_array[i].dane_ksiegowe;

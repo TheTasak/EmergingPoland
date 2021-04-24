@@ -3,18 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
-    <script src="chart.js" defer></script>
-  	<script src="treechart.js" defer></script>
-    <script src="map.js" defer></script>
-    <script src="piechart.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="js/chart.js" defer></script>
+  	<script src="js/treechart.js" defer></script>
+    <script src="js/map.js" defer></script>
+    <script src="js/piechart.js" defer></script>
+    <script src="js/script.js" defer></script>
   </head>
   <body id="body">
     <div id="sidenav" class="sidenav">

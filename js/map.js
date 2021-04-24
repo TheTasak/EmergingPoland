@@ -10,7 +10,7 @@ class WorldMap{
 		this.#load_data();
 	}
 	#load_data = () => {
-		d3.json("getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year).then( d => {
+		d3.json("php/getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year).then( d => {
 			this._country_arr = d;
 			this._country_arr.forEach((item, i) => {
 				item.value = parseInt(item.value);
