@@ -47,7 +47,7 @@ class PieChart{
 
   }
   #load_data = () => {
-    d3.json("getgroupstocks.php?stock_name=asbis&date=" + this.year).then((d) => {
+    d3.json("getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
       this._data = d;
       this._data.forEach((item, i) => {
         item.value = parseInt(item.value);
@@ -157,6 +157,8 @@ class PieChart{
               .classed("tooltip", true);
     const tooltiptext = this.svg.append("text")
               .classed("tooltip-text", true);
+    let data_sum = d3.sum(this._data, d => d.value);
+    console.log(data_sum);
     this.svg.selectAll(".pie-chunk")
   			.on("mousemove", (ev, d) => {
   				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];
@@ -174,7 +176,7 @@ class PieChart{
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
           .attr("transform", "translate(" + this.width/2 + "," + this.svg_height/2 + ")")
   				.attr("display", "inherit")
-  				.text(d.data.name + " " + d.value);
+  				.text(d.data.name + " " + Number.parseFloat(d.value / data_sum * 100).toPrecision(4) + "%");
   			})
   			.on("mouseout", function(ev, d){
   				tooltip

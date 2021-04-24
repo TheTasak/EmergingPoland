@@ -58,7 +58,7 @@ class TreeChart{
 
   }
   #load_data = () => {
-    d3.json("getearnings.php?stock_name=asbis&date=" + this.year).then((d) => {
+    d3.json("getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
       this._data = d;
       this._data.forEach((item, i) => {
         item.value = parseFloat(item.value);
