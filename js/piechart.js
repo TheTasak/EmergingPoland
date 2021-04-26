@@ -1,12 +1,14 @@
 class PieChart{
   year = 2020;
-  constructor(container, stock_name){
+  defined = true;
+  constructor(container, stock_name, start_year){
     this.container = container;
     this.stock_name = stock_name;
+    this.start_year = start_year;
     this.#load_data();
   }
   #earlier_year = () => {
-		if(this.year <= 2010)
+		if(this.year <= this.start_year)
 			return;
 		this.year--;
 		this.#load_data();
@@ -48,15 +50,25 @@ class PieChart{
   }
   #load_data = () => {
     d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
-      this._data = d;
-      this._data.forEach((item, i) => {
-        item.value = parseInt(item.value);
-      });
-      this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-      this._data.forEach((item, i) => {
-        item.id = parseInt(i);
-      });
-      this.refresh();
+      console.log(d);
+      if(d == null || d.length == 0)
+        throw "undefined data";
+      else {
+        this._data = d;
+        this._data.forEach((item, i) => {
+          item.value = parseInt(item.value);
+        });
+        this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
+        this._data.forEach((item, i) => {
+          item.id = parseInt(i);
+        });
+        this.refresh();
+      }
+    }).catch(error => {
+      if(error == "undefined data")
+        this.defined = false;
+      else
+        console.error(error);
     });
   }
   #draw_inputs = () => {
@@ -158,7 +170,6 @@ class PieChart{
     const tooltiptext = this.svg.append("text")
               .classed("tooltip-text", true);
     let data_sum = d3.sum(this._data, d => d.value);
-    console.log(data_sum);
     this.svg.selectAll(".pie-chunk")
   			.on("mousemove", (ev, d) => {
   				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];

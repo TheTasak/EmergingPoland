@@ -1,35 +1,15 @@
-var charts = [];
-var maps = [];
-var treecharts = [];
-var piecharts = [];
-
+var stock;
 function load(){
   const stock_name = document.getElementById("name").innerHTML;
   if(stock_name != "") {
     const container1 = document.getElementById("kurs");
-    let chart1 = new Chart(container1, stock_name, "przychody", "$");
     const container2 = document.getElementById("sklad");
-    let chart2 = new Chart(container2, stock_name, "koszt_sprzedazy", "$");
     const container3 = document.getElementById("kwartal");
-    let chart3 = new Chart(container3, stock_name, "dywidenda", "$");
-
     const container4 = document.getElementById("mapa");
-    let map = new WorldMap(container4, stock_name);
-
     const container5 = document.getElementById("dywidenda");
-    let treechart = new TreeChart(container5, stock_name);
-
     const container6 = document.getElementById("rok");
-    let piechart = new PieChart(container6, stock_name);
 
-    charts.push(chart1);
-    charts.push(chart2);
-    charts.push(chart3);
-
-    maps.push(map);
-
-    treecharts.push(treechart);
-    piecharts.push(piechart);
+    stock = new Stock(stock_name, [container1, container2, container3, container4, container5, container6]);
     d3.json("php/getallstocks.php").then( d => {
       let string = "";
       for(let i = 0; i < d.length; i++)
@@ -39,18 +19,7 @@ function load(){
   }
 }
 function draw() {
-  for(let i = 0; i < charts.length; i++) {
-    charts[i].refresh();
-  }
-  for(let i = 0; i < maps.length; i++) {
-    maps[i].refresh();
-  }
-  for(let i = 0; i < treecharts.length; i++) {
-    treecharts[i].refresh();
-  }
-  for(let i = 0; i < piecharts.length; i++) {
-    piecharts[i].refresh();
-  }
+  stock.refresh();
 }
 function openNav() {
   document.getElementById("sidenav").style.width = "100%";

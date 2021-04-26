@@ -3,10 +3,11 @@ class WorldMap{
 	_map_data = [];
 	_show_map = true;
 	stock_name = "";
-	year = 2010;
-	constructor(container, stock_name){
+	year = 2020;
+	constructor(container, stock_name, start_year){
 		this.container = container;
 		this.stock_name = stock_name;
+		this.start_year = start_year;
 		this.#load_data();
 	}
 	#load_data = () => {
@@ -16,7 +17,7 @@ class WorldMap{
 				item.value = parseInt(item.value);
 			});
 			this._country_arr.sort((a,b) => (a.value > b.value) ? 1 : -1);
-			d3.json("world.geojson").then( (d) => {
+			d3.json("js/world.geojson").then( (d) => {
 				this._map_data = d;
 				this.reset();
 				this.#draw_map();
@@ -24,7 +25,7 @@ class WorldMap{
 		});
 	}
 	#earlier_year = () => {
-		if(this.year <= 2010)
+		if(this.year <= this.start_year)
 			return;
 		this.year--;
 		this.#load_data();

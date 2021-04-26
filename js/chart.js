@@ -12,12 +12,12 @@ class Chart{
   padding_vertical = 20;
   padding_horizontal = 100;
   chart_title = "";
-  suffix = "";
-  constructor(container, stock_name, data_name, suffix){
+  suffix = "$";
+  constructor(container, stock_name, data_name, start_year){
     this.container = container;
     this.stock_name = stock_name;
     this.chart_title = data_name;
-    this.suffix = suffix;
+    this.start_year = start_year;
     this.reset();
     this.#load_data();
   }
@@ -52,25 +52,27 @@ class Chart{
 	}
 
 	let temp = [];
-	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name)).then( (d) => {
+	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year)).then( (d) => {
 		let array = d;
 		for(let i = 0; i < array.length; i++) {
-				let date = "20" + (10+i);
+				let date = (this.start_year*1 + i);
 				if(date >= this._date_start && date <= this._date_end) {
 					let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]), date: date};
-					temp.push(push_object_data);
+          temp.push(push_object_data);
 				}
+
 		  }
 		this._data = temp;
 		this.#get_suffix();
 		temp = [];
-		d3.json("php/getcolumns.php?stock_name=" + String(this.stock_name)).then( (columns) => {
+		d3.json("php/getcolumns.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year)).then( (columns) => {
 			let col_array = columns;
 			for(let i = 0; i < col_array.length; i++) {
 				let column = col_array[i].dane_ksiegowe;
 				temp.push(column);
 			}
 			this._columns = temp;
+
 			this.refresh();
 		});
 	});
@@ -129,7 +131,7 @@ class Chart{
     behaviour: 'drag',
 	pips: {
         mode: 'values',
-        values: [2010, 2015, 2020],
+        values: [2010,2015, 2020],
         density: 10,
         stepped: true
     },

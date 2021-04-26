@@ -1,12 +1,13 @@
 class TreeChart{
   year = 2020;
-  constructor(container, stock_name){
+  constructor(container, stock_name, start_year){
     this.container = container;
     this.stock_name = stock_name;
+    this.start_year = start_year;
     this.#load_data();
   }
   #earlier_year = () => {
-		if(this.year <= 2010)
+		if(this.year <= this.start_year)
 			return;
 		this.year--;
 		this.#load_data();

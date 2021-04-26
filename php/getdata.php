@@ -13,6 +13,10 @@
 	{
 		$stock_name = $_GET['stock_name'];
 	}
+  if(isset($_GET['year']))
+	{
+		$year = $_GET['year'];
+	}
   	if (mysqli_connect_errno()) {
   		printf("Connect failed: %s\n", mysqli_connect_error());
   		exit();
@@ -30,12 +34,12 @@
 	}
   	$stock = $query->fetch_assoc();
 	$stock_value = reset($stock);
-	
+
 	$i = 0;
-	for($i = 0; $i <= 10; $i++) {
-		$date = 10+$i;
+	for($i = 0; $i <= (2020 - $year); $i++) {
+		$date = ($year+$i);
   		$myquery = "
-  		SELECT * FROM `20{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';
+  		SELECT * FROM `{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';
   		";
   		$query = mysqli_query($mysqli, $myquery);
 
@@ -44,7 +48,7 @@
   			die;
   		}
   		$row = $query->fetch_assoc();
-  		$data[$i] = $row["20{$date}"];
+  		$data[$i] = $row["{$date}"];
 	  }
     echo json_encode($data);
     mysqli_close($mysqli);

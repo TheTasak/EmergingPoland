@@ -9,6 +9,10 @@
 	{
 		$stock_name = $_GET['stock_name'];
 	}
+  if(isset($_GET['year']))
+	{
+		$year = $_GET['year'];
+	}
   	if (mysqli_connect_errno()) {
   		printf("Connect failed: %s\n", mysqli_connect_error());
   		exit();
@@ -24,11 +28,11 @@
 	}
   	$stock = $query->fetch_assoc();
 	$stock_value = reset($stock);
-	
+
     $data = array();
 	$i = 0;
 	$myquery = "
-	SELECT dane_ksiegowe FROM `2010_dane` WHERE idspolki='{$stock_value}';
+	SELECT dane_ksiegowe FROM `{$year}_dane` WHERE idspolki='{$stock_value}';
 	";
   	$query = mysqli_query($mysqli, $myquery);
 
