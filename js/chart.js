@@ -161,13 +161,15 @@ class Chart{
   }
   #draw_chart = () => {
     // Ustawienie skali i domeny osi x
+    const min = (d3.min(this._data, d => d.value) < 0) ? d3.min(this._data, d => d.value) : 0;
+    const max = d3.max(this._data, d => d.value);
     const xScale = d3.scaleBand()
                     .range([0, this.width-this.padding_horizontal])
                     .padding(0.4)
                     .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     const yScale = d3.scaleLinear()
-                    .domain([0,d3.max(this._data, d => d.value)*1.1]).nice()
+                    .domain([min*1.1, max*1.1]).nice()
                     .range([this.heightpadding,this.padding_vertical]);
     const g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
@@ -190,23 +192,38 @@ class Chart{
 		.classed("grid", true)
 	    .call(d3.axisLeft(yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     // Dodanie słupków wartości
-    const bars = this.svg
-        .selectAll('.bar')
-        .data(this._data)
-        .enter()
-        .append('rect')
-        .classed('bar',true)
-        .attr('width', xScale.bandwidth())
-        .attr('height', 0)
-        .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3)
-        .attr('y', data => yScale(0));
-    // Animacja pojawiania się słupków z opóźnieniem
-    this.svg.selectAll("rect")
-        .transition()
-        .duration(600)
-        .attr("y", data => yScale(data.value) )
-        .attr("height", data => this.height - yScale(data.value) - this.padding_vertical)
-        .delay(function(d,i){return(i*200)});
+  const bars = this.svg
+      .selectAll('.bar')
+      .data(this._data)
+      .enter()
+      .append('rect')
+      .classed('bar',true)
+      .attr('width', xScale.bandwidth())
+      .attr('height', 0)
+      .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3)
+  this.svg.selectAll(".bar")
+      .filter(data => data.value >= 0)
+      .style("fill", "#FC3535")
+      .attr('y', data => yScale(0));
+  this.svg.selectAll(".bar")
+      .filter(data => data.value < 0)
+      .style("fill", "#993535")
+      .attr('y', data => yScale(min))
+  // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
+  this.svg.selectAll(".bar")
+      .filter(data => data.value >= 0)
+      .transition()
+      .duration(600)
+      .delay(function(d,i){return(i*200)})
+      .attr("y", data => yScale(data.value))
+      .attr("height", data => this.heightpadding - yScale(data.value) - (this.heightpadding - yScale(0)));
+  this.svg.selectAll(".bar")
+      .filter(data => data.value < 0)
+      .transition()
+      .duration(600)
+      .delay(function(d,i){return(i*200)})
+      .attr("y", data => yScale(0))
+      .attr("height", data => yScale(data.value) - yScale(0));
 
 	const tooltip = this.svg.append("rect")
 						.attr("width", "0px")

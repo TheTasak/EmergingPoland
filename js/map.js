@@ -102,6 +102,40 @@ class WorldMap{
 			this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
 				this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
 			}));
+
+			const tooltip = this.svg.append("rect")
+	              .attr("width", "0px")
+	              .attr("height", "0px")
+	              .style("fill", "white")
+	              .style("stroke", "black")
+	              .classed("tooltip", true);
+	    const tooltiptext = this.svg.append("text")
+	              .classed("tooltip-text", true);
+	    this.svg.selectAll("path")
+  			.on("mousemove", (ev, d) => {
+					console.log(d3.pointer(ev));
+  				let tooltipsize = [(d.properties.name.length)*12, this.height / 16];
+          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+          tooltip
+            .attr("x", tooltippos[0])
+		        .attr("y", tooltippos[1])
+		        .attr("width", tooltipsize[0])
+		        .attr("height", tooltipsize[1])
+            .style("opacity", "0.7");
+
+  			tooltiptext
+  				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+  				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+  				.attr("display", "inherit")
+  				.text(d.properties.name);
+  			})
+  			.on("mouseout", function(ev, d){
+  				tooltip
+  					.style("opacity", "0")
+            .attr("width", "0px");
+  				tooltiptext
+  					.attr("display", "none");
+	  	});
 	}
 	#draw_table = () => {
 		let country_string = '<ul class="map-country-list">';
