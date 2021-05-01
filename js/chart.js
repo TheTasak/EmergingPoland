@@ -4,6 +4,7 @@ class Chart{
   _current_data_index = "";
   _data = [];
   _columns = [];
+  _columns_translate = [];
   _date_start = 2015;
   _date_end = 2020;
   _show_chart = true;
@@ -12,12 +13,13 @@ class Chart{
   padding_vertical = 20;
   padding_horizontal = 100;
   chart_title = "";
-  suffix = "$";
-  constructor(container, stock_name, data_name, start_year){
+  constructor(container, stock_name, data_name, start_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.chart_title = data_name;
     this.start_year = start_year;
+    this.currency = currency;
+    this.language = language;
     this.reset();
     this.#load_data();
   }
@@ -25,14 +27,14 @@ class Chart{
 	  let max = d3.max(this._data, d => d.value);
 	  if(max >= 1000000){
 		  this._data.forEach((item) => item.value /= 1000000.0);
-		  this.suffix = "mld$";
+		  this.suffix = "mld";
 	  } else if(max >= 1000){
 		  this._data.forEach((item) => item.value /= 1000.0);
-		  this.suffix = "mln$";
+		  this.suffix = "mln";
 	  } else if(this._current_data_index == "dywidenda") {
-		  this.suffix = "$";
+		  this.suffix = "";
 	  } else {
-		  this.suffix = "tys$";
+		  this.suffix = "tys";
 	  }
   }
   #load_data = () => {
@@ -72,8 +74,16 @@ class Chart{
 				temp.push(column);
 			}
 			this._columns = temp;
-
-			this.refresh();
+      temp = [];
+      d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + this.language).then( (columns_translate) => {
+          let col_array = columns_translate;
+    			for(let i = 0; i < col_array.length; i++) {
+    				let column = col_array[i][this._columns[i]];
+    				temp.push(column);
+    			}
+          this._columns_translate = temp;
+			    this.refresh();
+      });
 		});
 	});
 
@@ -114,7 +124,7 @@ class Chart{
 	for(let i = 0; i < this._columns.length; i++){
 		field.append("option")
 			.attr("value", this._columns[i])
-			.text(this._columns[i]);
+			.text(this._columns_translate[i]);
 	}
 	const select_list = this.container.getElementsByClassName("chart-input")[0];
 	if(select_list != undefined){
@@ -200,7 +210,8 @@ class Chart{
       .classed('bar',true)
       .attr('width', xScale.bandwidth())
       .attr('height', 0)
-      .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3)
+      .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3);
+  //Ustawienie kolorów słupków na bazie ich wartości - powyżej 0, poniżej 0
   this.svg.selectAll(".bar")
       .filter(data => data.value >= 0)
       .style("fill", "#FC3535")
@@ -217,6 +228,7 @@ class Chart{
       .delay(function(d,i){return(i*200)})
       .attr("y", data => yScale(data.value))
       .attr("height", data => this.heightpadding - yScale(data.value) - (this.heightpadding - yScale(0)));
+  // Animacja pojawiania się słupków z opóźnieniem - dla wartości ujemnych
   this.svg.selectAll(".bar")
       .filter(data => data.value < 0)
       .transition()
@@ -224,7 +236,7 @@ class Chart{
       .delay(function(d,i){return(i*200)})
       .attr("y", data => yScale(0))
       .attr("height", data => yScale(data.value) - yScale(0));
-
+  // Dodanie tooltipa pokazującego wartość słupka po najechaniu
 	const tooltip = this.svg.append("rect")
 						.attr("width", "0px")
 						.attr("height", "0px")
@@ -233,10 +245,10 @@ class Chart{
 						.classed("tooltip", true)
 	const tooltiptext = this.svg.append("text")
 						.classed("tooltip-text", true);
-
+  //Obsługa eventów tooltipa
 	this.svg.selectAll('.bar')
 			.on("mousemove", (ev, d) => {
-        let tooltipsize = [String(d.value).length*16, this.height / 8];
+        let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, this.height / 8];
 				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1]-80];
 
         tooltip
@@ -250,11 +262,12 @@ class Chart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.value + this.suffix);
+  				.text(d.value + this.suffix + " " + this.currency);
 			})
 			.on("mouseout", function(ev){
 				tooltip
-					.style("opacity", "0");
+					.style("opacity", "0")
+          .attr("width", 0);
 				tooltiptext
 					.attr("display", "none");
 			});

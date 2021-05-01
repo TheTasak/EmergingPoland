@@ -32,12 +32,13 @@
         <button class="openbtn" href="#" onclick="openNav()">&#8801;</button>
       </nav>
       <div id="jezyki">język
-        <a href="index.html"><img src="https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg"></a>
-        <a href="index.html"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flag_of_Great_Britain_%281707%E2%80%931800%29.svg/255px-Flag_of_Great_Britain_%281707%E2%80%931800%29.svg.png"></a>
+        <a id="lang-pl"><img src="https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg"></a>
+        <a id="lang-en"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flag_of_Great_Britain_%281707%E2%80%931800%29.svg/255px-Flag_of_Great_Britain_%281707%E2%80%931800%29.svg.png"></a>
       </div>
     </header>
     <main>
       <h1 id="name"><?php echo $_GET['stock'] ?> </h1>
+      <input type="hidden" id="language" value='<?php echo $_GET['lang'] ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
                 <p>Grupa ASBIS jest jednym z czołowych dystrybutorów produktów branży informatycznej w Europie Środkowo-Wschodniej, republikach nadbałtyckich, w krajach byłego Związku Radzieckiego, na Bliskim Wschodzie i w Afryce Północnej. Łączymy duży zasięg terytorialny z szeroką gamą produktów dystrybuowanych w modelu one-stop-shop.</p>

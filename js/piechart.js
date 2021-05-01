@@ -139,10 +139,7 @@ class PieChart{
                   let posB = outerArc.centroid(d);
                   let posC = outerArc.centroid(d);
                   let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                  if(d.endAngle/Math.PI >= 2)
-                    posC[0] = radius * 0.95 * (midAngle > Math.PI ? 1 : -1);
-                  else
-                    posC[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
+                  posC[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
                   return [posA, posB, posC];
               })
               .classed(".pie-polyline");
@@ -155,18 +152,12 @@ class PieChart{
               .attr('transform', d => {
                 let pos = outerArc.centroid(d);
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                if(d.endAngle/Math.PI >= 2)
-                  pos[0] = radius * 0.99 * (midAngle > Math.PI ? 1 : -1);
-                else
-                  pos[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
+                pos[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
                 return 'translate(' + pos + ')';
               })
               .style('text-anchor', d => {
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                if(d.endAngle/Math.PI >= 2)
-                  return (midAngle > Math.PI ? 'start' : 'end');
-                else
-                  return (midAngle < Math.PI ? 'start' : 'end');
+                return (midAngle < Math.PI ? 'start' : 'end');
               });
 
     const tooltip = this.svg.append("rect")

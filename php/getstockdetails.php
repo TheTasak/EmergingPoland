@@ -15,7 +15,7 @@
 	}
 	$i = 0;
 	$myquery = "
-	SELECT waluta, rok, tabela1, tabela2, tabela3, tabela4, tabela5  FROM `spis` WHERE spolki='{$stock_name}';
+	SELECT waluta, rok, dane, akcje, podzial_przychodow, kraje, regiony, podzial_sektorow, inne, miasta, udzial_w_rynku  FROM `spis` WHERE spolki='{$stock_name}';
 	";
   	$query = mysqli_query($mysqli, $myquery);
 
