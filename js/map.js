@@ -113,7 +113,6 @@ class WorldMap{
 	              .classed("tooltip-text", true);
 	    this.svg.selectAll("path")
   			.on("mousemove", (ev, d) => {
-					console.log(d3.pointer(ev));
   				let tooltipsize = [(d.properties.name.length)*12, this.height / 16];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
           tooltip

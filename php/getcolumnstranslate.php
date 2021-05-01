@@ -54,7 +54,7 @@
 			break;
 		}
 	}
-
+  $translate_data = array();
   for($i = 0; $i < count($data); $i++){
     $temp = reset($data[$i]);
   	$myquery = "
@@ -67,11 +67,12 @@
   		die;
   	}
     $temp = $query->fetch_assoc();
-    $data[$i] = (object)[
-      reset($data[$i]) => reset($temp),
+    $translate_data[$i] = (object)[
+      "dane_ksiegowe" => reset($data[$i]),
+      "tlumaczenie" => reset($temp),
     ];
   }
 
-    echo json_encode($data);
+    echo json_encode($translate_data);
     mysqli_close($mysqli);
 ?>

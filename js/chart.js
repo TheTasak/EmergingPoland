@@ -4,7 +4,6 @@ class Chart{
   _current_data_index = "";
   _data = [];
   _columns = [];
-  _columns_translate = [];
   _date_start = 2015;
   _date_end = 2020;
   _show_chart = true;
@@ -16,7 +15,7 @@ class Chart{
   constructor(container, stock_name, data_name, start_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
-    this.chart_title = data_name;
+    this.data_name = data_name;
     this.start_year = start_year;
     this.currency = currency;
     this.language = language;
@@ -42,11 +41,7 @@ class Chart{
 	if(input_value_size > 0)
 		this._current_data_index = d3.select(this.container).select(".chart-input").property("value");
 	else
-		this._current_data_index = this.chart_title;
-	this.chart_title = this._current_data_index;
-	this.chart_title = this.chart_title.replace(/_/g, " ");
-  this.chart_title = this.chart_title[0].toUpperCase() + this.chart_title.slice(1);
-
+		this._current_data_index = this.data_name;
 	let slider = this.container.getElementsByClassName("chart-input-div")[1];
 	if(slider != undefined){
 		this._date_start = parseInt(slider.noUiSlider.get()[0]);
@@ -67,23 +62,14 @@ class Chart{
 		this._data = temp;
 		this.#get_suffix();
 		temp = [];
-		d3.json("php/getcolumns.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year)).then( (columns) => {
+		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
 			let col_array = columns;
 			for(let i = 0; i < col_array.length; i++) {
-				let column = col_array[i].dane_ksiegowe;
+				let column = col_array[i];
 				temp.push(column);
 			}
 			this._columns = temp;
-      temp = [];
-      d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + this.language).then( (columns_translate) => {
-          let col_array = columns_translate;
-    			for(let i = 0; i < col_array.length; i++) {
-    				let column = col_array[i][this._columns[i]];
-    				temp.push(column);
-    			}
-          this._columns_translate = temp;
-			    this.refresh();
-      });
+      this.refresh();
 		});
 	});
 
@@ -123,8 +109,8 @@ class Chart{
 						.classed("chart-input", true);
 	for(let i = 0; i < this._columns.length; i++){
 		field.append("option")
-			.attr("value", this._columns[i])
-			.text(this._columns_translate[i]);
+			.attr("value", this._columns[i].dane_ksiegowe)
+			.text(this._columns[i].tlumaczenie);
 	}
 	const select_list = this.container.getElementsByClassName("chart-input")[0];
 	if(select_list != undefined){
@@ -161,6 +147,10 @@ class Chart{
 				.classed("chart-input", true);
   }
   #draw_title = () => {
+    let index = this._columns.findIndex( (data) => {
+      return data.dane_ksiegowe == this._current_data_index;
+    });
+    this.chart_title = this._columns[index].tlumaczenie;
     // Dodanie tytułu wykresu
     this.svg.append("text")
          .attr("x", (this.width / 2))
