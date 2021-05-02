@@ -127,7 +127,7 @@ class Chart{
     behaviour: 'drag',
 	pips: {
         mode: 'values',
-        values: [2010,2015, 2020],
+        values: [2010, 2015, 2020],
         density: 10,
         stepped: true
     },

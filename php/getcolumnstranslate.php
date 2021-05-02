@@ -1,12 +1,5 @@
 <?php
-    header('Content-Type: text/html; charset=utf-8');
-    $username = "homeuser";
-    $password = "Admin123";
-    $host = "localhost";
-    $database="stronka";
-
-    $mysqli = new mysqli($host, $username, $password, $database);
-    $mysqli->query("SET NAMES 'utf8'");
+  require_once("sql_functions.php");
 	if(isset($_GET['stock_name']))
 	{
 		$stock_name = $_GET['stock_name'];
@@ -19,60 +12,26 @@
 	{
 		$lang = $_GET['lang'];
 	}
-  	if (mysqli_connect_errno()) {
-  		printf("Connect failed: %s\n", mysqli_connect_error());
-  		exit();
-  	}
-	$myquery = "
-	SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';
-	";
-  	$query = mysqli_query($mysqli, $myquery);
+  $sqli = sql_open();
 
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-  	$stock = $query->fetch_assoc();
+	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
+  $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = reset($stock);
 
-    $data = array();
-	$i = 0;
-	$myquery = "
-	SELECT dane_ksiegowe FROM `{$year}_dane` WHERE idspolki='{$stock_value}';
-	";
-  	$query = mysqli_query($mysqli, $myquery);
+	$myquery = "SELECT dane_ksiegowe FROM `{$year}_dane` WHERE idspolki='{$stock_value}';";
+  $data = sql_getdataarray($sqli, $myquery);
 
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-  	while($temp = $query->fetch_assoc()) {
-		if($temp != null){
-			$data[$i] = $temp;
-			$i++;
-		}else{
-			break;
-		}
-	}
   $translate_data = array();
   for($i = 0; $i < count($data); $i++){
     $temp = reset($data[$i]);
-  	$myquery = "
-  	SELECT `{$lang}` FROM tlumaczenie WHERE baza='{$temp}';
-  	";
-    $query = mysqli_query($mysqli, $myquery);
+  	$myquery = "SELECT `{$lang}` FROM tlumaczenie WHERE baza='{$temp}';";
 
-  	if ( ! $query ) {
-  		echo mysqli_error($mysqli);
-  		die;
-  	}
-    $temp = $query->fetch_assoc();
+    $translate = sql_getdatarecord($sqli, $myquery);
     $translate_data[$i] = (object)[
       "dane_ksiegowe" => reset($data[$i]),
-      "tlumaczenie" => reset($temp),
+      "tlumaczenie" => reset($translate),
     ];
   }
-
     echo json_encode($translate_data);
-    mysqli_close($mysqli);
+    mysqli_close($sqli);
 ?>

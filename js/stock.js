@@ -48,7 +48,7 @@ class Stock{
          this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year));
          container_counter++;
        } else if(this._tables[i] == "podzial_przychodow"){
-         this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year));
+         this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.language));
          container_counter++;
        } else if(this._tables[i] == "akcje"){
          this._modules.push(new PieChart(this._containers[container_counter], this.stock_name, this.start_year));

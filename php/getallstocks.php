@@ -1,29 +1,11 @@
 <?php
-    $username = "homeuser";
-    $password = "Admin123";
-    $host = "localhost";
-    $database="stronka";
+  require_once("sql_functions.php");
+  
+  $sqli = sql_open();
 
-    $mysqli = new mysqli($host, $username, $password, $database);
-  	if (mysqli_connect_errno()) {
-  		printf("Connect failed: %s\n", mysqli_connect_error());
-  		exit();
-  	}
-  $data = array();
-	$i = 0;
-	$myquery = "
-	SELECT spolki  FROM `spis`;
-	";
-  	$query = mysqli_query($mysqli, $myquery);
+	$myquery = "SELECT spolki  FROM `spis`;";
+  $data = sql_getdataarray($sqli, $myquery);
+  echo json_encode($data);
 
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-  while($temp = $query->fetch_assoc()) {
-      $data[$i] = $temp;
-      $i++;
-	}
-    echo json_encode($data);
-    mysqli_close($mysqli);
+  mysqli_close($sqli);
 ?>

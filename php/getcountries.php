@@ -1,10 +1,6 @@
 <?php
-    $username = "homeuser";
-    $password = "Admin123";
-    $host = "localhost";
-    $database="stronka";
-
-    $mysqli = new mysqli($host, $username, $password, $database);
+  require_once("sql_functions.php");
+  $sqli = sql_open();
 	if(isset($_GET['stock_name']))
 	{
 		$stock_name = $_GET['stock_name'];
@@ -13,53 +9,16 @@
 	{
 		$date = $_GET['date'];
 	}
-  	if (mysqli_connect_errno()) {
-  		printf("Connect failed: %s\n", mysqli_connect_error());
-  		exit();
-  	}
-	$myquery = "
-	SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';
-	";
-  	$query = mysqli_query($mysqli, $myquery);
-
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-  	$stock = $query->fetch_assoc();
+	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
+  $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = reset($stock);
 
-    $data = array();
-	$i = 0;
-	$myquery = "
-	SELECT `{$date}`, kraje FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';
-	";
-  	$query = mysqli_query($mysqli, $myquery);
+	$myquery = "SELECT `{$date}`, kraje FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';";
+  $data = sql_getdataarray($sqli, $myquery);
 
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-  	while($temp = $query->fetch_assoc()) {
-		if(null !== reset($temp)){
-			$data[$i] = $temp;
-			$i++;
-		}
-	}
-	$i = 0;
-	$myquery = "
-	SELECT baza, en FROM `tlumaczenie`;
-	";
-	$query = mysqli_query($mysqli, $myquery);
-	$countries = array();
-	if ( ! $query ) {
-		echo mysqli_error($mysqli);
-		die;
-	}
-	while($temp = $query->fetch_assoc()) {
-		$countries[$i] = $temp;
-		$i++;
-	}
+	$myquery = "SELECT baza, strona FROM `tlumaczenie_kraje`;";
+  $countries = sql_getdataarray($sqli, $myquery);
+
 	foreach($data as &$obj){
 		foreach($obj as $tag => &$val){
 			if($tag == 'kraje'){
@@ -78,6 +37,6 @@
         'value' => $obj[$dates]
     );
 	}, $data, $date_array);
-    echo json_encode($data);
-    mysqli_close($mysqli);
+  echo json_encode($data);
+  mysqli_close($sqli);
 ?>

@@ -1,9 +1,10 @@
 class TreeChart{
   year = 2020;
-  constructor(container, stock_name, start_year){
+  constructor(container, stock_name, start_year, language){
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
+    this.language = language;
     this.#load_data();
   }
   #earlier_year = () => {
@@ -59,13 +60,13 @@ class TreeChart{
 
   }
   #load_data = () => {
-    d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
+    d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
       this._data.forEach((item, i) => {
         item.value = parseFloat(item.value);
       });
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-      this._data = {"name": "chart", "children": this._data};
+      this._data = {"name": "chart", "translate": "", "children": this._data};
       this.refresh();
     });
   }
@@ -139,7 +140,7 @@ class TreeChart{
             .attr("x", d => d.x0+5)
             .attr("y", d => d.y0+20)
             .filter( d => {return (d.x1 - d.x0)/d.data.name.length > 10 && d.data.name != "chart"; })
-              .text(d => d.data.name)
+              .text(d => d.data.translate)
               .attr("font-size", "15px")
               .attr("fill", "white");
 
@@ -166,7 +167,7 @@ class TreeChart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.name + " " + d.value + this.suffix);
+  				.text(d.data.translate + " " + d.value + this.suffix);
 
   			})
   			.on("mouseout", function(ev, d){
