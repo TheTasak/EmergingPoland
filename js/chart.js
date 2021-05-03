@@ -265,7 +265,7 @@ class Chart{
   #draw_table = () => {
 	  let data_string = '<table class="data_table">';
 	  for(let i = 0; i < this._data.length; i++){
-		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + "</td></tr>";
+		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + " " + this.currency + "</td></tr>";
 	  }
 	  data_string += "</table>";
 	  d3.select(this.container)

@@ -45,7 +45,7 @@ class Stock{
          this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "dywidenda", this.start_year, this.suffix, this.language));
          container_counter = container_counter + 3;
        } else if(this._tables[i] == "kraje"){
-         this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year));
+         this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
          container_counter++;
        } else if(this._tables[i] == "podzial_przychodow"){
          this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.language));

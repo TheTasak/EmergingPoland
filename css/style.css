@@ -253,17 +253,17 @@ fieldset{
 	color: #c5c5c5;
 	cursor: pointer;
 }
-.map-country-list{
-	list-style-type: none;
-	padding: 0;
-	margin: 0;
-	text-align: center;
-	line-height: 1.5;
-	font-size: 22px;
-	padding-top: 50px;
+.map-country-table{
+	display: flex;
+  border: none;
+	justify-content: center;
+  font-size: 22px;
+}
+.map-country-table td{
+  padding: 2px 8px;
 }
 @media (max-width: 800px){
-  .map-country-list{
+  .map-country-table{
 	font-size: 18px;
 	}
 }

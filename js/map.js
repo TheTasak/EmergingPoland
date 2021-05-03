@@ -4,18 +4,17 @@ class WorldMap{
 	_show_map = true;
 	stock_name = "";
 	year = 2020;
-	constructor(container, stock_name, start_year){
+	constructor(container, stock_name, start_year, currency, language){
 		this.container = container;
 		this.stock_name = stock_name;
 		this.start_year = start_year;
+		this.currency = currency;
+		this.language = language;
 		this.#load_data();
 	}
 	#load_data = () => {
-		d3.json("php/getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year).then( d => {
+		d3.json("php/getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			this._country_arr = d;
-			this._country_arr.forEach((item, i) => {
-				item.value = parseInt(item.value);
-			});
 			this._country_arr.sort((a,b) => (a.value > b.value) ? 1 : -1);
 			d3.json("js/world.geojson").then( (d) => {
 				this._map_data = d;
@@ -112,8 +111,20 @@ class WorldMap{
 	    const tooltiptext = this.svg.append("text")
 	              .classed("tooltip-text", true);
 	    this.svg.selectAll("path")
+				.filter(data => {
+					let index = this._country_arr.findIndex( country => {
+						return country.country == data.properties.name;
+					});
+					return index != -1;
+				})
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [(d.properties.name.length)*12, this.height / 16];
+					let index = this._country_arr.findIndex( country => {
+						return country.country == d.properties.name;
+					});
+					let name = (index != -1) ? this._country_arr[index].translate : d.properties.name;
+					let value = (index != -1) ? this._country_arr[index].value + "tys " + this.currency : "";
+
+  				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
           tooltip
             .attr("x", tooltippos[0])
@@ -126,7 +137,7 @@ class WorldMap{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.properties.name);
+  				.text(name + " " + value);
   			})
   			.on("mouseout", function(ev, d){
   				tooltip
@@ -137,11 +148,11 @@ class WorldMap{
 	  	});
 	}
 	#draw_table = () => {
-		let country_string = '<ul class="map-country-list">';
+		let country_string = '<table class="map-country-table">';
 		for(let i = 0; i < this._country_arr.length; i++){
-			country_string += "<li>" + this._country_arr[i].country + " " + parseInt(this._country_arr[i].value) + "tys$" + "</li>";
+			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseInt(this._country_arr[i].value) + "tys " + this.currency + "</td></tr>";
 		}
-		country_string += "</ul>";
+		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
 	#draw_inputs = () => {

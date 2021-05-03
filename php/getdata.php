@@ -16,7 +16,6 @@
   	$stock_value = reset($stock);
 
     $data = array();
-  	$i = 0;
   	for($i = 0; $i <= (2020 - $year); $i++) {
 		  $date = ($year+$i);
 
