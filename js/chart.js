@@ -48,13 +48,8 @@ class Chart{
 
 	let slider = this.container.getElementsByClassName("chart-input-div")[1];
 	if(slider != undefined){
-    if(this.chart_type == "year"){
       this._date_start = parseInt(slider.noUiSlider.get()[0]);
   		this._date_end = parseInt(slider.noUiSlider.get()[1]);
-    } else if(this.chart_type == "quarter") {
-      this._date_start = parseInt(slider.noUiSlider.get());
-  		this._date_end = parseInt(slider.noUiSlider.get());
-    }
 	}
 
 	let temp = [];
@@ -151,15 +146,17 @@ class Chart{
       });
     } else if(this.chart_type == "quarter") {
       noUiSlider.create(drag_slider, {
-        start: [this._date_end],
-      step: 1,
-        behaviour: 'drag',
-      pips: {
+        start: [this._date_end-1, this._date_end],
+        step: 1,
+        limit: 1,
+        behaviour: 'drag-fixed',
+        pips: {
             mode: 'values',
             values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
             density: 10,
             stepped: true
         },
+        connect: true,
         range: {
             'min': parseInt(this.start_year),
             'max': 2020
