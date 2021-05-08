@@ -40,15 +40,16 @@ class Stock{
       //tworzenie modułów na podstawie tablicy
       for(let i = 0; i < this._tables.length; i++){
         if(this._tables[i] == "dane"){
-         this._modules.push(new Chart(this._containers[container_counter], this.stock_name, "przychody", this.start_year, this.suffix, this.language));
-         this._modules.push(new Chart(this._containers[container_counter+1], this.stock_name, "koszt_sprzedazy", this.start_year, this.suffix, this.language));
-         this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "dywidenda", this.start_year, this.suffix, this.language));
-         container_counter = container_counter + 3;
+         this._modules.push(new Chart(this._containers[container_counter], this.stock_name, "przychody", "year", this.start_year, this.suffix, this.language));
+         this._modules.push(new Chart(this._containers[container_counter+1], this.stock_name, "dywidenda", "year", this.start_year, this.suffix, this.language));
+         this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "koszt_sprzedazy", "quarter", this.start_year, this.suffix, this.language));
+         this._modules.push(new Chart(this._containers[container_counter+3], this.stock_name, "zysk_netto", "quarter", this.start_year, this.suffix, this.language));
+         container_counter = container_counter + 4;
        } else if(this._tables[i] == "kraje"){
          this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
          container_counter++;
        } else if(this._tables[i] == "podzial_przychodow"){
-         this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.language));
+         this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
          container_counter++;
        } else if(this._tables[i] == "akcje"){
          this._modules.push(new PieChart(this._containers[container_counter], this.stock_name, this.start_year));

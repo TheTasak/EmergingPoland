@@ -12,10 +12,11 @@ class Chart{
   padding_vertical = 20;
   padding_horizontal = 100;
   chart_title = "";
-  constructor(container, stock_name, data_name, start_year, currency, language){
+  constructor(container, stock_name, data_name, chart_type, start_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.data_name = data_name;
+    this.chart_type = chart_type;
     this.start_year = start_year;
     this.currency = currency;
     this.language = language;
@@ -44,21 +45,23 @@ class Chart{
 		this._current_data_index = this.data_name;
 	let slider = this.container.getElementsByClassName("chart-input-div")[1];
 	if(slider != undefined){
-		this._date_start = parseInt(slider.noUiSlider.get()[0]);
-		this._date_end = parseInt(slider.noUiSlider.get()[1]);
+    if(this.chart_type == "year"){
+      this._date_start = parseInt(slider.noUiSlider.get()[0]);
+  		this._date_end = parseInt(slider.noUiSlider.get()[1]);
+    } else if(this.chart_type == "quarter") {
+      this._date_start = parseInt(slider.noUiSlider.get());
+  		this._date_end = parseInt(slider.noUiSlider.get());
+    }
 	}
 
 	let temp = [];
-	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year)).then( (d) => {
+	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name) + "&start_year=" + String(this._date_start) + "&end_year=" + String(this._date_end)+ "&type=" + this.chart_type).then( (d) => {
 		let array = d;
-		for(let i = 0; i < array.length; i++) {
-				let date = (this.start_year*1 + i);
-				if(date >= this._date_start && date <= this._date_end) {
-					let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]), date: date};
-          temp.push(push_object_data);
-				}
-
-		  }
+    console.log(array);
+    for(let i = 0; i < array.length; i++) {
+      let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]["value"]), date: array[i]["quarter"]};
+      temp.push(push_object_data);
+    }
 		this._data = temp;
 		this.#get_suffix();
 		temp = [];
@@ -105,7 +108,7 @@ class Chart{
     const field = fieldset.append("div")
 					.classed("chart-input-div", true)
 					.append("select")
-						.on("blur", this.#load_data)
+						.on("change", this.#load_data)
 						.classed("chart-input", true);
 	for(let i = 0; i < this._columns.length; i++){
 		field.append("option")
@@ -120,30 +123,57 @@ class Chart{
 			.classed("chart-input-div", true);
 
 	const drag_slider = this.container.getElementsByClassName("chart-input-div")[1];
-
-	noUiSlider.create(drag_slider, {
-    start: [this._date_start, this._date_end],
-	step: 1,
-    behaviour: 'drag',
-	pips: {
-        mode: 'values',
-        values: [2010, 2015, 2020],
-        density: 10,
-        stepped: true
-    },
-    connect: true,
-    range: {
-        'min': 2010,
-        'max': 2020
-    }
-	});
+  if(this.chart_type == "year") {
+    noUiSlider.create(drag_slider, {
+      start: [this._date_start, this._date_end],
+    step: 1,
+      behaviour: 'drag',
+    pips: {
+          mode: 'values',
+          values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
+          density: 10,
+          stepped: true
+      },
+      connect: true,
+      range: {
+          'min': parseInt(this.start_year),
+          'max': 2020
+      }
+    });
+  } else if(this.chart_type == "quarter") {
+    noUiSlider.create(drag_slider, {
+      start: [this._date_end],
+    step: 1,
+      behaviour: 'drag',
+    pips: {
+          mode: 'values',
+          values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
+          density: 10,
+          stepped: true
+      },
+      range: {
+          'min': parseInt(this.start_year),
+          'max': 2020
+      }
+    });
+  }
 	drag_slider.noUiSlider.on("change", this.#load_data);
+
 	fieldset.append("div")
 			.classed("chart-input-div", true)
 				.append("button")
 				.attr("type", "button")
-				.text("\u2666")
-				.on("click", (d) => {this._show_chart = !this._show_chart; this.refresh();})
+				.on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
+				.classed("chart-input", true)
+          .append("img")
+          .attr("src", "table.png")
+          .attr("width", "40px");
+  fieldset.append("div")
+			.classed("chart-input-div", true)
+				.append("button")
+				.attr("type", "button")
+				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.refresh(); this.#load_data();})
+        .text(this.chart_type == "year" ? "y" : "q")
 				.classed("chart-input", true);
   }
   #draw_title = () => {
@@ -169,7 +199,7 @@ class Chart{
                     .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     const yScale = d3.scaleLinear()
-                    .domain([min*1.1, max*1.1]).nice()
+                    .domain([min*1.1, max*1.2]).nice()
                     .range([this.heightpadding,this.padding_vertical]);
     const g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");

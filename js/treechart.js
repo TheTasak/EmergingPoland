@@ -1,9 +1,11 @@
 class TreeChart{
   year = 2020;
-  constructor(container, stock_name, start_year, language){
+  _show_chart = true;
+  constructor(container, stock_name, start_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
+    this.currency = currency;
     this.language = language;
     this.#load_data();
   }
@@ -23,12 +25,12 @@ class TreeChart{
 	  let max = d3.max(this._data.children, d => d.value);
 	  if(max >= 1000000){
 		  this._data.children.forEach((item) => item.value /= 1000000.0);
-		  this.suffix = "mld$";
+		  this.suffix = "mld";
 	  } else if(max >= 1000){
 		  this._data.children.forEach((item) => item.value /= 1000.0);
-		  this.suffix = "mln$";
+		  this.suffix = "mln";
     } else {
-		  this.suffix = "tys$";
+		  this.suffix = "tys";
 	  }
   }
   #reset = () => {
@@ -67,6 +69,7 @@ class TreeChart{
       });
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
       this._data = {"name": "chart", "translate": "", "children": this._data};
+      this.#get_suffix();
       this.refresh();
     });
   }
@@ -91,6 +94,7 @@ class TreeChart{
 			.style("font-size", "36px")
 			.style("padding", "0 10px")
 			.text(this.year)
+      .on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".button-div")
@@ -102,7 +106,6 @@ class TreeChart{
   }
   #draw_chart = () => {
     let root = d3.hierarchy(this._data);
-    this.#get_suffix();
     root.sum(d => d.value);
 
     let treemap_layout = d3.treemap();
@@ -178,9 +181,21 @@ class TreeChart{
   					.attr("display", "none");
   			});
   }
+  #draw_table = () => {
+    let earnings_string = '<table class="earnings-table">';
+    let earnings_data = this._data.children;
+		for(let i = 0; i < earnings_data.length; i++){
+			earnings_string += "<tr><td align='center'>" + earnings_data[i].translate + "</td><td align='right'>" + earnings_data[i].value + this.suffix + " " + this.currency + "</td></tr>";
+		}
+		earnings_string += "</table>";
+		d3.select(this.container).select(".svg-div").html(earnings_string);
+  }
   refresh = () => {
     this.#reset();
     this.#draw_inputs();
-    this.#draw_chart();
+    if(this._show_chart)
+      this.#draw_chart();
+    else
+      this.#draw_table();
   }
 }

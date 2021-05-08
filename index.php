@@ -46,23 +46,23 @@
             </div>
         </div>
       <div class="content">
-        <div id="kurs" class="chart-div">
+        <div id="topleft" class="chart-div">
           </div>
-        <div id="sklad" class="chart-div">
+        <div id="topmiddleleft" class="chart-div">
           </div>
-        <div id="kwartal" class="chart-div">
+        <div id="topmiddleright" class="chart-div">
+          </div>
+        <div id="topright" class="chart-div">
           </div>
       </div>
       <div class="content-bottom">
-        <div id="dywidenda" class="chart-div">
+        <div id="middleleft" class="chart-div">
           </div>
-        <div id="rok" class="chart-div">
+        <div id="middleright" class="chart-div">
           </div>
       </div>
     </br>
-      <div id="mapa" class="map-div">
-        </div>
-      <div id="udzial">
+      <div id="bottom" class="map-div">
         </div>
     </main>
     <footer>

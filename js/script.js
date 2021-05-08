@@ -3,12 +3,13 @@ function load(){
   const stock_name = document.getElementById("name").innerHTML;
 
   if(stock_name != "") {
-    const container1 = document.getElementById("kurs");
-    const container2 = document.getElementById("sklad");
-    const container3 = document.getElementById("kwartal");
-    const container4 = document.getElementById("mapa");
-    const container5 = document.getElementById("dywidenda");
-    const container6 = document.getElementById("rok");
+    const container1 = document.getElementById("topleft");
+    const container2 = document.getElementById("topmiddleleft");
+    const container3 = document.getElementById("topmiddleright");
+    const container4 = document.getElementById("topright");
+    const container5 = document.getElementById("middleright");
+    const container6 = document.getElementById("middleleft");
+    const container7 = document.getElementById("bottom");
 
     const language = document.getElementById("language").value;
     if(language == undefined)
@@ -16,7 +17,7 @@ function load(){
     document.getElementById("lang-pl").href = "index.php?stock=" + stock_name.trim() + "&lang=pl";
     document.getElementById("lang-en").href = "index.php?stock=" + stock_name.trim() + "&lang=en";
 
-    stock = new Stock(stock_name, [container1, container2, container3, container4, container5, container6], language);
+    stock = new Stock(stock_name, [container1, container2, container3, container4, container5, container6, container7], language);
     d3.json("php/getallstocks.php").then( d => {
       let string = "";
       for(let i = 0; i < d.length; i++)

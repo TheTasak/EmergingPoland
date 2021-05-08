@@ -15,11 +15,15 @@ class WorldMap{
 	#load_data = () => {
 		d3.json("php/getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			this._country_arr = d;
+			if(this._country_arr.length <= 0){
+				this.year--;
+				this.#load_data();
+				return;
+			}
 			this._country_arr.sort((a,b) => (a.value > b.value) ? 1 : -1);
 			d3.json("js/world.geojson").then( (d) => {
 				this._map_data = d;
-				this.reset();
-				this.#draw_map();
+				this.refresh();
 			});
 		});
 	}
@@ -121,8 +125,8 @@ class WorldMap{
 					let index = this._country_arr.findIndex( country => {
 						return country.country == d.properties.name;
 					});
-					let name = (index != -1) ? this._country_arr[index].translate : d.properties.name;
-					let value = (index != -1) ? this._country_arr[index].value + "tys " + this.currency : "";
+					let name = this._country_arr[index].translate;
+					let value = this._country_arr[index].value + "tys " + this.currency;
 
   				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
@@ -175,7 +179,7 @@ class WorldMap{
 			.append("span")
 				.style("font-size", "36px")
 				.style("padding", "0 10px")
-				.on("click", (d) => { this._show_map = !this._show_map; this.refresh();})
+				.on("click", () => { this._show_map = !this._show_map; this.refresh();})
 				.text(this.year)
 				.classed("map-button", true);
 		d3.select(this.container)
