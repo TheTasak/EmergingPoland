@@ -24,6 +24,7 @@ class Chart{
     this.#load_data();
   }
   #get_suffix = () => {
+    //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let max = d3.max(this._data, d => d.value);
 	  if(max >= 1000000){
 		  this._data.forEach((item) => item.value /= 1000000.0);
@@ -39,10 +40,12 @@ class Chart{
   }
   #load_data = () => {
 	let input_value_size = d3.select(this.container).select(".chart-input").size();
+  // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
 	if(input_value_size > 0)
 		this._current_data_index = d3.select(this.container).select(".chart-input").property("value");
 	else
 		this._current_data_index = this.data_name;
+
 	let slider = this.container.getElementsByClassName("chart-input-div")[1];
 	if(slider != undefined){
     if(this.chart_type == "year"){
@@ -56,17 +59,18 @@ class Chart{
 
 	let temp = [];
 	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name) + "&start_year=" + String(this._date_start) + "&end_year=" + String(this._date_end)+ "&type=" + this.chart_type).then( (d) => {
-		let array = d;
-    console.log(array);
+    // Wyciąga z bazy kolumny z danymi
+    let array = d;
     for(let i = 0; i < array.length; i++) {
-      let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]["value"]), date: array[i]["quarter"]};
+      let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]["value"]), date: array[i]["date"]};
       temp.push(push_object_data);
     }
 		this._data = temp;
 		this.#get_suffix();
 		temp = [];
 		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
-			let col_array = columns;
+      // A potem ich tłumaczenie na bazie języka
+      let col_array = columns;
 			for(let i = 0; i < col_array.length; i++) {
 				let column = col_array[i];
 				temp.push(column);
@@ -89,76 +93,82 @@ class Chart{
     d3.select(this.container)
       .selectAll(".chart-input-field")
       .remove();
-	d3.select(this.container)
-	  .selectAll(".table-div")
-	  .remove();
-    // Dodanie nowego kontenera na wykres
-	if(this._show_chart == true){
-		this.svg = d3.select(this.container)
-					.append("svg")
-					.attr("width", this.width)
-					.attr("height", this.height)
-					.classed("chart",true);
-	}
+  	d3.select(this.container)
+  	  .selectAll(".table-div")
+  	  .remove();
+
+  	if(this._show_chart == true){
+  		this.svg = d3.select(this.container)
+  					.append("svg")
+  					.attr("width", this.width)
+  					.attr("height", this.height)
+  					.classed("chart",true);
+  	}
   }
   #draw_inputs = () => {
+    //Pojemnik na inputy
     const fieldset = d3.select(this.container)
                       .append("fieldset")
                       .classed("chart-input-field", true);
+    //Pole pozwalające wybrać typ danych
     const field = fieldset.append("div")
 					.classed("chart-input-div", true)
 					.append("select")
 						.on("change", this.#load_data)
 						.classed("chart-input", true);
-	for(let i = 0; i < this._columns.length; i++){
-		field.append("option")
-			.attr("value", this._columns[i].dane_ksiegowe)
-			.text(this._columns[i].tlumaczenie);
-	}
-	const select_list = this.container.getElementsByClassName("chart-input")[0];
-	if(select_list != undefined){
-		select_list.value = this._current_data_index;
-	}
-	fieldset.append("div")
-			.classed("chart-input-div", true);
+    //Załadowanie opcji do pola
+  	for(let i = 0; i < this._columns.length; i++){
+  		field.append("option")
+  			.attr("value", this._columns[i].dane_ksiegowe)
+  			.text(this._columns[i].tlumaczenie);
+  	}
+    //Ustawienie opcji pola na ostatnio wybraną
+  	const select_list = this.container.getElementsByClassName("chart-input")[0];
+  	if(select_list != undefined){
+  		select_list.value = this._current_data_index;
+  	}
+    //Pojemnik na suwak dat
+  	fieldset.append("div")
+  			.classed("chart-input-div", true);
 
-	const drag_slider = this.container.getElementsByClassName("chart-input-div")[1];
-  if(this.chart_type == "year") {
-    noUiSlider.create(drag_slider, {
-      start: [this._date_start, this._date_end],
-    step: 1,
-      behaviour: 'drag',
-    pips: {
-          mode: 'values',
-          values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
-          density: 10,
-          stepped: true
-      },
-      connect: true,
-      range: {
-          'min': parseInt(this.start_year),
-          'max': 2020
-      }
-    });
-  } else if(this.chart_type == "quarter") {
-    noUiSlider.create(drag_slider, {
-      start: [this._date_end],
-    step: 1,
-      behaviour: 'drag',
-    pips: {
-          mode: 'values',
-          values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
-          density: 10,
-          stepped: true
-      },
-      range: {
-          'min': parseInt(this.start_year),
-          'max': 2020
-      }
-    });
+  	const drag_slider = this.container.getElementsByClassName("chart-input-div")[1];
+    if(this.chart_type == "year") {
+      noUiSlider.create(drag_slider, {
+        start: [this._date_start, this._date_end],
+      step: 1,
+        behaviour: 'drag',
+      pips: {
+            mode: 'values',
+            values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
+            density: 10,
+            stepped: true
+        },
+        connect: true,
+        range: {
+            'min': parseInt(this.start_year),
+            'max': 2020
+        }
+      });
+    } else if(this.chart_type == "quarter") {
+      noUiSlider.create(drag_slider, {
+        start: [this._date_end],
+      step: 1,
+        behaviour: 'drag',
+      pips: {
+            mode: 'values',
+            values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
+            density: 10,
+            stepped: true
+        },
+        range: {
+            'min': parseInt(this.start_year),
+            'max': 2020
+        }
+      });
   }
 	drag_slider.noUiSlider.on("change", this.#load_data);
 
+  //Przyciski do zmiany typu wykresu i zamiany na tabelę
 	fieldset.append("div")
 			.classed("chart-input-div", true)
 				.append("button")
@@ -177,6 +187,7 @@ class Chart{
 				.classed("chart-input", true);
   }
   #draw_title = () => {
+    //Wczytanie tłumaczenia tytułu wykresu
     let index = this._columns.findIndex( (data) => {
       return data.dane_ksiegowe == this._current_data_index;
     });
@@ -307,13 +318,13 @@ class Chart{
   }
   refresh = () => {
     this.reset();
-	if(this._show_chart){
-		this.#draw_inputs();
-		this.#draw_chart();
-		this.#draw_title();
-	} else {
-		this.#draw_table();
-		this.#draw_inputs();
-	}
+  	if(this._show_chart){
+  		this.#draw_inputs();
+  		this.#draw_chart();
+  		this.#draw_title();
+  	} else {
+  		this.#draw_table();
+  		this.#draw_inputs();
+	  }
   }
 }

@@ -22,6 +22,7 @@ class TreeChart{
 		this.#load_data();
 	}
   #get_suffix = () => {
+    //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let max = d3.max(this._data.children, d => d.value);
 	  if(max >= 1000000){
 		  this._data.children.forEach((item) => item.value /= 1000000.0);
@@ -34,6 +35,7 @@ class TreeChart{
 	  }
   }
   #reset = () => {
+    // Robi reset div'a wykresu, rysuje go od nowa
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
     d3.select(this.container)
@@ -159,6 +161,12 @@ class TreeChart{
   			.on("mousemove", (ev, d) => {
   				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+
+          if(tooltippos[0]+tooltipsize[0] > this.width)
+            tooltippos[0] = this.width - tooltipsize[0];
+          if(tooltippos[0] < 0)
+            tooltippos[0] = 0;
+
           tooltip
             .attr("x", tooltippos[0])
 		        .attr("y", tooltippos[1])

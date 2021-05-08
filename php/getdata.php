@@ -33,7 +33,7 @@
         $row = sql_getdatarecord($sqli, $myquery);
         $data[] = (object)[
           "value" => $row["{$date}"],
-          "quarter" => "{$date}",
+          "date" => "{$date}",
         ];
       }
     } else if($type == "quarter") {
@@ -45,19 +45,19 @@
     		$row = sql_getdatarecord($sqli, $myquery);
         $data[] = (object)[
           "value" => $row["{$date}"."_4"],
-          "quarter" => "{$date} IV",
+          "date" => "IV {$date}",
         ];
         $data[] = (object)[
           "value" => $row["{$date}"."_3"],
-          "quarter" => "{$date} III",
+          "date" => "III {$date}",
         ];
         $data[] = (object)[
           "value" => $row["{$date}"."_2"],
-          "quarter" => "{$date} II",
+          "date" => "II {$date}",
         ];
         $data[] = (object)[
           "value" => $row["{$date}"."_1"],
-          "quarter" => "{$date} I",
+          "date" => "I {$date}",
         ];
 	     }
        $data = array_reverse($data);

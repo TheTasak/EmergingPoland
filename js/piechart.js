@@ -116,8 +116,8 @@ class PieChart{
                 .innerRadius(radius * 0.5)
                 .outerRadius(radius * 0.8);
     let outerArc = d3.arc()
-                .innerRadius(radius * 0.9)
-                .outerRadius(radius * 0.9);
+                .innerRadius(radius * 0.85)
+                .outerRadius(radius * 0.85);
 
     g.selectAll(".pie-chunk")
             .data(data_ready)
@@ -139,7 +139,7 @@ class PieChart{
                   let posB = outerArc.centroid(d);
                   let posC = outerArc.centroid(d);
                   let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                  posC[0] = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
+                  posC[0] = radius * 0.9 * (midAngle < Math.PI ? 1 : -1);
                   return [posA, posB, posC];
               })
               .classed(".pie-polyline");
@@ -152,7 +152,7 @@ class PieChart{
               .attr('transform', d => {
                 let pos = outerArc.centroid(d);
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                pos[0] = radius * 0.99 * (midAngle < Math.PI ? 1 : -1);
+                pos[0] = radius * 0.92 * (midAngle < Math.PI ? 1 : -1);
                 return 'translate(' + pos + ')';
               })
               .style('text-anchor', d => {
@@ -173,6 +173,7 @@ class PieChart{
   			.on("mousemove", (ev, d) => {
   				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+
           tooltip
             .attr("x", tooltippos[0])
 		        .attr("y", tooltippos[1])
