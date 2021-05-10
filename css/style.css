@@ -104,7 +104,7 @@ main h1{
 }
 .content{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
   grid-gap: 1rem;
 }
 @media (max-width: 900px){
@@ -152,7 +152,7 @@ main h1{
   }
 }
 .chart-div{
-  height: 500px;
+  height: 600px;
 }
 .map-div{
   height: 800px;
@@ -206,13 +206,19 @@ main h1{
 }
 fieldset{
   border: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: space-between;
+}
+.chart-input select{
+  font-size: min(2vw, 14px);
+}
+.chart-input img{
+  width: 40px;
 }
 .chart-input-div{
-	margin-right: 30px;
+  margin-right: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
 .noUi-target{
 	font-size: 12px;
@@ -245,7 +251,11 @@ fieldset{
 .country:hover{
 	fill: #aa2222;
 }
+.chart-title{
+  font-size: min(5vw, 32px);
+}
 .map-button{
+  font-size: min(5vw, 32px);
 	color: black;
 	transition: 0.5s;
 }
@@ -257,7 +267,7 @@ fieldset{
 	display: flex;
   border: none;
 	justify-content: center;
-  font-size: 22px;
+  font-size: min(4vw, 22px);
 }
 .map-country-table td{
   padding: 2px 8px;
@@ -266,19 +276,24 @@ fieldset{
 	display: flex;
   border: none;
 	justify-content: center;
-  font-size: 18px;
+  font-size: min(4vw, 18px);
 }
 .earnings-table td{
   padding: 2px 8px;
 }
-@media (max-width: 800px){
-  .map-country-table{
-	font-size: 18px;
-	}
+.stock-table{
+	display: flex;
+  border: none;
+	justify-content: center;
+  font-size: min(4vw, 18px);
+}
+.stock-table td{
+  padding: 2px 8px;
 }
 .treechart-button{
   color: black;
 	transition: 0.5s;
+  font-size: min(5vw, 32px);
 }
 .treechart-button:hover{
   color: #c5c5c5;
@@ -287,6 +302,7 @@ fieldset{
 .piechart-button{
   color: black;
 	transition: 0.5s;
+  font-size: min(5vw, 32px);
 }
 .piechart-button:hover{
   color: #c5c5c5;

@@ -46,7 +46,7 @@ class Chart{
 	else
 		this._current_data_index = this.data_name;
 
-	let slider = this.container.getElementsByClassName("chart-input-div")[1];
+	let slider = this.container.getElementsByClassName("slider-div")[0];
 	if(slider != undefined){
       this._date_start = parseInt(slider.noUiSlider.get()[0]);
   		this._date_end = parseInt(slider.noUiSlider.get()[1]);
@@ -78,7 +78,7 @@ class Chart{
   }
   reset = () => {
     this.width = parseInt(this.container.clientWidth);
-    this.height = parseInt(this.container.clientHeight)-80;
+    this.height = parseInt(this.container.clientHeight)-100;
     this.heightpadding = this.height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
     // Usunięcie starego wykresu
@@ -123,16 +123,19 @@ class Chart{
   		select_list.value = this._current_data_index;
   	}
     //Pojemnik na suwak dat
-  	fieldset.append("div")
+  	const buttons = fieldset.append("div")
   			.classed("chart-input-div", true);
 
-  	const drag_slider = this.container.getElementsByClassName("chart-input-div")[1];
+    buttons.append("div")
+      .classed("slider-div", true);
+
+  	const drag_slider = this.container.getElementsByClassName("slider-div")[0];
     if(this.chart_type == "year") {
       noUiSlider.create(drag_slider, {
         start: [this._date_start, this._date_end],
-      step: 1,
+        step: 1,
         behaviour: 'drag',
-      pips: {
+        pips: {
             mode: 'values',
             values: [parseInt(this.start_year), parseInt(this.start_year) + parseInt((2020-this.start_year)/2), 2020],
             density: 10,
@@ -166,22 +169,22 @@ class Chart{
 	drag_slider.noUiSlider.on("change", this.#load_data);
 
   //Przyciski do zmiany typu wykresu i zamiany na tabelę
-	fieldset.append("div")
-			.classed("chart-input-div", true)
-				.append("button")
-				.attr("type", "button")
-				.on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
-				.classed("chart-input", true)
-          .append("img")
-          .attr("src", "table.png")
-          .attr("width", "40px");
-  fieldset.append("div")
-			.classed("chart-input-div", true)
-				.append("button")
-				.attr("type", "button")
-				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.refresh(); this.#load_data();})
-        .text(this.chart_type == "year" ? "y" : "q")
-				.classed("chart-input", true);
+	buttons.append("div")
+            .classed("chart-input-div", true)
+            .append("button")
+      				.attr("type", "button")
+      				.on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
+      				.classed("chart-input", true)
+              .append("img")
+                .attr("src", "table.png");
+  buttons.append("div")
+			     .classed("chart-input-div", true)
+				   .append("button")
+  				    .attr("type", "button")
+              .attr("font-size", "16px")
+      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.refresh(); this.#load_data();})
+              .text(this.chart_type == "year" ? "y" : "q")
+      				.classed("chart-input", true);
   }
   #draw_title = () => {
     //Wczytanie tłumaczenia tytułu wykresu
@@ -243,11 +246,23 @@ class Chart{
   this.svg.selectAll(".bar")
       .filter(data => data.value >= 0)
       .style("fill", "#FC3535")
-      .attr('y', data => yScale(0));
+      .attr('y', data => yScale(0))
+      .on("mouseover", (ev) => {
+        ev.target.style.fill = "#FC7777";
+      })
+      .on("mouseleave", (ev) => {
+        ev.target.style.fill = "#FC3535";
+      });
   this.svg.selectAll(".bar")
       .filter(data => data.value < 0)
       .style("fill", "#993535")
       .attr('y', data => yScale(min))
+      .on("mouseover", (ev) => {
+        ev.target.style.fill = "#997777";
+      })
+      .on("mouseleave", (ev) => {
+        ev.target.style.fill = "#993535";
+      });
   // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
   this.svg.selectAll(".bar")
       .filter(data => data.value >= 0)

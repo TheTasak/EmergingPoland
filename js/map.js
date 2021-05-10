@@ -173,13 +173,15 @@ class WorldMap{
 		d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-				.style("font-size", "30px")
-				.style("padding", "0 10px")
 				.text("Podział przychodów ze względu na kraje")
 				.classed("chart-title", true);
-		// Przycisk poprzedniego roku
 		d3.select(this.container)
 			.select(".button-div")
+			.append("div")
+				.classed("map-button-div", true);
+		// Przycisk poprzedniego roku
+		d3.select(this.container)
+			.select(".map-button-div")
 				.append("button")
 				.attr("type", "button")
 				.text("<")
@@ -187,16 +189,15 @@ class WorldMap{
 				.classed("map-button", true);
 		// Przycisk zamiany na tabelę
 		d3.select(this.container)
-			.select(".button-div")
+			.select(".map-button-div")
 			.append("span")
-				.style("font-size", "36px")
 				.style("padding", "0 10px")
 				.on("click", () => { this._show_map = !this._show_map; this.refresh();})
 				.text(this.year)
 				.classed("map-button", true);
 		// Przycisk następnego roku
 		d3.select(this.container)
-			.select(".button-div")
+			.select(".map-button-div")
 			.append("button")
 				.attr("type", "button")
 				.text(">")

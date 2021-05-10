@@ -1,6 +1,6 @@
 class PieChart{
   year = 2020;
-  defined = true;
+  show_table = false;
   constructor(container, stock_name, start_year){
     this.container = container;
     this.stock_name = stock_name;
@@ -40,13 +40,13 @@ class PieChart{
         .attr("height", this.svg_height)
         .attr("width", this.width)
         .classed("svg-div", true);
-
-    this.svg = d3.select(this.container)
-                 .select(".svg-div")
-                 .append("svg")
-                  .attr("height", this.svg_height)
-                  .attr("width", this.width);
-
+    if(!this.show_table) {
+      this.svg = d3.select(this.container)
+                   .select(".svg-div")
+                   .append("svg")
+                    .attr("height", this.svg_height)
+                    .attr("width", this.width);
+    }
   }
   #load_data = () => {
     d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
@@ -64,9 +64,6 @@ class PieChart{
         this.refresh();
       }
     }).catch(error => {
-      if(error == "undefined data")
-        this.defined = false;
-      else
         console.error(error);
     });
   }
@@ -74,26 +71,28 @@ class PieChart{
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-  			.style("font-size", "30px")
-  			.style("padding", "0 10px")
   			.text("Podział akcji spółki")
   			.classed("chart-title", true);
     d3.select(this.container)
-			.select(".button-div")
+      .select(".button-div")
+      .append("div")
+        .classed("pie-button-div", true);
+    d3.select(this.container)
+			.select(".pie-button-div")
 			.append("button")
   			.attr("type", "button")
   			.text("<")
   			.on("click", this.#earlier_year)
   			.classed("piechart-button", true);
 		d3.select(this.container)
-			.select(".button-div")
+			.select(".pie-button-div")
 			.append("span")
-  			.style("font-size", "36px")
   			.style("padding", "0 10px")
   			.text(this.year)
+        .on("click", () => {this.show_table = !this.show_table; this.refresh();})
   			.classed("piechart-button", true);
 		d3.select(this.container)
-			.select(".button-div")
+			.select(".pie-button-div")
 			.append("button")
   			.attr("type", "button")
   			.text(">")
@@ -197,9 +196,22 @@ class PieChart{
   					.attr("display", "none");
   			});
   }
+  #draw_table = () => {
+    let stock_string = '<table class="stock-table">';
+		for(let i = 0; i < this._data.length; i++){
+			stock_string += "<tr><td align='center'>" + this._data[i].name + "</td><td align='right'>" + this._data[i].value + "</td></tr>";
+		}
+		stock_string += "</table>";
+		d3.select(this.container).select(".svg-div").html(stock_string);
+  }
   refresh = () => {
     this.#reset();
     this.#draw_inputs();
-    this.#draw_chart();
+    if(this.show_table) {
+      this.#draw_table();
+    } else {
+      this.#draw_chart();
+    }
+
   }
 }
