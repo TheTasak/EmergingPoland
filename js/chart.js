@@ -124,7 +124,7 @@ class Chart{
   	}
     //Pojemnik na suwak dat
   	const buttons = fieldset.append("div")
-  			.classed("chart-input-div", true);
+  			.classed("chart-button-div", true);
 
     buttons.append("div")
       .classed("slider-div", true);
@@ -170,21 +170,20 @@ class Chart{
 
   //Przyciski do zmiany typu wykresu i zamiany na tabelę
 	buttons.append("div")
-            .classed("chart-input-div", true)
             .append("button")
       				.attr("type", "button")
       				.on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
       				.classed("chart-input", true)
               .append("img")
-                .attr("src", "table.png");
+                .attr("src", "table_icon.png");
   buttons.append("div")
-			     .classed("chart-input-div", true)
 				   .append("button")
   				    .attr("type", "button")
               .attr("font-size", "16px")
       				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.refresh(); this.#load_data();})
-              .text(this.chart_type == "year" ? "y" : "q")
-      				.classed("chart-input", true);
+      				.classed("chart-input", true)
+              .append("img")
+                .attr("src", "chart_type.png");
   }
   #draw_title = () => {
     //Wczytanie tłumaczenia tytułu wykresu

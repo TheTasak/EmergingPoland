@@ -211,18 +211,26 @@ fieldset{
   font-size: min(2vw, 14px);
 }
 .chart-input img{
-  width: 40px;
+  width: 50px;
 }
 .chart-input-div{
   margin-right: 10px;
   margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
+}
+.chart-button-div{
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.chart-button-div > *{
+  margin-right: 30px;
 }
 .noUi-target{
 	font-size: 12px;
-	width: 40%;
+	width: 50%;
 	z-index: 0;
 }
 .button-div{

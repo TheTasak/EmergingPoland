@@ -99,14 +99,26 @@ class WorldMap{
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let result = this._country_arr.map(obj => obj.country);
-					return result.includes(d.properties["name"]);
+					for(let i = 0; i < result.length; i++) {
+						for(let j = 0; j < result[i].length; j++) {
+							if(result[i][j] == d.properties["name"])
+								return true;
+						}
+					}
+					return false;
 				})
 				.attr("fill", (d) => colors(this._country_arr.find(obj => obj.country == d.properties["name"]).value));
 		// Kolorowanie reszty krajów
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let result = this._country_arr.map(obj => obj.country);
-					return !result.includes(d.properties["name"]);
+					for(let i = 0; i < result.length; i++) {
+						for(let j = 0; j < result[i].length; j++) {
+							if(result[i][j] == d.properties["name"])
+								return false;
+						}
+					}
+					return true;
 				})
 				.attr("fill", "#e0e0e0");
 		// Dodanie możliwości przybliżenia i przesuwania mapy
@@ -184,7 +196,7 @@ class WorldMap{
 			.select(".map-button-div")
 				.append("button")
 				.attr("type", "button")
-				.text("<")
+				.text("🠔")
 				.on("click", this.#earlier_year)
 				.classed("map-button", true);
 		// Przycisk zamiany na tabelę
@@ -200,7 +212,7 @@ class WorldMap{
 			.select(".map-button-div")
 			.append("button")
 				.attr("type", "button")
-				.text(">")
+				.text("🠖")
 				.on("click", this.#later_year)
 				.classed("map-button", true);
 	}

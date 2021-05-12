@@ -81,7 +81,7 @@ class PieChart{
 			.select(".pie-button-div")
 			.append("button")
   			.attr("type", "button")
-  			.text("<")
+  			.text("🠔")
   			.on("click", this.#earlier_year)
   			.classed("piechart-button", true);
 		d3.select(this.container)
@@ -95,7 +95,7 @@ class PieChart{
 			.select(".pie-button-div")
 			.append("button")
   			.attr("type", "button")
-  			.text(">")
+  			.text("🠖")
   			.on("click", this.#later_year)
   			.classed("piechart-button", true);
   }
@@ -114,42 +114,48 @@ class PieChart{
     let arc = d3.arc()
                 .innerRadius(radius * 0.5)
                 .outerRadius(radius * 0.8);
-    let outerArc = d3.arc()
-                .innerRadius(radius * 0.85)
-                .outerRadius(radius * 0.85);
+    let middleArc = d3.arc()
+                      .innerRadius(radius * 0.75)
+                      .outerRadius(radius * 0.75);
 
     g.selectAll(".pie-chunk")
             .data(data_ready)
             .enter()
-            .append("path")
-              .attr("d", arc)
-              .attr("fill", d => colors(d.data.id))
-              .classed("pie-chunk", true);
+            .append("g")
+              .classed("pie-component", true)
+              .append("path")
+                .attr("d", arc)
+                .attr("fill", d => colors(d.data.id))
+                .classed("pie-chunk", true);
 
-    g.selectAll(".pie-polyline")
-            .data(data_ready)
-            .enter()
+    g.selectAll(".pie-component")
             .append('polyline')
               .attr('stroke', 'black')
               .style('fill', 'none')
               .attr('stroke-width', 1)
               .attr('points', d => {
-                  let posA = arc.centroid(d);
-                  let posB = outerArc.centroid(d);
-                  let posC = outerArc.centroid(d);
+                  let posA = middleArc.centroid(d);
+                  let value_sum = d3.sum(this._data, d => d.value);
+                  let arc = d3.arc()
+                              .innerRadius(radius * (0.95 - (d.value / value_sum * 0.15)))
+                              .outerRadius(radius * (0.95 - (d.value / value_sum * 0.15)));
+                  let posB = arc.centroid(d);
+                  let posC = arc.centroid(d);
                   let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
                   posC[0] = radius * 0.9 * (midAngle < Math.PI ? 1 : -1);
                   return [posA, posB, posC];
               })
-              .classed(".pie-polyline");
+              .classed("pie-polyline");
 
-    g.selectAll(".pie-label")
-            .data(data_ready)
-            .enter()
+    g.selectAll(".pie-component")
             .append('text')
               .text( d => d.data.name)
               .attr('transform', d => {
-                let pos = outerArc.centroid(d);
+                let value_sum = d3.sum(this._data, d => d.value);
+                let arc = d3.arc()
+                            .innerRadius(radius * (0.95 - (d.value / value_sum * 0.15)))
+                            .outerRadius(radius * (0.95 - (d.value / value_sum * 0.15)));
+                let pos = arc.centroid(d);
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
                 pos[0] = radius * 0.92 * (midAngle < Math.PI ? 1 : -1);
                 return 'translate(' + pos + ')';
@@ -157,7 +163,11 @@ class PieChart{
               .style('text-anchor', d => {
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
                 return (midAngle < Math.PI ? 'start' : 'end');
-              });
+              })
+              .style("opacity", "1")
+              .style("font-size", "14px")
+              .classed("pie-label", true);
+
 
     const tooltip = this.svg.append("rect")
               .attr("width", "0px")

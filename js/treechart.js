@@ -89,7 +89,7 @@ class TreeChart{
 			.select(".tree-button-div")
 			.append("button")
 			.attr("type", "button")
-			.text("<")
+			.text("🠔")
 			.on("click", this.#earlier_year)
 			.classed("treechart-button", true);
 		d3.select(this.container)
@@ -103,7 +103,7 @@ class TreeChart{
 			.select(".tree-button-div")
 			.append("button")
 			.attr("type", "button")
-			.text(">")
+			.text("🠖")
 			.on("click", this.#later_year)
 			.classed("treechart-button", true);
   }
