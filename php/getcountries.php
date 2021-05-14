@@ -21,13 +21,14 @@
   $data = sql_getdataarray($sqli, $myquery);
 
   for($i = 0; $i < count($data); $i++) {
-    $myquery = "SELECT strona, {$language} FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["kraje"]}';";
+    $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["kraje"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
 
     $data[$i] = (object)[
         'country' => array($country["strona"]),
         'value' => intval($data[$i][$date]),
         'translate' => $country[$language],
+        'name' => $country["baza"],
     ];
   }
   echo json_encode($data);

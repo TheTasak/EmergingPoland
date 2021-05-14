@@ -134,11 +134,13 @@ class PieChart{
               .style('fill', 'none')
               .attr('stroke-width', 1)
               .attr('points', d => {
-                  let posA = middleArc.centroid(d);
-                  let value_sum = d3.sum(this._data, d => d.value);
+                  let scale = d3.scaleSqrt()
+                                .domain([d3.min(this._data, d => d.value), d3.max(this._data, d => d.value)])
+                                .range([0, 1]);
                   let arc = d3.arc()
-                              .innerRadius(radius * (0.95 - (d.value / value_sum * 0.15)))
-                              .outerRadius(radius * (0.95 - (d.value / value_sum * 0.15)));
+                              .innerRadius(radius * (0.95 - (scale(d.value) * 0.15)))
+                              .outerRadius(radius * (0.95 - (scale(d.value) * 0.15)));
+                  let posA = middleArc.centroid(d);
                   let posB = arc.centroid(d);
                   let posC = arc.centroid(d);
                   let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
@@ -151,10 +153,12 @@ class PieChart{
             .append('text')
               .text( d => d.data.name)
               .attr('transform', d => {
-                let value_sum = d3.sum(this._data, d => d.value);
+                let scale = d3.scaleSqrt()
+                              .domain([d3.min(this._data, d => d.value), d3.max(this._data, d => d.value)])
+                              .range([0, 1]);
                 let arc = d3.arc()
-                            .innerRadius(radius * (0.95 - (d.value / value_sum * 0.15)))
-                            .outerRadius(radius * (0.95 - (d.value / value_sum * 0.15)));
+                            .innerRadius(radius * (0.95 - (scale(d.value) * 0.15)))
+                            .outerRadius(radius * (0.95 - (scale(d.value)* 0.15)));
                 let pos = arc.centroid(d);
                 let midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
                 pos[0] = radius * 0.92 * (midAngle < Math.PI ? 1 : -1);

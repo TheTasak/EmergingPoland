@@ -256,9 +256,6 @@ fieldset{
 .country{
 	transition: 0.5s ease-out;
 }
-.country:hover{
-	fill: #aa2222;
-}
 .chart-title{
   font-size: min(5vw, 32px);
 }
@@ -270,6 +267,10 @@ fieldset{
 .map-button:hover{
 	color: #c5c5c5;
 	cursor: pointer;
+}
+.map-button img{
+  width: 50px;
+  object-position: center bottom;
 }
 .map-country-table{
 	display: flex;

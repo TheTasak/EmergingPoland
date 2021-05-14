@@ -27,6 +27,7 @@
         'country' => $country_arr,
         'value' => intval($data[$i][$date]),
         'translate' => $country[$language],
+        'name' => $country["baza"],
     ];
   }
   echo json_encode($data);

@@ -2,6 +2,8 @@ class WorldMap{
 	_country_arr = [];
 	_map_data = [];
 	_show_map = true;
+	current_map = 0;
+	maps = ["getcountries", "getregions"];
 	stock_name = "";
 	year = 2020;
 	constructor(container, stock_name, start_year, currency, language){
@@ -13,7 +15,7 @@ class WorldMap{
 		this.#load_data();
 	}
 	#load_data = () => {
-		d3.json("php/getcountries.php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
+		d3.json("php/"+ this.maps[this.current_map] +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
 			this._country_arr = d;
 			// Jeżeli brak danych, to spróbuj w poprzednim roku rekurencyjnie
@@ -98,25 +100,38 @@ class WorldMap{
 		// Kolorowanie krajów które znajdują się w tablicy przychodów
 		this.svg.selectAll("path")
 			.filter( (d) => {
-					let result = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < result.length; i++) {
-						for(let j = 0; j < result[i].length; j++) {
-							if(result[i][j] == d.properties["name"])
-								return true;
-						}
+					let country_array = this._country_arr.map(obj => obj.country);
+					for(let i = 0; i < country_array.length; i++) {
+						let country = country_array[i].find(element => element == d.properties["name"]);
+						if(country != undefined)
+							return true;
 					}
 					return false;
 				})
-				.attr("fill", (d) => colors(this._country_arr.find(obj => obj.country == d.properties["name"]).value));
+				.attr("fill",	(d) => {
+					let country_array = this._country_arr.map(obj => obj.country);
+					for(let i = 0; i < country_array.length; i++) {
+						let country = country_array[i].find(element => element == d.properties["name"]);
+						if(country != undefined)
+							return colors(this._country_arr[i].value);
+					}
+				})
+				.attr("class", (d) => {
+					let country_array = this._country_arr.map(obj => obj.country);
+					for(let i = 0; i < country_array.length; i++) {
+						let country = country_array[i].find(element => element == d.properties["name"]);
+						if(country != undefined)
+							return this._country_arr[i].name;
+					}
+				});
 		// Kolorowanie reszty krajów
 		this.svg.selectAll("path")
 			.filter( (d) => {
-					let result = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < result.length; i++) {
-						for(let j = 0; j < result[i].length; j++) {
-							if(result[i][j] == d.properties["name"])
-								return false;
-						}
+					let country_array = this._country_arr.map(obj => obj.country);
+					for(let i = 0; i < country_array.length; i++) {
+						let country = country_array[i].find(element => element == d.properties["name"]);
+						if(country != undefined)
+							return false;
 					}
 					return true;
 				})
@@ -137,17 +152,35 @@ class WorldMap{
 		// Eventy tooltipa - Wyświetlanie tooltipa tylko jeśli kraj znajduje się w tablicy przychodów
     this.svg.selectAll("path")
 			.filter(data => {
-				let index = this._country_arr.findIndex( country => {
-					return country.country == data.properties.name;
-				});
-				return index != -1;
+				let country_array = this._country_arr.map(obj => obj.country);
+				for(let i = 0; i < country_array.length; i++) {
+					let country = country_array[i].find(element => element == data.properties["name"]);
+					if(country != undefined)
+						return true;
+				}
+				return false;
+			})
+			.on("mouseenter", (ev, d) => {
+				let region_countries = ev.target.className.baseVal;
+				d3.select(this.container)
+					.selectAll("." + region_countries)
+					.transition()
+					.attr("fill", "#aa5555")
+					.duration(500);
 			})
 			.on("mousemove", (ev, d) => {
-				let index = this._country_arr.findIndex( country => {
-					return country.country == d.properties.name;
-				});
-				let name = this._country_arr[index].translate;
-				let value = this._country_arr[index].value + "tys " + this.currency;
+				let country_array = this._country_arr.map(obj => obj.country);
+				let index_main;
+				for(let i = 0; i < country_array.length; i++) {
+					let index = country_array[i].findIndex(element => element == d.properties["name"]);
+					if(index != -1) {
+						index_main = i;
+						break;
+					}
+				}
+
+				let name = this._country_arr[index_main].translate;
+				let value = this._country_arr[index_main].value + "tys " + this.currency;
 
 				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
         let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
@@ -164,7 +197,20 @@ class WorldMap{
 				.attr("display", "inherit")
 				.text(name + " " + value);
 			})
-			.on("mouseout", function(ev, d){
+			.on("mouseout", (ev, d) => {
+				let country_array = this._country_arr.map(obj => obj.country);
+				for(let i = 0; i < country_array.length; i++) {
+					let index = country_array[i].findIndex(element => element == d.properties["name"]);
+					if(index != -1) {
+						let region_countries = ev.target.className.baseVal;
+						d3.select(this.container)
+							.selectAll("." + region_countries)
+							.transition()
+							.attr("fill", colors(this._country_arr[i].value))
+							.duration(200);
+							break;
+					}
+				}
 				tooltip
 					.style("opacity", "0")
           .attr("width", "0px");
@@ -215,6 +261,21 @@ class WorldMap{
 				.text("🠖")
 				.on("click", this.#later_year)
 				.classed("map-button", true);
+		d3.select(this.container)
+			.select(".map-button-div")
+			.append("button")
+				.attr("type", "button")
+				.on("click", () => {
+					 if(this.current_map < this.maps.length-1)
+					 		this.current_map++;
+					 else
+					 		this.current_map--;
+					 this.#load_data();
+					 this.refresh();
+				 })
+				.classed("map-button", true)
+				.append("img")
+					.attr("src", "map.png");
 	}
 	refresh = () => {
 		this.reset();
