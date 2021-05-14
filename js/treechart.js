@@ -142,13 +142,25 @@ class TreeChart{
     g.selectAll("text")
           .data(root.descendants())
           .enter()
+          .filter(d => d.data.name != "chart")
           .append("text")
+            .text(d => d.data.translate)
             .attr("x", d => d.x0+5)
-            .attr("y", d => d.y0+20)
-            .filter( d => {return (d.x1 - d.x0)/d.data.name.length > 10 && d.data.name != "chart"; })
-              .text(d => d.data.translate)
-              .attr("font-size", "15px")
-              .attr("fill", "white");
+            .attr("y", (d) => {
+              let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
+              if(cut_text*1.5 > 26)
+                cut_text = 26;
+              return d.y0+(cut_text*1.4);
+            })
+            .attr("font-family", "monospace")
+            .attr("font-size", (d) => {
+                let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
+                if(cut_text*1.5 > 26)
+                  cut_text = 26;
+                return String(cut_text*1.4) + "px";
+            })
+
+            .attr("fill", "white");
 
     const tooltip = this.svg.append("rect")
               .attr("width", "0px")
