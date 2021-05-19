@@ -35,7 +35,7 @@ button{
   align-items: center;
 }
 .sidenav a{
-  padding: 20px;
+  padding: 10px 0 ;
   text-decoration: none;
   text-align: center;
   font-size: 3vh;
@@ -259,6 +259,12 @@ fieldset{
 .chart-title{
   font-size: min(5vw, 32px);
 }
+.map-div > .svg-div{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+}
 .map-button{
   font-size: min(5vw, 32px);
 	color: black;
@@ -316,6 +322,24 @@ fieldset{
 .piechart-button:hover{
   color: #c5c5c5;
 	cursor: pointer;
+}
+.indicator-button{
+  color: black;
+	transition: 0.5s;
+  font-size: min(5vw, 32px);
+}
+.indicator-button:hover{
+  color: #c5c5c5;
+	cursor: pointer;
+}
+.indicator-table{
+	display: flex;
+  border: none;
+	justify-content: center;
+  font-size: min(4vw, 18px);
+}
+.indicator-table td{
+  padding: 2px 8px;
 }
 footer{
   position: absolute;

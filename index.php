@@ -14,6 +14,7 @@
   	<script src="js/treechart.js" defer></script>
     <script src="js/map.js" defer></script>
     <script src="js/piechart.js" defer></script>
+    <script src="js/indicatortable.js" defer></script>
     <script src="js/stock.js" defer></script>
     <script src="js/script.js" defer></script>
   </head>

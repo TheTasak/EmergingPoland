@@ -51,7 +51,7 @@ class WorldMap{
 		d3.select(this.container)
 			.selectAll(".button-div")
 			.remove();
-		this.width = parseInt(this.container.clientWidth);
+		this.width = parseInt(this.container.clientWidth) * 0.9;
 		this.height = parseInt(this.container.clientHeight);
 
 		this.svg_height = this.height*0.8;

@@ -27,6 +27,9 @@
   	$myquery = "SELECT `{$lang}` FROM tlumaczenie WHERE baza='{$temp}';";
 
     $translate = sql_getdatarecord($sqli, $myquery);
+    if(null == $translate) {
+      $translate = $data[$i];
+    }
     $translate_data[$i] = (object)[
       "dane_ksiegowe" => reset($data[$i]),
       "tlumaczenie" => reset($translate),

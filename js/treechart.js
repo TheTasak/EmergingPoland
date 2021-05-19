@@ -148,15 +148,15 @@ class TreeChart{
             .attr("x", d => d.x0+5)
             .attr("y", (d) => {
               let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-              if(cut_text*1.5 > 26)
-                cut_text = 26;
+              if(cut_text*1.4 > 26)
+                cut_text = 24;
               return d.y0+(cut_text*1.4);
             })
             .attr("font-family", "monospace")
             .attr("font-size", (d) => {
                 let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-                if(cut_text*1.5 > 26)
-                  cut_text = 26;
+                if(cut_text*1.4 > 26)
+                  cut_text = 24;
                 return String(cut_text*1.4) + "px";
             })
 
