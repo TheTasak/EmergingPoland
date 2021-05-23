@@ -333,13 +333,16 @@ fieldset{
 	cursor: pointer;
 }
 .indicator-table{
+  overflow: auto;
+  max-height: 500px;
 	display: flex;
   border: none;
 	justify-content: center;
   font-size: min(4vw, 18px);
 }
-.indicator-table td{
-  padding: 2px 8px;
+.indicator-table table{
+  border-collapse: separate;
+  border-spacing: 40px;
 }
 footer{
   position: absolute;
