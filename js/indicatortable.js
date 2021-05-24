@@ -9,20 +9,20 @@ class Indicators{
 		this.currency = currency;
 		this.language = language;
 		this._table = [
-			{"name":"Zysk na akcję", "function": this.#earnings_per_share},
-			{"name":"Cena/Zysk", "function": this.#price_earnings},
-			{"name":"Cena/Wartość księgowa", "function": this.#price_book_value},
-			{"name":"Cena/Przychody", "function": this.#price_revenue},
-			{"name":"Stopa dywidendy", "function": this.#dividend_yield},
-			{"name":"ROE", "function": this.#roe},
-			{"name":"ROA", "function": this.#roa},
-			{"name":"Piotrkowski F-Score", "function": this.#piotrkowski_fscore},
-			{"name":"Marża zysku ze sprzedaży", "function": this.#gross_margin_ratio},
-			{"name":"Produktywność aktywów", "function": this.#asset_turnover_ratio},
-			{"name":"Płynność bieżąca", "function": this.#current_ratio},
-			{"name":"Zadłużenie długoterminowe", "function": this.#longtermdebt_ratio},
-			{"name":"Jakość zysku", "function": this.#earnings_quality},
-			{"name":"Marża operacyjna", "function": this.#operating_margin}
+			{"name":"Zysk na akcję", "function": this.#earnings_per_share, "suffix": "PLN"},
+			{"name":"Cena/Zysk", "function": this.#price_earnings, "suffix": ""},
+			{"name":"Cena/Wartość księgowa", "function": this.#price_book_value, "suffix": ""},
+			{"name":"Cena/Przychody", "function": this.#price_revenue, "suffix": ""},
+			{"name":"Stopa dywidendy", "function": this.#dividend_yield, "suffix": "%"},
+			{"name":"ROE", "function": this.#roe, "suffix": "%"},
+			{"name":"ROA", "function": this.#roa, "suffix": "%"},
+			{"name":"Piotrkowski F-Score", "function": this.#piotrkowski_fscore, "suffix": ""},
+			{"name":"Marża zysku ze sprzedaży", "function": this.#gross_margin_ratio, "suffix": "%"},
+			{"name":"Produktywność aktywów", "function": this.#asset_turnover_ratio, "suffix": "%"},
+			{"name":"Płynność bieżąca", "function": this.#current_ratio, "suffix": ""},
+			{"name":"Zadłużenie długoterminowe", "function": this.#longtermdebt_ratio, "suffix": ""},
+			{"name":"Jakość zysku", "function": this.#earnings_quality, "suffix": ""},
+			{"name":"Marża operacyjna", "function": this.#operating_margin, "suffix": "%"}
 		];
 		this.#load_data();
 	}
@@ -236,39 +236,46 @@ class Indicators{
 			.select(".svg-div")
 			.classed("indicator-table", true)
 			.append("table")
-				.attr("width", "80%")
+				.attr("width", "100%")
 				.selectAll(".table-row")
 				.data(this._table)
 				.enter()
 				.append("tr")
 					.classed("table-row", true);
 
-		const labels = d3.selectAll(".table-row")
+		const labels = d3.select(this.container)
+											.selectAll(".table-row")
 											.append("td")
+												.attr("width", "50%")
 												.classed("row-name", true);
 		const labels_el = labels.nodes();
 
-		const sliders = d3.selectAll(".table-row")
+		const sliders = d3.select(this.container)
+											.selectAll(".table-row")
 											.append("td")
-												.classed("row-slider", true);
+												.classed("row-slider", true)
+												.attr("width", "100%")
+												.append("div")
+													.classed("row-slider-div", true);
 		const sliders_el = sliders.nodes();
-		//drag_slider.noUiSlider.on("change", this.#load_data);
+
 		for(let i = 0; i < this._table.length; i++) {
 			d3.select(labels_el[i])
 				.text(this._table[i]["name"]);
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
-			let range = max-min;
-			console.log(min);
 			noUiSlider.create(sliders_el[i], {
-	      start: [parseFloat(this._table[i]["function"](this.year))],
+	      start: [parseFloat(this.#historical_average(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))],
 	      behaviour: 'none',
+				tooltips: [false, true],
+				connect: [false, true, false],
 				pips: {
 	          mode: 'values',
-	          values: [parseFloat(this.#historical_min(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year)), parseFloat(this.#historical_max(this._table[i]["function"]))],
+	          values: [parseFloat(this.#historical_min(this._table[i]["function"])), parseFloat(this.#historical_max(this._table[i]["function"]))],
 	          density: 10,
 						format: wNumb({
-	            decimals: 2
+	            decimals: 2,
+							suffix: this._table[i]["suffix"]
         		}),
 						stepped: true
 	      },
@@ -276,6 +283,13 @@ class Indicators{
 	          'min': parseFloat(this.#historical_min(this._table[i]["function"])),
 	          'max': parseFloat(this.#historical_max(this._table[i]["function"]))
 	      }
+			});
+			let handles = d3.select(sliders_el[i])
+											.selectAll(".noUi-handle").nodes();
+			d3.select(handles[0])
+				.classed("handle-invisible", true);
+			sliders_el[i].noUiSlider.on("change", () => {
+				sliders_el[i].noUiSlider.set([(this.#historical_average(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))]);
 			});
 		}
   }

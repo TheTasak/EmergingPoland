@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <link rel="stylesheet" href="css/style.css">
     <script src="libs/wNumb.js" defer></script>
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>

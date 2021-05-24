@@ -228,10 +228,15 @@ fieldset{
 .chart-button-div > *{
   margin-right: 30px;
 }
+.chart-button-div > .noUi-target{
+  width: 50%;
+}
 .noUi-target{
 	font-size: 12px;
-	width: 50%;
 	z-index: 0;
+}
+.noUi-horizontal .handle-invisible{
+  display: none;
 }
 .button-div{
   text-align: center;
