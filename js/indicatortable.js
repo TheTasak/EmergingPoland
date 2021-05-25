@@ -12,17 +12,20 @@ class Indicators{
 			{"name":"Zysk na akcję", "function": this.#earnings_per_share, "suffix": "PLN"},
 			{"name":"Cena/Zysk", "function": this.#price_earnings, "suffix": ""},
 			{"name":"Cena/Wartość księgowa", "function": this.#price_book_value, "suffix": ""},
+			{"name":"Cena/Wartość księgowa Grahama", "function": this.#price_graham_book_value, "suffix": ""},
 			{"name":"Cena/Przychody", "function": this.#price_revenue, "suffix": ""},
+			{"name":"Cena/Zysk operacyjny", "function": this.#price_operating_profit, "suffix": ""},
 			{"name":"Stopa dywidendy", "function": this.#dividend_yield, "suffix": "%"},
 			{"name":"ROE", "function": this.#roe, "suffix": "%"},
 			{"name":"ROA", "function": this.#roa, "suffix": "%"},
-			{"name":"Piotrkowski F-Score", "function": this.#piotrkowski_fscore, "suffix": ""},
+			{"name":"Jakość zysku", "function": this.#earnings_quality, "suffix": ""},
+			{"name":"Marża operacyjna", "function": this.#operating_margin, "suffix": "%"},
 			{"name":"Marża zysku ze sprzedaży", "function": this.#gross_margin_ratio, "suffix": "%"},
 			{"name":"Produktywność aktywów", "function": this.#asset_turnover_ratio, "suffix": "%"},
 			{"name":"Płynność bieżąca", "function": this.#current_ratio, "suffix": ""},
+			{"name":"Zadłużenie ogólne", "function": this.#debt_ratio, "suffix": ""},
 			{"name":"Zadłużenie długoterminowe", "function": this.#longtermdebt_ratio, "suffix": ""},
-			{"name":"Jakość zysku", "function": this.#earnings_quality, "suffix": ""},
-			{"name":"Marża operacyjna", "function": this.#operating_margin, "suffix": "%"}
+			{"name":"Piotrkowski F-Score", "function": this.#piotrkowski_fscore, "suffix": ""}
 		];
 		this.#load_data();
 	}
@@ -60,74 +63,60 @@ class Indicators{
 	}
   #earnings_per_share = (year) => {
 		let sum = this.#sum_data(year, "zysk_netto");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-    return parseFloat((kurs*sum*1000) / this._data[year]["akcje"]).toFixed(2);
+    return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / this._data[year]["akcje"]).toFixed(2);
   }
   #price_earnings = (year) => {
     return parseFloat(this._data[year]["cena_akcji"] / this.#earnings_per_share(year)).toFixed(2);
   }
-  #price_book_value = (year) => {
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-    return parseFloat(this._data[year]["cena_akcji"] / (kurs*this._data[year]["kapital_wlasny"]*1000 /  this._data[year]["akcje"])).toFixed(2);
-  }
+	#book_value_per_share = (year) => {
+		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000) / this._data[year]["akcje"]).toFixed(2);
+	}
+	#price_book_value = (year) => {
+		return parseFloat(this._data[year]["cena_akcji"] / this.#book_value_per_share(year)).toFixed(2);
+	}
+	#graham_book_value_per_share = (year) => {
+		let temp = parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["aktywa_obrotowe"]*1000) - ((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000) + (this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000))).toFixed(2);
+		return parseFloat(temp/this._data[year]["akcje"]).toFixed(2);
+	}
+	#price_graham_book_value = (year) => {
+		return parseFloat(this._data[year]["cena_akcji"]/ this.#graham_book_value_per_share(year)).toFixed(2);
+	}
   #price_revenue = (year) => {
 		let sum = this.#sum_data(year, "przychody");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-    return parseFloat(this._data[year]["cena_akcji"] / (kurs*sum*1000 /  this._data[year]["akcje"])).toFixed(2);
+    return parseFloat(this._data[year]["cena_akcji"] / (this._data[year]["kurs_waluty"]*sum*1000 /  this._data[year]["akcje"])).toFixed(2);
   }
+	#price_operating_profit = (year) => {
+		let sum = this.#sum_data(year, "zysk_operacyjny");
+		return parseFloat(this._data[year]["cena_akcji"] / (this._data[year]["kurs_waluty"]*sum*1000 / this._data[year]["akcje"])).toFixed(2);
+	}
   #dividend_yield = (year) => {
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-    return parseFloat((kurs*this._data[year]["dywidenda"]) / (this._data[year]["cena_akcji"]) * 100).toFixed(2);
+    return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["dywidenda"]) / (this._data[year]["cena_akcji"]) * 100).toFixed(2);
   }
 	#roa = (year) => {
 		let sum = this.#sum_data(year, "zysk_netto");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-
-		return parseFloat((kurs*sum*1000) / (kurs*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
 	}
 	#roe = (year) => {
 		let sum = this.#sum_data(year, "zysk_netto");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*sum*1000) / (kurs*this._data[year]["kapital_wlasny"]*1000) * 100).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000) * 100).toFixed(2);
+	}
+	#debt_ratio = (year) => {
+		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000 + this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000)).toFixed(2);
 	}
 	#longtermdebt_ratio = (year) => {
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*this._data[year]["zobowiazania_dlugoterminowe"]*1000) / (kurs*this._data[year]["kapital_wlasny"]*1000)).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000)).toFixed(2);
 	}
 	#current_ratio = (year) => {
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*this._data[year]["aktywa_obrotowe"]*1000) / (kurs*this._data[year]["zobowiazania_krotkoterminowe"]*1000)).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["aktywa_obrotowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000)).toFixed(2);
 	}
 	#asset_turnover_ratio = (year) => {
 		let sum = this.#sum_data(year, "przychody");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*sum*1000) / (kurs*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
 	}
 	#gross_margin_ratio = (year) => {
 		let sum_earnings = this.#sum_data(year, "przychody");
 		let sum_profits = this.#sum_data(year, "zysk_ze_sprzedazy");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*sum_profits*1000) / (kurs*sum_earnings*1000) * 100).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*sum_profits*1000) / (this._data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
 	}
 	#earnings_quality = (year) => {
 		let sum_flow = this.#sum_data(year, "przeplyw_pieniezny_z_dzialalnosci_operacyjnej");
@@ -137,10 +126,7 @@ class Indicators{
 	#operating_margin = (year) => {
 		let sum_operating = this.#sum_data(year, "zysk_operacyjny");
 		let sum_earnings = this.#sum_data(year, "przychody");
-		let kurs = 1;
-		if(this._data[year]["kurs_waluty"] != undefined)
-			kurs = this._data[year]["kurs_waluty"];
-		return parseFloat((kurs*sum_operating*1000)/(kurs*sum_earnings*1000) * 100).toFixed(2);
+		return parseFloat((this._data[year]["kurs_waluty"]*sum_operating*1000)/(this._data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
 	}
 	#piotrkowski_fscore = (year) => {
 		if(year <= this.start_year)
@@ -167,27 +153,29 @@ class Indicators{
 		return points;
 	}
 	#historical_min = (func) => {
-		let min = func(this.start_year*1 +1);
+		let min = func(this.start_year*1 + 1);
 		for(let i = this.start_year; i <= this.year; i++) {
-			if(func(i) < min && func(i) != "")
-				min = func(i);
+			let num = parseFloat(func(i));
+			if(num < min && !isNaN(num))
+				min = num;
 		}
 		return parseFloat(min).toFixed(2);
 	}
-	#historical_average = (func) => {
+	#historical_median = (func) => {
 		let years = this.year - this.start_year + 1;
-		let avg = 0;
+		let array = [];
 		for(let i = this.start_year; i <= this.year; i++) {
-			avg += func(i)*1;
+			array.push(func(i)*1);
 		}
-		avg /= years;
-		return parseFloat(avg).toFixed(2);
+		array.sort();
+		return array[parseInt(years/2)];
 	}
 	#historical_max = (func) => {
 		let max = func(this.start_year);
 		for(let i = this.start_year; i <= this.year; i++) {
-			if(func(i) >= Number(max))
-				max = func(i);
+			let num = parseFloat(func(i));
+			if(num >= max && !isNaN(num))
+				max = num;
 		}
 		return parseFloat(max).toFixed(2);
 	}
@@ -264,14 +252,15 @@ class Indicators{
 				.text(this._table[i]["name"]);
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
+			console.log(this._table[i]["name"] + " " + min + " " + max);
 			noUiSlider.create(sliders_el[i], {
-	      start: [parseFloat(this.#historical_average(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))],
-	      behaviour: 'none',
+	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))],
+	      behaviour: 'unconstrained-tap',
 				tooltips: [false, true],
 				connect: [false, true, false],
 				pips: {
 	          mode: 'values',
-	          values: [parseFloat(this.#historical_min(this._table[i]["function"])), parseFloat(this.#historical_max(this._table[i]["function"]))],
+	          values: [min, max],
 	          density: 10,
 						format: wNumb({
 	            decimals: 2,
@@ -280,8 +269,8 @@ class Indicators{
 						stepped: true
 	      },
 	      range: {
-	          'min': parseFloat(this.#historical_min(this._table[i]["function"])),
-	          'max': parseFloat(this.#historical_max(this._table[i]["function"]))
+	          'min': min,
+	          'max': max
 	      }
 			});
 			let handles = d3.select(sliders_el[i])
@@ -289,7 +278,7 @@ class Indicators{
 			d3.select(handles[0])
 				.classed("handle-invisible", true);
 			sliders_el[i].noUiSlider.on("change", () => {
-				sliders_el[i].noUiSlider.set([(this.#historical_average(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))]);
+				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))]);
 			});
 		}
   }

@@ -71,6 +71,12 @@
         $data->{$second_quarter}->{"kurs_waluty"} = $para[$second_quarter];
         $data->{$third_quarter}->{"kurs_waluty"} = $para[$third_quarter];
         $data->{$forth_quarter}->{"kurs_waluty"} = $para[$forth_quarter];
+      } else {
+        $data->{$year}->{"kurs_waluty"} = 1;
+        $data->{$first_quarter}->{"kurs_waluty"} = 1;
+        $data->{$second_quarter}->{"kurs_waluty"} = 1;
+        $data->{$third_quarter}->{"kurs_waluty"} = 1;
+        $data->{$forth_quarter}->{"kurs_waluty"} = 1;
       }
     }
     echo json_encode($data);
