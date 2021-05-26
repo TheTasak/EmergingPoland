@@ -2,11 +2,10 @@ class Indicators{
 	stock_name = "";
 	year = "2020";
 	_table = "";
-	constructor(container, stock_name, start_year, currency, language){
+	constructor(container, stock_name, start_year, language){
 		this.container = container;
 		this.stock_name = stock_name;
 		this.start_year = start_year;
-		this.currency = currency;
 		this.language = language;
 		this._table = [
 			{"name":"Zysk na akcję", "function": this.#earnings_per_share, "suffix": "PLN"},

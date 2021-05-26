@@ -50,19 +50,20 @@ class PieChart{
   }
   #load_data = () => {
     d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
-      if(d == null || d.length == 0)
-        throw "undefined data";
-      else {
-        this._data = d;
-        this._data.forEach((item, i) => {
-          item.value = parseInt(item.value);
-        });
-        this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-        this._data.forEach((item, i) => {
-          item.id = parseInt(i);
-        });
-        this.refresh();
-      }
+      this._data = d;
+      if(this._data.length <= 0){
+				this.year--;
+				this.#load_data();
+				return;
+			}
+      this._data.forEach((item, i) => {
+        item.value = parseInt(item.value);
+      });
+      this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
+      this._data.forEach((item, i) => {
+        item.id = parseInt(i);
+      });
+      this.refresh();
     }).catch(error => {
         console.error(error);
     });

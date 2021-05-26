@@ -66,6 +66,11 @@ class TreeChart{
   #load_data = () => {
     d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
+      if(this._data.length <= 0){
+				this.year--;
+				this.#load_data();
+				return;
+			}
       this._data.forEach((item, i) => {
         item.value = parseFloat(item.value);
       });
@@ -173,7 +178,7 @@ class TreeChart{
     this.svg.selectAll('.treechart-chunk')
   			.on("mousemove", (ev, d) => {
   				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];
-          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-100];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
             tooltippos[0] = this.width - tooltipsize[0];

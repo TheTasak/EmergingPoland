@@ -36,11 +36,21 @@
       $forth_quarter = "{$year}" . "_4";
 
       for($j = 0; $j < count($row); $j++) {
-        $yearly_object->{$row[$j]["dane_ksiegowe"]} = $row[$j]["{$year}"];
-        $first_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$first_quarter];
-        $second_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$second_quarter];
-        $third_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$third_quarter];
-        $forth_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$forth_quarter];
+        if(null !== $row[$j]["{$year}"]) {
+          $yearly_object->{$row[$j]["dane_ksiegowe"]} = $row[$j]["{$year}"];
+        }
+        if(null !== $row[$j][$first_quarter]) {
+          $first_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$first_quarter];
+        }
+        if(null !== $row[$j][$second_quarter]) {
+          $second_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$second_quarter];
+        }
+        if(null !== $row[$j][$third_quarter]) {
+          $third_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$third_quarter];
+        }
+        if(null !== $row[$j][$forth_quarter]) {
+          $forth_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$forth_quarter];
+        }
       }
       $data->{$year} =  $yearly_object;
       $data->{$first_quarter} =  $first_quarter_object;
@@ -50,12 +60,14 @@
 
       $myquery = "SELECT `{$year}_akcje` FROM `{$year}_akcje` WHERE spolka='{$stock_value}' AND osoba = 'lacznie';";
       $akcje = sql_getdatarecord($sqli, $myquery);
-      $data->{$year}->{"akcje"} = reset($akcje);
-      $data->{$first_quarter}->{"akcje"} = reset($akcje);
-      $data->{$second_quarter}->{"akcje"} = reset($akcje);
-      $data->{$third_quarter}->{"akcje"} = reset($akcje);
-      $data->{$forth_quarter}->{"akcje"} = reset($akcje);
-
+      if(null !== $akcje) {
+        $akcje_value = reset($akcje);
+        $data->{$year}->{"akcje"} = $akcje_value;
+        $data->{$first_quarter}->{"akcje"} = $akcje_value;
+        $data->{$second_quarter}->{"akcje"} = $akcje_value;
+        $data->{$third_quarter}->{"akcje"} = $akcje_value;
+        $data->{$forth_quarter}->{"akcje"} = $akcje_value;
+      }
       $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
       $ceny = sql_getdatarecord($sqli, $myquery);
       $data->{$year}->{"cena_akcji"} = $ceny[$year];
