@@ -62,12 +62,18 @@
       $akcje = sql_getdatarecord($sqli, $myquery);
       if(null !== $akcje) {
         $akcje_value = reset($akcje);
-        $data->{$year}->{"akcje"} = $akcje_value;
-        $data->{$first_quarter}->{"akcje"} = $akcje_value;
-        $data->{$second_quarter}->{"akcje"} = $akcje_value;
-        $data->{$third_quarter}->{"akcje"} = $akcje_value;
-        $data->{$forth_quarter}->{"akcje"} = $akcje_value;
+      } else {
+        $try_year = $year - 1;
+        $myquery = "SELECT `{$try_year}_akcje` FROM `{$try_year}_akcje` WHERE spolka='{$stock_value}' AND osoba = 'lacznie';";
+        $akcje = sql_getdatarecord($sqli, $myquery);
+        $akcje_value = reset($akcje);
       }
+      $data->{$year}->{"akcje"} = $akcje_value;
+      $data->{$first_quarter}->{"akcje"} = $akcje_value;
+      $data->{$second_quarter}->{"akcje"} = $akcje_value;
+      $data->{$third_quarter}->{"akcje"} = $akcje_value;
+      $data->{$forth_quarter}->{"akcje"} = $akcje_value;
+
       $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
       $ceny = sql_getdatarecord($sqli, $myquery);
       $data->{$year}->{"cena_akcji"} = $ceny[$year];

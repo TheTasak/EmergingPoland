@@ -8,17 +8,34 @@ class BasicInfo{
 		this.language = language;
 		this.#load_data();
 	}
+	#get_suffix = () => {
+    //Zwraca końcówkę danych na podstawie ilości zer na końcu
+	  let val = parseInt(this._data["capitalization"]);
+	  if(val >= 1000000000){
+		  this._data["capitalization"] /= 1000000000.0;
+		  this.suffix = "mld";
+	  } else if(val >= 1000000){
+		  this._data["capitalization"] /= 1000000.0;
+		  this.suffix = "mln";
+		} else if(val >= 1000){
+			this._data["capitalization"] /= 1000.0;
+		  this.suffix = "tys";
+	  } else {
+			this.suffix = "";
+		}
+  }
 	#load_data = () => {
 		d3.json("php/getbasicinfo.php?" + "stock_name=" + this.stock_name + "&year=" + this.year).then( d => {
 			  this._data = d;
+				this.#get_suffix();
         this._table = [
     			{"name":"Nazwa spółki", "data": this._data["name"], "suffix": "PLN"},
-    			{"name":"Data debiutu", "data": "", "suffix": ""},
+    			{"name":"Data debiutu", "data": this._data["debut_date"], "suffix": ""},
     			{"name":"Ticket", "data": this._data["ticket"], "suffix": ""},
     			{"name":"Indeks", "data": this._data["index"], "suffix": ""},
-          {"name":"Sektor", "data": "", "suffix": ""},
+          {"name":"Branża", "data": this._data["industry"], "suffix": ""},
     			{"name":"ISIN", "data": this._data["ISIN"], "suffix": ""},
-          {"name":"Kapitalizacja", "data": parseInt(this._data["capitalization"]), "suffix": ""}
+          {"name":"Kapitalizacja", "data": parseFloat(this._data["capitalization"]).toFixed(2) + this.suffix, "suffix": ""}
     		];
         this.refresh();
 		});

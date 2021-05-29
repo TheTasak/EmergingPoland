@@ -28,6 +28,13 @@ class Indicators{
 		];
 		this.#load_data();
 	}
+	#get_quarter = () => {
+		let quarter = 4;
+		while(this._data[this.year + "_" + quarter]["zysk_netto"] == undefined){
+				quarter--;
+		}
+		this.quarter = quarter;
+	}
   #earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
@@ -52,7 +59,7 @@ class Indicators{
 					ar_year--;
 					ar_quarter = 4;
 				}
-				sum += parseFloat(this._data[ar_year + "_" + ar_quarter][data]).toFixed(2);
+				sum += parseFloat(this._data[ar_year + "_" + ar_quarter][data]);
 				ar_quarter--;
 			}
 		} else {
@@ -130,31 +137,41 @@ class Indicators{
 	#piotrkowski_fscore = (year) => {
 		if(year <= this.start_year)
 			return "";
+		let array = String(year).split("_", 2);
+		array[0] = parseInt(array[0]) - 1;
+		let year_before = array[0];
+		if(array[1] != undefined)
+			year_before += "_" + array[1];
 		let points = 0;
 		// spółka wypracowała zysk w ostatnim roku
 		points += (this.#sum_data(year, "zysk_netto") > 0 ? 1 : 0);
 		// spółka zanotowała dodatnie przepływy pieniężne
 		points += (this.#sum_data(year, "przeplyw_pieniezny_z_dzialalnosci_operacyjnej") > 0 ? 1 : 0);
 		// spółka zwiększyła roa r/r
-		points += (this.#roa(year) > this.#roa(year*1-1) ? 1 : 0);
+
+		points += (this.#roa(year) > this.#roa(year_before) ? 1 : 0);
 		// wartość przepływów pieniężnych większa niż zysk
 		points += (this.#earnings_quality(year) >= 1 ? 1 : 0);
 		// zmniejszył się stosunek zadłużenia do aktywów
-		points += (this.#longtermdebt_ratio(year) < this.#longtermdebt_ratio(year*1-1) ? 1 : 0);
+		points += (this.#longtermdebt_ratio(year) < this.#longtermdebt_ratio(year_before) ? 1 : 0);
 		// zmniejszyło się zadłużenie krótkoterminowe
-		points += (this.#current_ratio(year) > this.#current_ratio(year*1-1) ? 1 : 0);
+		points += (this.#current_ratio(year) > this.#current_ratio(year_before) ? 1 : 0);
 		// nie zwiększa się liczba akcji w obiegu
-		points += (this._data[year]["akcje"] <= this._data[year*1-1]["akcje"] ? 1 : 0);
+		points += (this._data[year]["akcje"] <= this._data[year_before]["akcje"] ? 1 : 0);
 		// wzrost produktywności aktywów
-		points += (this.#asset_turnover_ratio(year) > this.#asset_turnover_ratio(year*1-1) ? 1 : 0);
+		points += (this.#asset_turnover_ratio(year) > this.#asset_turnover_ratio(year_before) ? 1 : 0);
 		// wzrost marży sprzedaży
-		points += (this.#gross_margin_ratio(year) > this.#gross_margin_ratio(year*1-1) ? 1 : 0);
+		points += (this.#gross_margin_ratio(year) > this.#gross_margin_ratio(year_before) ? 1 : 0);
 		return points;
 	}
 	#historical_min = (func) => {
 		let min = func(this.start_year*1 + 1);
+		let num = 0;
 		for(let i = this.start_year; i <= this.year; i++) {
-			let num = parseFloat(func(i));
+			if(i == this.year)
+				num = parseFloat(func(i + "_" + this.quarter));
+			else
+			 	num = parseFloat(func(i));
 			if(num < min && !isNaN(num))
 				min = num;
 		}
@@ -181,6 +198,7 @@ class Indicators{
 	#load_data = () => {
 		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.year).then( d => {
 			this._data = d;
+			this.#get_quarter();
       this.refresh();
 		});
 	}
@@ -215,7 +233,7 @@ class Indicators{
 			.select(".button-div")
 			.append("span")
 			.style("padding", "0 10px")
-			.text(this.year)
+			.text(this.year + " " + this.quarter)
 			.classed("indicator-button", true);
   }
   draw_table = () => {
@@ -251,9 +269,8 @@ class Indicators{
 				.text(this._table[i]["name"]);
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
-			console.log(this._table[i]["name"] + " " + min + " " + max);
 			noUiSlider.create(sliders_el[i], {
-	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))],
+	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year + "_" + this.quarter))],
 	      behaviour: 'unconstrained-tap',
 				tooltips: [false, true],
 				connect: [false, true, false],
@@ -277,7 +294,7 @@ class Indicators{
 			d3.select(handles[0])
 				.classed("handle-invisible", true);
 			sliders_el[i].noUiSlider.on("change", () => {
-				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year))]);
+				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year + "_" + this.quarter))]);
 			});
 		}
   }

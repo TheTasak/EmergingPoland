@@ -317,7 +317,12 @@ class Chart{
   #draw_table = () => {
 	  let data_string = '<table class="data_table">';
 	  for(let i = 0; i < this._data.length; i++){
-		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + " " + this.currency + "</td></tr>";
+      let percent = "";
+      if(i != 0 && this._data[i-1].value != 0) {
+        percent = parseFloat(this._data[i].value/this._data[i-1].value*100 - 100).toFixed(2);
+        percent = (percent > 0) ? "+" + percent + "%" : percent + "%";
+      }
+		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + " " + this.currency + "</td><td>" + percent + "</td></tr>";
 	  }
 	  data_string += "</table>";
 	  d3.select(this.container)

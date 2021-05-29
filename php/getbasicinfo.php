@@ -10,21 +10,33 @@
 
   	$sqli = sql_open();
 
-  	$myquery = "SELECT idspolki, ticket, indeks, ISIN FROM `spis` WHERE spolki='{$stock_name}';";
+  	$myquery = "SELECT idspolki, ticket, indeks, ISIN, branza, data_debiutu FROM `spis` WHERE spolki='{$stock_name}';";
     $stock = sql_getdatarecord($sqli, $myquery);
     $data = new stdClass();
     $data->{"name"} = ucfirst($stock_name);
     $data->{"ticket"} = $stock["ticket"];
     $data->{"index"} = $stock["indeks"];
     $data->{"ISIN"} = $stock["ISIN"];
+    $data->{"industry"} = $stock["branza"];
+    $data->{"debut_date"} = $stock["data_debiutu"];
 
   	$stock_value = $stock["idspolki"];
-
-    $myquery = "SELECT * FROM `{$year}_akcje` WHERE spolka='{$stock_value}' AND osoba='lacznie';";
-    $stocks_count = sql_getdatarecord($sqli, $myquery);
+    $stocks_count = null;
+    $stocks_price = null;
+    $year_akcje = $year;
+    while($stocks_count == null) {
+      $myquery = "SELECT * FROM `{$year_akcje}_akcje` WHERE spolka='{$stock_value}' AND osoba='lacznie';";
+      $stocks_count = sql_getdatarecord($sqli, $myquery);
+      $year_akcje--;
+    }
     $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
     $stocks_price = sql_getdatarecord($sqli, $myquery);
-    $data->{"capitalization"} = $stocks_count[$year . "_akcje"] * $stocks_price[$year];
+    $quarter_kurs = 4;
+    while($stocks_price[$year . "_" . $quarter_kurs] == null)
+    {
+      $quarter_kurs--;
+    }
+    $data->{"capitalization"} = $stocks_count[$year_akcje+1 . "_akcje"] * $stocks_price[$year . "_" . $quarter_kurs];
     echo json_encode($data);
     mysqli_close($sqli);
 ?>
