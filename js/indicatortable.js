@@ -1,11 +1,13 @@
 class Indicators{
 	stock_name = "";
-	year = "2020";
 	_table = "";
-	constructor(container, stock_name, start_year, language){
+	show_table = false;
+	constructor(container, stock_name, start_year, end_report, language){
 		this.container = container;
 		this.stock_name = stock_name;
 		this.start_year = start_year;
+		this.end_year = end_report.split("_")[0];
+		this.end_quarter = end_report.split("_")[1];
 		this.language = language;
 		this._table = [
 			{"name":"Zysk na akcję", "function": this.#earnings_per_share, "suffix": "PLN"},
@@ -28,28 +30,9 @@ class Indicators{
 		];
 		this.#load_data();
 	}
-	#get_quarter = () => {
-		let quarter = 4;
-		while(this._data[this.year + "_" + quarter]["zysk_netto"] == undefined){
-				quarter--;
-		}
-		this.quarter = quarter;
-	}
-  #earlier_year = () => {
-		if(this.year <= this.start_year)
-			return;
-		this.year--;
-    this.refresh();
-	}
-	#later_year = () => {
-		if(this.year >= 2020)
-			return;
-		this.year++;
-    this.refresh();
-	}
 	#sum_data = (year, data) => {
 		let string = String(year);
-		let array = string.split("_", 2);
+		let array = string.split("_");
 		let sum = 0;
 		if(array[1] != undefined) {
 			let ar_year = parseInt(array[0]);
@@ -59,7 +42,10 @@ class Indicators{
 					ar_year--;
 					ar_quarter = 4;
 				}
-				sum += parseFloat(this._data[ar_year + "_" + ar_quarter][data]);
+				let temp = parseFloat(this._data[ar_year + "_" + ar_quarter][data]);
+				if(isNaN(temp))
+					break;
+				sum += temp;
 				ar_quarter--;
 			}
 		} else {
@@ -137,9 +123,8 @@ class Indicators{
 	#piotrkowski_fscore = (year) => {
 		if(year <= this.start_year)
 			return "";
-		let array = String(year).split("_", 2);
-		array[0] = parseInt(array[0]) - 1;
-		let year_before = array[0];
+		let array = String(year).split("_");
+		let year_before = parseInt(array[0]) - 1;
 		if(array[1] != undefined)
 			year_before += "_" + array[1];
 		let points = 0;
@@ -167,9 +152,9 @@ class Indicators{
 	#historical_min = (func) => {
 		let min = func(this.start_year*1 + 1);
 		let num = 0;
-		for(let i = this.start_year; i <= this.year; i++) {
-			if(i == this.year)
-				num = parseFloat(func(i + "_" + this.quarter));
+		for(let i = this.start_year; i <= this.end_year; i++) {
+			if(i == this.end_year)
+				num = parseFloat(func(i + "_" + this.end_quarter));
 			else
 			 	num = parseFloat(func(i));
 			if(num < min && !isNaN(num))
@@ -178,27 +163,35 @@ class Indicators{
 		return parseFloat(min).toFixed(2);
 	}
 	#historical_median = (func) => {
-		let years = this.year - this.start_year + 1;
+		let years = this.end_year - this.start_year + 1;
 		let array = [];
-		for(let i = this.start_year; i <= this.year; i++) {
-			array.push(func(i)*1);
+		for(let i = this.start_year; i <= this.end_year; i++) {
+			if(i == this.end_year) {
+				array.push(parseFloat(func(i + "_" + this.end_quarter)));
+			} else {
+				array.push(parseFloat(func(i)));
+			}
 		}
 		array.sort();
 		return array[parseInt(years/2)];
 	}
 	#historical_max = (func) => {
 		let max = func(this.start_year);
-		for(let i = this.start_year; i <= this.year; i++) {
-			let num = parseFloat(func(i));
-			if(num >= max && !isNaN(num))
+		let num = 0;
+		for(let i = this.start_year; i <= this.end_year; i++) {
+			if(i == this.end_year) {
+				num = parseFloat(func(i + "_" + this.end_quarter));
+			} else {
+				num = parseFloat(func(i));
+			}
+			if(num > max && !isNaN(num))
 				max = num;
 		}
 		return parseFloat(max).toFixed(2);
 	}
 	#load_data = () => {
-		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.year).then( d => {
+		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year).then( d => {
 			this._data = d;
-			this.#get_quarter();
       this.refresh();
 		});
 	}
@@ -233,10 +226,38 @@ class Indicators{
 			.select(".button-div")
 			.append("span")
 			.style("padding", "0 10px")
-			.text(this.year + " " + this.quarter)
+			.text(this.end_year + " " + this.end_quarter)
+			.on("click", () => {this.show_table = !this.show_table; this.refresh();})
 			.classed("indicator-button", true);
   }
-  draw_table = () => {
+	draw_table = () => {
+		const table = d3.select(this.container)
+			.select(".svg-div")
+			.classed("indicator-table-nosliders", true)
+			.append("table")
+				.attr("width", "100%");
+		const table_el = table.nodes();
+		let table_string = "";
+		table_string += '<tr class="table-row">';
+		table_string += "<td width='40%'>" + "Nazwa wskaźnika" + "</td>";
+		table_string += "<td width='15%'>" + "Aktualna wartość" + "</td>";
+		table_string += "<td width='15%'>" + "Minimum" + "</td>";
+		table_string += "<td width='15%'>" + "Mediana" + "</td>";
+		table_string += "<td width='15%'>" + "Maximum" + "</td>";
+		table_string += "</tr>";
+		for(let i = 0; i < this._table.length; i++) {
+			table_string += '<tr class="table-row">';
+			table_string += "<td width='40%'>" + this._table[i]["name"] + "</td>";
+			table_string += "<td width='15%'>" + parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter)) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td width='15%'>" + parseFloat(this.#historical_min(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td width='15%'>" + parseFloat(this.#historical_median(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td width='15%'>" + parseFloat(this.#historical_max(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "</tr>";
+		}
+		d3.select(table_el[0])
+			.html(table_string);
+	}
+  draw_sliderstable = () => {
     const rows = d3.select(this.container)
 			.select(".svg-div")
 			.classed("indicator-table", true)
@@ -270,7 +291,7 @@ class Indicators{
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
 			noUiSlider.create(sliders_el[i], {
-	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year + "_" + this.quarter))],
+	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
 	      behaviour: 'unconstrained-tap',
 				tooltips: [false, true],
 				connect: [false, true, false],
@@ -294,13 +315,17 @@ class Indicators{
 			d3.select(handles[0])
 				.classed("handle-invisible", true);
 			sliders_el[i].noUiSlider.on("change", () => {
-				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.year + "_" + this.quarter))]);
+				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
 			});
 		}
   }
 	refresh = () => {
 		this.reset();
     this.#draw_inputs();
-    this.draw_table();
+		if(this.show_table) {
+			this.draw_table();
+		} else {
+    	this.draw_sliderstable();
+		}
   }
 }

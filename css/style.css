@@ -207,18 +207,18 @@ main h1{
 fieldset{
   border: none;
 }
-.chart-input select{
-  font-size: min(2vw, 14px);
+.chart-input{
+  font-size: min(3vw, 14px);
+  margin-right: 20px;
 }
 .chart-input img{
   width: 50px;
 }
 .chart-input-div{
-  margin-right: 10px;
   margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
 }
 .chart-button-div{
   display: flex;
@@ -348,6 +348,23 @@ fieldset{
 .indicator-table table{
   border-collapse: separate;
   border-spacing: 40px;
+}
+.indicator-table-nosliders{
+  overflow: auto;
+  max-height: 500px;
+	display: flex;
+  border: none;
+	justify-content: center;
+  font-size: min(3vw, 18px);
+}
+.indicator-table-nosliders table{
+  border-spacing: 0 15px;
+}
+.indicator-table-nosliders tr:first-child{
+  font-weight: bold;
+}
+.indicator-table-nosliders tr:nth-child(even){
+  background: #ffbdbd;
 }
 .info-table{
   overflow: auto;

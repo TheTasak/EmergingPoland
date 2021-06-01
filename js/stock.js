@@ -3,7 +3,7 @@ class Stock{
   _containers = [];
   _modules = [];
   constructor(stock_name, container_tab, language){
-    this.stock_name = stock_name;
+    this.stock_name = stock_name.trim();
     this._containers = container_tab;
     this.language = language;
     this.#load_data();
@@ -14,6 +14,7 @@ class Stock{
         throw "undefined data";
       //zapisanie wczytanych danych do zmiennych
       this.start_year = d.rok;
+      this.end_report = d.ostatnie_sprawozdanie;
       this.suffix = d.waluta;
       //stworzenie tablicy potrzebnych modułów spółki
       this._tables = [];
@@ -40,8 +41,8 @@ class Stock{
       //tworzenie modułów na podstawie tablicy
       for(let i = 0; i < this._tables.length; i++){
         if(this._tables[i] == "dane"){
-         this._modules.push(new BasicInfo(this._containers[container_counter], this.stock_name, this.start_year, this.language));
-         this._modules.push(new Indicators(this._containers[container_counter+1], this.stock_name, this.start_year, this.language));
+         this._modules.push(new BasicInfo(this._containers[container_counter], this.stock_name, this.end_report, this.language));
+         this._modules.push(new Indicators(this._containers[container_counter+1], this.stock_name, this.start_year, this.end_report, this.language));
          this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "dywidenda", "year", this.start_year, this.suffix, this.language));
          this._modules.push(new Chart(this._containers[container_counter+3], this.stock_name, "koszt_sprzedazy", "quarter", this.start_year, this.suffix, this.language));
          container_counter = container_counter + 4;
@@ -49,7 +50,7 @@ class Stock{
          this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
          container_counter++;
        } else if(this._tables[i] == "podzial_przychodow"){
-         this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
+         this._modules.push(new TreeChartInne(this._containers[container_counter], this.stock_name, this.start_year, this.suffix, this.language));
          container_counter++;
        } else if(this._tables[i] == "akcje"){
          this._modules.push(new PieChart(this._containers[container_counter], this.stock_name, this.start_year));

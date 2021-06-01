@@ -13,6 +13,7 @@
 
     <script src="js/chart.js" defer></script>
   	<script src="js/treechart.js" defer></script>
+    <script src="js/treechartinne.js" defer></script>
     <script src="js/map.js" defer></script>
     <script src="js/piechart.js" defer></script>
     <script src="js/indicatortable.js" defer></script>

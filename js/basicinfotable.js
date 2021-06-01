@@ -2,10 +2,11 @@ class BasicInfo{
 	stock_name = "";
 	year = "2020";
 	_table = "";
-	constructor(container, stock_name, start_year, language){
+	constructor(container, stock_name, end_year, language){
 		this.container = container;
 		this.stock_name = stock_name;
 		this.language = language;
+		this.year = end_year.split("_")[0];
 		this.#load_data();
 	}
 	#get_suffix = () => {
