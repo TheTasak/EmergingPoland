@@ -378,6 +378,9 @@ fieldset{
   border-collapse: separate;
   border-spacing: 40px;
 }
+.circle-node:hover{
+  stroke-width: 5px !important;
+}
 footer{
   position: absolute;
   bottom: 0;

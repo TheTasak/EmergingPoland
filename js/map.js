@@ -193,7 +193,6 @@ class WorldMap{
 						break;
 					}
 				}
-
 				let name = this._country_arr[index_main].translate;
 				let value = this._country_arr[index_main].value + this.suffix + " " + this.currency;
 

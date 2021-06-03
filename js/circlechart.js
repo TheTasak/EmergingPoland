@@ -24,6 +24,14 @@ class CircleChart{
 		this.year++;
 		this.#load_data();
 	}
+  #load_data = () => {
+    d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
+      this._data = d;
+      this.#change_chart();
+      this.#init();
+      this.#update_chart();
+    });
+  }
   #change_chart = () => {
     const select_list_type = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_type != undefined)
@@ -81,14 +89,7 @@ class CircleChart{
       .attr("height", this.svg_height)
       .attr("width", this.width);
   }
-  #load_data = () => {
-    d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
-      this._data = d;
-      this.#change_chart();
-      this.#init();
-      this.#update_chart();
-    });
-  }
+
   #init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
@@ -170,7 +171,8 @@ class CircleChart{
                     .style("fill", "#66a3b2")
                     .style("fill-opacity", 0.5)
                     .attr("stroke", "#66a2b3")
-                    .style("stroke-width", 4)
+                    .style("stroke-width", 3)
+                    .classed("circle-node", true)
                     .call(d3.drag()
                             .on("start", d => {
                               if (!d.target.active)
@@ -209,7 +211,7 @@ class CircleChart{
     this.simulation = d3.forceSimulation()
                          .force("manyBody", d3.forceManyBody().strength(10))
                          .force("collide", d3.forceCollide().strength(.25).radius( d => scale(d[this.current_chart_interval])+3).iterations(1))
-                         .alpha(0.3)
+                         .alpha(0.03)
                          .restart();
     this.simulation.nodes(this.current_data.children)
                .on("tick", () => {
@@ -245,7 +247,7 @@ class CircleChart{
     			  .attr("y", tooltippos[1])
     			  .attr("width", tooltipsize[0])
     			  .attr("height", tooltipsize[1])
-            .style("opacity", "0.7");
+            .style("opacity", "0.8");
 
   			  tooltiptext
     				.attr("x", tooltippos[0] + tooltipsize[0]/2)

@@ -12,12 +12,13 @@ class Chart{
   padding_vertical = 20;
   padding_horizontal = 100;
   chart_title = "";
-  constructor(container, stock_name, data_name, chart_type, start_year, currency, language){
+  constructor(container, stock_name, data_name, chart_type, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.data_name = data_name;
     this.chart_type = chart_type;
     this.start_year = start_year;
+    this.end_year = end_year;
     this.currency = currency;
     this.language = language;
     this.reset();
@@ -217,6 +218,7 @@ class Chart{
     g.append("g")
 		.classed("axis_bottom",true)
 		.call(d3.axisBottom(xScale))
+    .style("user-select", "none")
 		.attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
     g.append("g")
@@ -224,6 +226,7 @@ class Chart{
 		.call(d3.axisLeft(yScale).tickFormat( (d) => {
 			return d.toString() + this.suffix;
 		}).ticks(10))
+    .style("user-select", "none")
 		.append("text")
 		.attr("text-anchor", "end")
 		.text("value");
@@ -282,23 +285,28 @@ class Chart{
 	const tooltip = this.svg.append("rect")
 						.attr("width", "0px")
 						.attr("height", "0px")
+            .attr("rx", "20px")
+            .attr("ry", "20px")
 						.style("fill", "white")
+            .attr("pointer-events", "none")
 						.style("stroke", "black")
 						.classed("tooltip", true)
 	const tooltiptext = this.svg.append("text")
+            .attr("pointer-events", "none")
+            .style("user-select", "none")
 						.classed("tooltip-text", true);
   //Obsługa eventów tooltipa
 	this.svg.selectAll('.bar')
 			.on("mousemove", (ev, d) => {
-        let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, this.height / 8];
-				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+        let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, 40];
+				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1] - tooltipsize[1] - 10];
 
         tooltip
           .attr("x", tooltippos[0])
   			  .attr("y", tooltippos[1])
   			  .attr("width", tooltipsize[0])
   			  .attr("height", tooltipsize[1])
-          .style("opacity", "0.7");
+          .style("opacity", "0.8");
 
 			  tooltiptext
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)

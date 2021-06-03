@@ -192,45 +192,58 @@ class Indicators{
 	#load_data = () => {
 		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year).then( d => {
 			this._data = d;
-      this.refresh();
+      this.#init();
 		});
 	}
-	reset = () => {
+	#init = () => {
 		d3.select(this.container)
 			.selectAll(".svg-div")
 			.remove();
 		d3.select(this.container)
 			.selectAll(".button-div")
 			.remove();
+		d3.select(this.container)
+			.append("div")
+			.style("text-align", "center")
+			.style("line-height", "1")
+			.classed("button-div", true);
+		d3.select(this.container)
+			.append("div")
+			.classed("svg-div", true);
+
+		this.#update();
+		this.#init_inputs();
+		if(this.show_table) {
+			this.init_table();
+		} else {
+    	this.init_sliderstable();
+		}
+	}
+	#update = () => {
 		this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
 
 		this.svg_height = this.height*0.8;
 		this.button_height = this.width*0.2;
 		d3.select(this.container)
-			.append("div")
+			.select(".button-div")
 			.attr("width", this.width)
-			.attr("height", this.button_height)
-			.style("text-align", "center")
-			.style("line-height", "1")
-			.classed("button-div", true);
-
+			.attr("height", this.button_height);
 		d3.select(this.container)
-			.append("div")
+			.select(".svg-div")
 			.attr("width", this.width)
-			.attr("height", this.svg_height)
-			.classed("svg-div", true);
+			.attr("height", this.button_height);
 	}
-  #draw_inputs = () => {
+  #init_inputs = () => {
 		d3.select(this.container)
 			.select(".button-div")
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.end_year + " " + this.end_quarter)
-			.on("click", () => {this.show_table = !this.show_table; this.refresh();})
+			.on("click", () => {this.show_table = !this.show_table; this.#init();})
 			.classed("indicator-button", true);
   }
-	draw_table = () => {
+	init_table = () => {
 		const table = d3.select(this.container)
 			.select(".svg-div")
 			.classed("indicator-table-nosliders", true)
@@ -257,7 +270,7 @@ class Indicators{
 		d3.select(table_el[0])
 			.html(table_string);
 	}
-  draw_sliderstable = () => {
+  init_sliderstable = () => {
     const rows = d3.select(this.container)
 			.select(".svg-div")
 			.classed("indicator-table", true)
@@ -320,12 +333,6 @@ class Indicators{
 		}
   }
 	refresh = () => {
-		this.reset();
-    this.#draw_inputs();
-		if(this.show_table) {
-			this.draw_table();
-		} else {
-    	this.draw_sliderstable();
-		}
+		this.#update();
   }
 }
