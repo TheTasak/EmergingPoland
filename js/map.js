@@ -6,14 +6,28 @@ class WorldMap{
 	maps = ["getcountries", "getregions"];
 	stock_name = "";
 	year = 2020;
-	constructor(container, stock_name, start_year, currency, language){
+	constructor(container, stock_name, start_year, currency, language, map_types){
 		this.container = container;
 		this.stock_name = stock_name;
 		this.start_year = start_year;
 		this.currency = currency;
 		this.language = language;
+		this.maps = map_types;
 		this.#load_data();
 	}
+	#get_suffix = () => {
+    //Zwraca końcówkę danych na podstawie ilości zer na końcu
+	  let val = d3.max(this._country_arr, d => d.value);
+	  if(val >= 1000000){
+		  this._country_arr.forEach((item) => item.value /= 1000000.0);
+		  this.suffix = "mld";
+	  } else if(val >= 1000){
+		  this._country_arr.forEach((item) => item.value /= 1000.0);
+		  this.suffix = "mln";
+		} else {
+		  this.suffix = "tys";
+	  }
+  }
 	#load_data = () => {
 		d3.json("php/"+ this.maps[this.current_map] +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
@@ -24,7 +38,8 @@ class WorldMap{
 				this.#load_data();
 				return;
 			}
-			this._country_arr.sort((a,b) => (a.value > b.value) ? 1 : -1);
+			this._country_arr.sort((a,b) => (a.value < b.value) ? 1 : -1);
+			this.#get_suffix();
 			d3.json("js/world.geojson").then( (d) => {
 				// Wczytanie danych geometrii mapy
 				this._map_data = d;
@@ -180,7 +195,7 @@ class WorldMap{
 				}
 
 				let name = this._country_arr[index_main].translate;
-				let value = this._country_arr[index_main].value + "tys " + this.currency;
+				let value = this._country_arr[index_main].value + this.suffix + " " + this.currency;
 
 				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
         let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
@@ -221,7 +236,7 @@ class WorldMap{
 	#draw_table = () => {
 		let country_string = '<table class="map-country-table">';
 		for(let i = 0; i < this._country_arr.length; i++){
-			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseInt(this._country_arr[i].value) + "tys " + this.currency + "</td></tr>";
+			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].value).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		}
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);

@@ -16,8 +16,8 @@ function load(){
       language = "pl";
     document.getElementById("lang-pl").href = "index.php?stock=" + stock_name.trim() + "&lang=pl";
     document.getElementById("lang-en").href = "index.php?stock=" + stock_name.trim() + "&lang=en";
-
     stock = new Stock(stock_name, [container1, container2, container3, container4, container5, container6, container7], language);
+
     d3.json("php/getallstocks.php").then( d => {
       let string = "";
       for(let i = 0; i < d.length; i++)

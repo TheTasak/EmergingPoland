@@ -364,7 +364,7 @@ fieldset{
   font-weight: bold;
 }
 .indicator-table-nosliders tr:nth-child(even){
-  background: #ffbdbd;
+  background: #f0f0f0;
 }
 .info-table{
   overflow: auto;

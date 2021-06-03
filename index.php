@@ -13,7 +13,8 @@
 
     <script src="js/chart.js" defer></script>
   	<script src="js/treechart.js" defer></script>
-    <script src="js/treechartinne.js" defer></script>
+    <script src="js/treechartudzial.js" defer></script>
+    <script src="js/circlechart.js" defer></script>
     <script src="js/map.js" defer></script>
     <script src="js/piechart.js" defer></script>
     <script src="js/indicatortable.js" defer></script>
@@ -45,8 +46,7 @@
       <input type="hidden" id="language" value='<?php echo $_GET['lang'] ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
-                <p>Grupa ASBIS jest jednym z czołowych dystrybutorów produktów branży informatycznej w Europie Środkowo-Wschodniej, republikach nadbałtyckich, w krajach byłego Związku Radzieckiego, na Bliskim Wschodzie i w Afryce Północnej. Łączymy duży zasięg terytorialny z szeroką gamą produktów dystrybuowanych w modelu one-stop-shop.</p>
-                <p>Grupa dystrybuuje produkty gotowe pod A-brandami, takie jak tablety, smartfony, laptopy, komputery stacjonarne, serwery, urządzenia sieciowe dla odbiorców detalicznych, korporacyjnych, małych i średnich przedsiębiorstw oraz hurtowo, jak również komponenty IT - takie jak kompletne rozwiązania, segmenty do tworzenia rozwiązań oraz peryferia – dla segmentu Enterprise, assemblerów, integratorów oraz marek lokalnych.</p>
+              <p id="description"></p>
             </div>
         </div>
       <div class="content">
