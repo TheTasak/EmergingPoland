@@ -43,7 +43,7 @@ class WorldMap{
 			d3.json("js/world.geojson").then( (d) => {
 				// Wczytanie danych geometrii mapy
 				this._map_data = d;
-				this.refresh();
+				this.init();
 			});
 		});
 	}
@@ -59,47 +59,59 @@ class WorldMap{
 		this.year++;
 		this.#load_data();
 	}
-	reset = () => {
+	init = () => {
 		d3.select(this.container)
 			.selectAll(".svg-div")
 			.remove();
 		d3.select(this.container)
 			.selectAll(".button-div")
 			.remove();
+		d3.select(this.container)
+			.append("div")
+			.style("text-align", "center")
+			.classed("button-div", true);
+		d3.select(this.container)
+			.append("div")
+			.classed("svg-div", true);
+		if(this._show_map) {
+			this.svg = d3.select(this.container)
+							.select(".svg-div")
+						  .append("svg");
+		}
+		this.#update();
+		this.#init_inputs();
+		if(this._show_map){
+			this.#draw_map();
+		} else {
+			this.#init_table();
+		}
+		this.refresh();
+	}
+	#update = () => {
 		this.width = parseInt(this.container.clientWidth) * 0.9;
 		this.height = parseInt(this.container.clientHeight);
 
 		this.svg_height = this.height*0.8;
 		this.button_height = this.width*0.2;
 		d3.select(this.container)
-			.append("div")
+			.select(".button-div")
 			.attr("width", this.width)
-			.attr("height", this.button_height)
-			.style("text-align", "center")
-			.style("line-height", "1")
-			.classed("button-div", true);
-
+			.attr("height", this.button_height);
 		d3.select(this.container)
-			.append("div")
+			.select(".svg-div")
 			.attr("width", this.width)
-			.attr("height", this.svg_height)
-			.classed("svg-div", true);
-		if(this._show_map){
-			this.svg = d3.select(this.container)
-							.select(".svg-div")
-						  .append("svg")
-							  .attr("width", this.width)
-							  .attr("height", this.svg_height);
+			.attr("height", this.svg_height);
+		if(this._show_map) {
+			this.svg.attr("width", this.width)
+							.attr("height", this.svg_height);
 		}
-		this.#draw_inputs();
 	}
-
 	#draw_map = () => {
 		// Typ projekcji mapy
-		let mapProjection = d3.geoNaturalEarth()
+		this.mapProjection = d3.geoNaturalEarth()
 							.scale(this.svg_height / Math.PI)
 							.translate([this.width / 2, this.svg_height / 2]);
-		let geoPath = d3.geoPath(mapProjection);
+		let geoPath = d3.geoPath(this.mapProjection);
 		// Skala kolorów na podstawie ilości przychodów
 		let colors = d3.scaleLinear()
 						.domain([d3.min(this._country_arr, d => d.value), d3.max(this._country_arr, d => d.value)])
@@ -151,10 +163,6 @@ class WorldMap{
 					return true;
 				})
 				.attr("fill", "#e0e0e0");
-		// Dodanie możliwości przybliżenia i przesuwania mapy
-		this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
-			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
-		}));
 		// Dodanie tooltipa
 		const tooltip = this.svg.append("rect")
               .attr("width", "0px")
@@ -232,7 +240,19 @@ class WorldMap{
 					.attr("display", "none");
   	});
 	}
-	#draw_table = () => {
+	#update_map = () => {
+		this.mapProjection = d3.geoNaturalEarth()
+							.scale(this.svg_height / Math.PI)
+							.translate([this.width / 2, this.svg_height / 2]);
+		let geoPath = d3.geoPath(this.mapProjection);
+		this.svg.selectAll("path")
+						.attr("d", geoPath);
+		// Dodanie możliwości przybliżenia i przesuwania mapy
+		this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
+			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
+		}));
+	}
+	#init_table = () => {
 		let country_string = '<table class="map-country-table">';
 		for(let i = 0; i < this._country_arr.length; i++){
 			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].value).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
@@ -240,7 +260,7 @@ class WorldMap{
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
-	#draw_inputs = () => {
+	#init_inputs = () => {
 		// Tytuł wykresu
 		d3.select(this.container)
 			.select(".button-div")
@@ -264,7 +284,7 @@ class WorldMap{
 			.select(".map-button-div")
 			.append("span")
 				.style("padding", "0 10px")
-				.on("click", () => { this._show_map = !this._show_map; this.refresh();})
+				.on("click", () => { this._show_map = !this._show_map; this.init();})
 				.text(this.year)
 				.classed("map-button", true);
 		// Przycisk następnego roku
@@ -280,23 +300,20 @@ class WorldMap{
 			.append("button")
 				.attr("type", "button")
 				.on("click", () => {
+					console.log(this.maps);
 					 if(this.current_map < this.maps.length-1)
 					 		this.current_map++;
 					 else
 					 		this.current_map--;
 					 this.#load_data();
-					 this.refresh();
 				 })
 				.classed("map-button", true)
 				.append("img")
 					.attr("src", "map.png");
 	}
 	refresh = () => {
-		this.reset();
-		if(this._show_map){
-			this.#draw_map();
-		} else {
-			this.#draw_table();
-		}
+		this.#update();
+		clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(this.#update_map, 50);
 	}
 }

@@ -21,7 +21,6 @@ class Chart{
     this.end_year = end_year;
     this.currency = currency;
     this.language = language;
-    this.reset();
     this.#load_data();
   }
   #get_suffix = () => {
@@ -40,13 +39,12 @@ class Chart{
 	  }
   }
   #load_data = () => {
-	let input_value_size = d3.select(this.container).select(".chart-input").size();
+	let input_value = d3.select(this.container).select(".chart-input");
   // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
-	if(input_value_size > 0)
-		this._current_data_index = d3.select(this.container).select(".chart-input").property("value");
+	if(input_value.size() > 0 && input_value.property("value") != "")
+		this._current_data_index = input_value.property("value");
 	else
 		this._current_data_index = this.data_name;
-
 	let slider = this.container.getElementsByClassName("slider-div")[0];
 	if(slider != undefined){
       this._date_start = parseInt(slider.noUiSlider.get()[0]);
@@ -72,20 +70,16 @@ class Chart{
 				temp.push(column);
 			}
 			this._columns = temp;
-      this.refresh();
+      this.init();
 		});
 	});
 
   }
-  reset = () => {
-    this.width = parseInt(this.container.clientWidth);
-    this.height = parseInt(this.container.clientHeight)-100;
-    this.heightpadding = this.height - this.padding_vertical;
-    this.widthpadding = this.width - this.padding_horizontal;
+  init = () => {
     // Usunięcie starego wykresu
-    const old_svg = d3.select(this.container)
-                  .selectAll(".chart")
-                  .remove();
+    d3.select(this.container)
+      .selectAll(".chart")
+      .remove();
     d3.select(this.container)
       .selectAll(".chart-input-field")
       .remove();
@@ -93,15 +87,33 @@ class Chart{
   	  .selectAll(".table-div")
   	  .remove();
 
-  	if(this._show_chart == true){
+  	if(this._show_chart){
   		this.svg = d3.select(this.container)
   					.append("svg")
-  					.attr("width", this.width)
-  					.attr("height", this.height)
   					.classed("chart",true);
   	}
+    this.#update();
+    if(this._show_chart) {
+      this.#init_inputs();
+      this.#init_chart();
+      this.#init_title();
+    } else {
+      this.#init_table();
+      this.#init_inputs();
+    }
+    this.refresh();
   }
-  #draw_inputs = () => {
+  #update = () => {
+    this.width = parseInt(this.container.clientWidth);
+    this.height = parseInt(this.container.clientHeight)-100;
+    this.heightpadding = this.height - this.padding_vertical;
+    this.widthpadding = this.width - this.padding_horizontal;
+    if(this._show_chart) {
+      this.svg.attr("width", this.width)
+              .attr("height", this.height)
+    }
+  }
+  #init_inputs = () => {
     //Pojemnik na inputy
     const fieldset = d3.select(this.container)
                       .append("fieldset")
@@ -166,27 +178,27 @@ class Chart{
             'max': 2020
         }
       });
-  }
-	drag_slider.noUiSlider.on("change", this.#load_data);
+    }
+	  drag_slider.noUiSlider.on("change", this.#load_data);
 
-  //Przyciski do zmiany typu wykresu i zamiany na tabelę
-	buttons.append("div")
+    //Przyciski do zmiany typu wykresu i zamiany na tabelę
+	  buttons.append("div")
             .append("button")
       				.attr("type", "button")
-      				.on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
+      				.on("click", () => {this._show_chart = !this._show_chart; this.init();})
       				.classed("chart-input", true)
               .append("img")
                 .attr("src", "table_icon.png");
-  buttons.append("div")
+    buttons.append("div")
 				   .append("button")
   				    .attr("type", "button")
               .attr("font-size", "16px")
-      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.refresh(); this.#load_data();})
+      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.#load_data();})
       				.classed("chart-input", true)
               .append("img")
                 .attr("src", "chart_type.png");
   }
-  #draw_title = () => {
+  #init_title = () => {
     //Wczytanie tłumaczenia tytułu wykresu
     let index = this._columns.findIndex( (data) => {
       return data.dane_ksiegowe == this._current_data_index;
@@ -194,135 +206,147 @@ class Chart{
     this.chart_title = this._columns[index].tlumaczenie;
     // Dodanie tytułu wykresu
     this.svg.append("text")
-         .attr("x", (this.width / 2))
-         .attr("y", this.padding_vertical/2 + this.padding_vertical)
          .attr("text-anchor", "middle")
          .attr("font-size", "24px")
-         .text(this.chart_title);
+         .text(this.chart_title)
+         .classed("title", true);
   }
-  #draw_chart = () => {
+  #update_title = () => {
+    this.svg.select(".title")
+            .attr("x", (this.width / 2))
+            .attr("y", this.padding_vertical/2 + this.padding_vertical);
+  }
+  #init_chart = () => {
     // Ustawienie skali i domeny osi x
     const min = (d3.min(this._data, d => d.value) < 0) ? d3.min(this._data, d => d.value) : 0;
     const max = d3.max(this._data, d => d.value);
-    const xScale = d3.scaleBand()
-                    .range([0, this.width-this.padding_horizontal])
+    this.xScale = d3.scaleBand()
                     .padding(0.4)
                     .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
-    const yScale = d3.scaleLinear()
+    this.yScale = d3.scaleLinear()
                     .domain([min*1.1, max*1.2]).nice()
                     .range([this.heightpadding,this.padding_vertical]);
-    const g = this.svg.append("g")
+    this.g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
     // Dodanie dolnej osi wykresu
-    g.append("g")
-		.classed("axis_bottom",true)
-		.call(d3.axisBottom(xScale))
-    .style("user-select", "none")
-		.attr("transform","translate(0," + this.heightpadding + ")");
+    this.g.append("g")
+      		.classed("axis_bottom",true)
+          .style("user-select", "none")
+      		.attr("transform","translate(0," + this.heightpadding + ")");
     // Dodanie lewej osi wykresu
-    g.append("g")
-		.classed("axis_left",true)
-		.call(d3.axisLeft(yScale).tickFormat( (d) => {
-			return d.toString() + this.suffix;
-		}).ticks(10))
-    .style("user-select", "none")
-		.append("text")
-		.attr("text-anchor", "end")
-		.text("value");
-  // Dodanie poziomych linii pomocniczych
-	g.append("g")
-		.classed("grid", true)
-	    .call(d3.axisLeft(yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
+    this.g.append("g")
+      		.classed("axis_left",true)
+      		.call(d3.axisLeft(this.yScale).tickFormat( (d) => {
+      			return d.toString() + this.suffix;
+      		}).ticks(10))
+          .style("user-select", "none")
+      		.append("text")
+      		.attr("text-anchor", "end")
+      		.text("value");
+    // Dodanie poziomych linii pomocniczych
+  	this.g.append("g")
+		      .classed("grid", true);
     // Dodanie słupków wartości
-  const bars = this.svg
-      .selectAll('.bar')
-      .data(this._data)
-      .enter()
-      .append('rect')
-      .classed('bar',true)
-      .attr('width', xScale.bandwidth())
-      .attr('height', 0)
-      .attr('x', data => xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3);
-  //Ustawienie kolorów słupków na bazie ich wartości - powyżej 0, poniżej 0
-  this.svg.selectAll(".bar")
-      .filter(data => data.value >= 0)
-      .style("fill", "#FC3535")
-      .attr('y', data => yScale(0))
-      .on("mouseover", (ev) => {
-        ev.target.style.fill = "#FC7777";
-      })
-      .on("mouseleave", (ev) => {
-        ev.target.style.fill = "#FC3535";
-      });
-  this.svg.selectAll(".bar")
-      .filter(data => data.value < 0)
-      .style("fill", "#993535")
-      .attr('y', data => yScale(min))
-      .on("mouseover", (ev) => {
-        ev.target.style.fill = "#997777";
-      })
-      .on("mouseleave", (ev) => {
-        ev.target.style.fill = "#993535";
-      });
-  // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
-  this.svg.selectAll(".bar")
-      .filter(data => data.value >= 0)
-      .transition()
-      .duration(600)
-      .delay(function(d,i){return(i*200)})
-      .attr("y", data => yScale(data.value))
-      .attr("height", data => this.heightpadding - yScale(data.value) - (this.heightpadding - yScale(0)));
-  // Animacja pojawiania się słupków z opóźnieniem - dla wartości ujemnych
-  this.svg.selectAll(".bar")
-      .filter(data => data.value < 0)
-      .transition()
-      .duration(600)
-      .delay(function(d,i){return(i*200)})
-      .attr("y", data => yScale(0))
-      .attr("height", data => yScale(data.value) - yScale(0));
-  // Dodanie tooltipa pokazującego wartość słupka po najechaniu
-	const tooltip = this.svg.append("rect")
-						.attr("width", "0px")
-						.attr("height", "0px")
-            .attr("rx", "20px")
-            .attr("ry", "20px")
-						.style("fill", "white")
-            .attr("pointer-events", "none")
-						.style("stroke", "black")
-						.classed("tooltip", true)
-	const tooltiptext = this.svg.append("text")
-            .attr("pointer-events", "none")
-            .style("user-select", "none")
-						.classed("tooltip-text", true);
-  //Obsługa eventów tooltipa
-	this.svg.selectAll('.bar')
-			.on("mousemove", (ev, d) => {
-        let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, 40];
-				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1] - tooltipsize[1] - 10];
+    this.bars = this.svg
+          .selectAll('.bar')
+          .data(this._data)
+          .enter()
+          .append('rect')
+          .classed('bar',true)
+          .attr('height', 0);
+    //Ustawienie kolorów słupków na bazie ich wartości - powyżej 0, poniżej 0
+    this.svg.selectAll(".bar")
+          .filter(data => data.value >= 0)
+          .style("fill", "#FC3535")
+          .attr('y', data => this.yScale(0))
+          .on("mouseover", (ev) => {
+            ev.target.style.fill = "#FC7777";
+          })
+          .on("mouseleave", (ev) => {
+            ev.target.style.fill = "#FC3535";
+          });
+     this.svg.selectAll(".bar")
+          .filter(data => data.value < 0)
+          .style("fill", "#993535")
+          .attr('y', data => this.yScale(min))
+          .on("mouseover", (ev) => {
+            ev.target.style.fill = "#997777";
+          })
+          .on("mouseleave", (ev) => {
+            ev.target.style.fill = "#993535";
+          });
+     // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
+     this.svg.selectAll(".bar")
+          .filter(data => data.value >= 0)
+          .transition()
+          .duration(600)
+          .delay(function(d,i){return(i*200)})
+          .attr("y", data => this.yScale(data.value))
+          .attr("height", data => this.heightpadding - this.yScale(data.value) - (this.heightpadding - this.yScale(0)));
+     // Animacja pojawiania się słupków z opóźnieniem - dla wartości ujemnych
+     this.svg.selectAll(".bar")
+          .filter(data => data.value < 0)
+          .transition()
+          .duration(600)
+          .delay(function(d,i){return(i*200)})
+          .attr("y", data => this.yScale(0))
+          .attr("height", data => this.yScale(data.value) - this.yScale(0));
+     // Dodanie tooltipa pokazującego wartość słupka po najechaniu
+     const tooltip = this.svg.append("rect")
+    						.attr("width", "0px")
+    						.attr("height", "0px")
+                .attr("rx", "20px")
+                .attr("ry", "20px")
+    						.style("fill", "white")
+                .attr("pointer-events", "none")
+    						.style("stroke", "black")
+    						.classed("tooltip", true)
+     const tooltiptext = this.svg.append("text")
+                .attr("pointer-events", "none")
+                .style("user-select", "none")
+    						.classed("tooltip-text", true);
+      //Obsługa eventów tooltipa
+     this.svg.selectAll('.bar')
+    			.on("mousemove", (ev, d) => {
+            let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, 40];
+    				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1] - tooltipsize[1] - 10];
 
-        tooltip
-          .attr("x", tooltippos[0])
-  			  .attr("y", tooltippos[1])
-  			  .attr("width", tooltipsize[0])
-  			  .attr("height", tooltipsize[1])
-          .style("opacity", "0.8");
+            tooltip
+              .attr("x", tooltippos[0])
+      			  .attr("y", tooltippos[1])
+      			  .attr("width", tooltipsize[0])
+      			  .attr("height", tooltipsize[1])
+              .style("opacity", "0.8");
 
-			  tooltiptext
-  				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-  				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-  				.attr("display", "inherit")
-  				.text(d.value + this.suffix + " " + this.currency);
-			})
-			.on("mouseout", function(ev){
-				tooltip
-					.style("opacity", "0")
-          .attr("width", 0);
-				tooltiptext
-					.attr("display", "none");
-			});
+    			  tooltiptext
+      				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+      				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+      				.attr("display", "inherit")
+      				.text(d.value + this.suffix + " " + this.currency);
+    			})
+    			.on("mouseout", function(ev){
+    				tooltip
+    					.style("opacity", "0")
+              .attr("width", 0);
+    				tooltiptext
+    					.attr("display", "none");
+    			});
   }
-  #draw_table = () => {
+  #update_chart = () => {
+    this.xScale.range([0, this.width-this.padding_horizontal]);
+    this.g.select(".axis_bottom")
+          .html("")
+          .call(d3.axisBottom(this.xScale))
+          .attr("transform","translate(0," + this.heightpadding + ")");
+
+    this.g.select(".grid")
+          .html("")
+          .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
+    this.bars.attr('width', this.xScale.bandwidth())
+             .attr('x', data => this.xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3);
+  }
+  #init_table = () => {
 	  let data_string = '<table class="data_table">';
 	  for(let i = 0; i < this._data.length; i++){
       let percent = "";
@@ -335,20 +359,21 @@ class Chart{
 	  data_string += "</table>";
 	  d3.select(this.container)
 		.append("div")
-  		.attr("width", this.width)
-  		.attr("height", this.height)
   		.html(data_string)
   		.classed("table-div", true);
   }
+  #update_table = () => {
+    d3.select(".table-div")
+      .attr("width", this.width)
+      .attr("height", this.height);
+  }
   refresh = () => {
-    this.reset();
+    this.#update();
   	if(this._show_chart){
-  		this.#draw_inputs();
-  		this.#draw_chart();
-  		this.#draw_title();
+  		this.#update_chart();
+      this.#update_title();
   	} else {
-  		this.#draw_table();
-  		this.#draw_inputs();
+  		this.#update_table();
 	  }
   }
 }

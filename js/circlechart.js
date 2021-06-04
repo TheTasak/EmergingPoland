@@ -72,7 +72,12 @@ class CircleChart{
                   .append("svg");
     this.#update();
     this.#init_inputs();
-    this.#init_chart();
+    if(this._show_chart) {
+      this.#init_chart();
+    } else {
+      this.#init_table();
+    }
+    this.refresh();
   }
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
@@ -112,7 +117,7 @@ class CircleChart{
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.year)
-      .on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
+      .on("click", () => {this._show_chart = !this._show_chart; this.#init();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
@@ -176,7 +181,9 @@ class CircleChart{
                     .call(d3.drag()
                             .on("start", d => {
                               if (!d.target.active)
-                                this.simulation.alphaTarget(0.3).restart();
+                                this.simulation.alphaTarget(0.01).restart();
+                              d.subject.x = d.x;
+                              d.subject.y = d.y;
                             })
                             .on("drag", d => {
                               tooltip
@@ -209,8 +216,8 @@ class CircleChart{
                           })
                           .attr("fill", "black");
     this.simulation = d3.forceSimulation()
-                         .force("manyBody", d3.forceManyBody().strength(10))
-                         .force("collide", d3.forceCollide().strength(.25).radius( d => scale(d[this.current_chart_interval])+3).iterations(1))
+                         .force("manyBody", d3.forceManyBody().strength(40))
+                         .force("collide", d3.forceCollide().strength(.6).radius( d => scale(d[this.current_chart_interval])+3).iterations(1))
                          .alpha(0.03)
                          .restart();
     this.simulation.nodes(this.current_data.children)
@@ -270,7 +277,7 @@ class CircleChart{
     this.node.attr("cx", this.width / 2)
              .attr("cy", this.svg_height / 2);
   }
-  #draw_table = () => {
+  #init_table = () => {
     let data_string = '<table class="earnings-table">';
     let data_children = this.current_data.children;
     for(let i = 0; i < data_children.length; i++){
@@ -281,6 +288,8 @@ class CircleChart{
   }
   refresh = () => {
     this.#update();
-    this.#update_chart();
+    if(this._show_chart) {
+      this.#update_chart();
+    }
   }
 }
