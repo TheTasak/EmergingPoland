@@ -225,15 +225,14 @@ class Chart{
                     .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     this.yScale = d3.scaleLinear()
-                    .domain([min*1.1, max*1.2]).nice()
+                    .domain([min*0.9, max*1.2]).nice()
                     .range([this.heightpadding,this.padding_vertical]);
     this.g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
     // Dodanie dolnej osi wykresu
     this.g.append("g")
       		.classed("axis_bottom",true)
-          .style("user-select", "none")
-      		.attr("transform","translate(0," + this.heightpadding + ")");
+          .style("user-select", "none");
     // Dodanie lewej osi wykresu
     this.g.append("g")
       		.classed("axis_left",true)
