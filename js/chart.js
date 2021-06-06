@@ -218,14 +218,14 @@ class Chart{
   }
   #init_chart = () => {
     // Ustawienie skali i domeny osi x
-    const min = (d3.min(this._data, d => d.value) < 0) ? d3.min(this._data, d => d.value) : 0;
-    const max = d3.max(this._data, d => d.value);
+    const min = d3.min(this._data, d => d.value) < 0 ? d3.min(this._data, d => d.value) : 0;
+    const max = d3.max(this._data, d => d.value) > 0 ? d3.max(this._data, d => d.value) : 1;
     this.xScale = d3.scaleBand()
                     .padding(0.4)
                     .domain(this._data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     this.yScale = d3.scaleLinear()
-                    .domain([min*0.9, max*1.2]).nice()
+                    .domain([min, max*1.2]).nice()
                     .range([this.heightpadding,this.padding_vertical]);
     this.g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
@@ -276,18 +276,20 @@ class Chart{
             ev.target.style.fill = "#993535";
           });
      // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
-     this.svg.selectAll(".bar")
+     this.bars
           .filter(data => data.value >= 0)
           .transition()
-          .duration(600)
+          .ease(d3.easeQuadOut)
+          .duration(800)
           .delay(function(d,i){return(i*200)})
           .attr("y", data => this.yScale(data.value))
           .attr("height", data => this.heightpadding - this.yScale(data.value) - (this.heightpadding - this.yScale(0)));
      // Animacja pojawiania się słupków z opóźnieniem - dla wartości ujemnych
-     this.svg.selectAll(".bar")
+     this.bars
           .filter(data => data.value < 0)
           .transition()
-          .duration(600)
+          .ease(d3.easeQuadOut)
+          .duration(800)
           .delay(function(d,i){return(i*200)})
           .attr("y", data => this.yScale(0))
           .attr("height", data => this.yScale(data.value) - this.yScale(0));

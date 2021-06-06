@@ -150,6 +150,8 @@ class TreeChart{
           .filter(d => d.data.name != "chart")
           .append("text")
             .text(d => d.data.translate)
+            .attr("pointer-events", "none")
+            .style("user-select", "none")
             .attr("x", d => d.x0+5)
             .attr("y", (d) => {
               let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
@@ -171,14 +173,20 @@ class TreeChart{
               .attr("width", "0px")
               .attr("height", "0px")
               .style("fill", "white")
+              .attr("rx", "20px")
+              .attr("ry", "20px")
               .style("stroke", "black")
+              .attr("pointer-events", "none")
+              .style("user-select", "none")
               .classed("tooltip", true);
     const tooltiptext = this.svg.append("text")
+              .attr("pointer-events", "none")
+              .style("user-select", "none")
               .classed("tooltip-text", true);
     this.svg.selectAll('.treechart-chunk')
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, this.height / 8];
-          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-100];
+  				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, 40];
+          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
             tooltippos[0] = this.width - tooltipsize[0];

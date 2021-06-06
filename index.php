@@ -64,6 +64,10 @@
           </div>
         <div id="middleright" class="chart-div">
           </div>
+        <div id="bottomleft" class="chart-div">
+          </div>
+        <div id="bottomright" class="chart-div">
+          </div>
       </div>
     </br>
       <div id="bottom" class="map-div">
