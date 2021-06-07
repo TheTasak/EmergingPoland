@@ -23,12 +23,12 @@ class TreeChart{
 	}
   #get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let max = d3.max(this._data.children, d => d.value);
+	  let max = d3.max(this._data, d => d.value);
 	  if(max >= 1000000){
-		  this._data.children.forEach((item) => item.value /= 1000000.0);
+		  this._data.forEach((item) => item.value /= 1000000.0);
 		  this.suffix = "mld";
 	  } else if(max >= 1000){
-		  this._data.children.forEach((item) => item.value /= 1000.0);
+		  this._data.forEach((item) => item.value /= 1000.0);
 		  this.suffix = "mln";
     } else {
 		  this.suffix = "tys";
@@ -75,7 +75,6 @@ class TreeChart{
         item.value = parseFloat(item.value);
       });
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-      this._data = {"name": "chart", "translate": "", "children": this._data};
       this.#get_suffix();
       this.refresh();
     });
@@ -113,114 +112,52 @@ class TreeChart{
 			.classed("treechart-button", true);
   }
   #draw_chart = () => {
-    let root = d3.hierarchy(this._data);
-    root.sum(d => d.value);
-
-    let treemap_layout = d3.treemap();
-    treemap_layout
-      .size([this.width, this.svg_height])
-      .paddingOuter(5);
-    treemap_layout(root);
-    let colors = d3.scaleLinear()
-            .domain([d3.min(this._data.children, d => d.value), d3.max(this._data.children, d => d.value)])
-            .range(["rgb(150,255,150)", "green"]);
-    const g = this.svg.append("g");
-    g.selectAll("rect")
-          .data(root.descendants())
+    let padding_vertical = 40;
+    let padding_horizontal = 50;
+    const max = d3.max(this._data, d => d.value);
+    this.xScale = d3.scaleLinear()
+                    .domain([0, max]).nice()
+                    .range([padding_horizontal, this.width - padding_horizontal]);
+    this.g = this.svg.append("g")
+                    .attr("transform", "translate(" + padding_horizontal*(2/3) + ",0)");
+    this.g.append("g")
+            .attr("transform", "translate(0," + (this.svg_height - padding_vertical) + ")")
+            .call(d3.axisBottom(this.xScale).tickFormat( (d) => {
+        			return d.toString() + this.suffix;
+        		}));
+    this.yScale = d3.scaleBand()
+                    .range([0, this.svg_height - padding_vertical])
+                    .domain(this._data.map(d => d.name))
+                    .padding(1);
+    this.g.append("g")
+            .attr("transform", "translate(" + padding_horizontal +",0)")
+            .call(d3.axisLeft(this.yScale));
+    this.g.selectAll(".lolipop-line")
+          .data(this._data)
           .enter()
-          .append("rect")
-          .attr('x', d => d.x0)
-          .attr('y', d => d.y0)
-          .attr('width', d => d.x1 - d.x0)
-          .attr('height', d => d.y1 - d.y0)
-          .attr('stroke', "white")
-          .attr('stroke-width', "1")
-          .classed("treechart-chunk", true);
-
-    this.svg.selectAll(".treechart-chunk")
-          .filter(d => {return d.data.name != "chart";})
-            .attr("fill",d => colors(d.value));
-    this.svg.selectAll(".treechart-chunk")
-          .filter(d => {return d.data.name == "chart";})
-            .attr("fill", "white");
-
-    g.selectAll("text")
-          .data(root.descendants())
+          .append("line")
+            .attr("x1", d => this.xScale(d.value))
+            .attr("x2", this.xScale(0))
+            .attr("y1", d => this.yScale(d.name))
+            .attr("y2", d => this.yScale(d.name))
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
+      this.g.selectAll(".lolipop-circle")
+          .data(this._data)
           .enter()
-          .filter(d => d.data.name != "chart")
-          .append("text")
-            .text(d => d.data.translate)
-            .attr("pointer-events", "none")
-            .style("user-select", "none")
-            .attr("x", d => d.x0+5)
-            .attr("y", (d) => {
-              let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-              if(cut_text*1.4 > 26)
-                cut_text = 24;
-              return d.y0+(cut_text*1.4);
-            })
-            .attr("font-family", "monospace")
-            .attr("font-size", (d) => {
-                let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-                if(cut_text*1.4 > 26)
-                  cut_text = 24;
-                return String(cut_text*1.4) + "px";
-            })
-
-            .attr("fill", "white");
-
-    const tooltip = this.svg.append("rect")
-              .attr("width", "0px")
-              .attr("height", "0px")
-              .style("fill", "white")
-              .attr("rx", "20px")
-              .attr("ry", "20px")
-              .style("stroke", "black")
-              .attr("pointer-events", "none")
-              .style("user-select", "none")
-              .classed("tooltip", true);
-    const tooltiptext = this.svg.append("text")
-              .attr("pointer-events", "none")
-              .style("user-select", "none")
-              .classed("tooltip-text", true);
-    this.svg.selectAll('.treechart-chunk')
-  			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, 40];
-          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
-
-          if(tooltippos[0]+tooltipsize[0] > this.width)
-            tooltippos[0] = this.width - tooltipsize[0];
-          if(tooltippos[0] < 0)
-            tooltippos[0] = 0;
-
-          tooltip
-            .attr("x", tooltippos[0])
-		        .attr("y", tooltippos[1])
-		        .attr("width", tooltipsize[0])
-		        .attr("height", tooltipsize[1])
-            .style("opacity", "0.7");
-
-  			tooltiptext
-  				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-  				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-  				.attr("display", "inherit")
-  				.text(d.data.translate + " " + d.value + this.suffix);
-
-  			})
-  			.on("mouseout", function(ev, d){
-  				tooltip
-  					.style("opacity", "0")
-            .attr("width", "0px");
-  				tooltiptext
-  					.attr("display", "none");
-  			});
+          .append("circle")
+            .attr("cx", d => this.xScale(d.value))
+            .attr("cy", d => this.yScale(d.name))
+            .attr("r", "7")
+            .style("fill", "red")
+            .attr("stroke", "black");
   }
   #draw_table = () => {
     let earnings_string = '<table class="earnings-table">';
-    let earnings_data = this._data.children;
-		for(let i = 0; i < earnings_data.length; i++){
-			earnings_string += "<tr><td align='center'>" + earnings_data[i].translate + "</td><td align='right'>" + earnings_data[i].value + this.suffix + " " + this.currency + "</td></tr>";
+		for(let i = 0; i < this._data.length; i++){
+			earnings_string += "<tr><td align='center'>" + this._data[i].translate + "</td><td align='right'>" + this._data[i].value + this.suffix + " " + this.currency + "</td></tr>";
 		}
+    earnings_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._data, d => d.value)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		earnings_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(earnings_string);
   }

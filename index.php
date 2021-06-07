@@ -11,12 +11,12 @@
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
-    <script src="js/chart.js" defer></script>
+    <script src="js/dane_barchart.js" defer></script>
   	<script src="js/treechart.js" defer></script>
-    <script src="js/treechartudzial.js" defer></script>
-    <script src="js/circlechart.js" defer></script>
+    <script src="js/udzial_treechart.js" defer></script>
+    <script src="js/innedane_circlechart.js" defer></script>
     <script src="js/map.js" defer></script>
-    <script src="js/piechart.js" defer></script>
+    <script src="js/akcje_chart.js" defer></script>
     <script src="js/indicatortable.js" defer></script>
     <script src="js/basicinfotable.js" defer></script>
     <script src="js/stock.js" defer></script>

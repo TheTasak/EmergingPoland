@@ -66,7 +66,7 @@ class Stock{
          this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.currency, this.language));
          container_counter++;
        } else if(this._tables[i] == "udzial") {
-         this._modules.push(new TreeChartUdzial(this._containers[container_counter]), this.stock_name, this.start_year, this.end_report, this.currency, this.language);
+         this._modules.push(new TreeChartUdzial(this._containers[container_counter], this.stock_name, this.start_year, this.end_report, this.currency, this.language));
          container_counter++;
        }
       }

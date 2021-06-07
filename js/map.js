@@ -257,6 +257,7 @@ class WorldMap{
 		for(let i = 0; i < this._country_arr.length; i++){
 			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].value).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		}
+		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d.value)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
