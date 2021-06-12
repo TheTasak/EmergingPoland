@@ -308,6 +308,6 @@ class WorldMap{
 	refresh = () => {
 		this.#update();
 		clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(this.#draw_map, 30);
+    this.resizeTimer = setTimeout(this.#draw_map, 10);
 	}
 }

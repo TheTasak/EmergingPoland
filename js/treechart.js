@@ -1,6 +1,7 @@
 class TreeChart{
   year = 2020;
   _show_chart = true;
+  current_chart_interval = -1;
   constructor(container, stock_name, start_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
@@ -21,48 +22,6 @@ class TreeChart{
 		this.year++;
 		this.#load_data();
 	}
-  #get_suffix = () => {
-    //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let max = d3.max(this._data.children, d => d.value);
-	  if(max >= 1000000){
-		  this._data.children.forEach((item) => item.value /= 1000000.0);
-		  this.suffix = "mld";
-	  } else if(max >= 1000){
-		  this._data.children.forEach((item) => item.value /= 1000.0);
-		  this.suffix = "mln";
-    } else {
-		  this.suffix = "tys";
-	  }
-  }
-  #reset = () => {
-    // Robi reset div'a wykresu, rysuje go od nowa
-    this.width = parseInt(this.container.clientWidth);
-		this.height = parseInt(this.container.clientHeight);
-    d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-      d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
-    this.svg_height = this.height*0.8;
-		this.button_height = this.width*0.2;
-    d3.select(this.container)
-      .append("div")
-        .attr("height", this.button_height)
-        .attr("width", this.width)
-        .classed("button-div", true);
-    d3.select(this.container)
-      .append("div")
-        .attr("height", this.svg_height)
-        .attr("width", this.width)
-        .classed("svg-div", true);
-    this.svg = d3.select(this.container)
-                 .select(".svg-div")
-                 .append("svg")
-                  .attr("height", this.svg_height)
-                  .attr("width", this.width);
-
-  }
   #load_data = () => {
     d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
@@ -71,16 +30,86 @@ class TreeChart{
 				this.#load_data();
 				return;
 			}
-      this._data.forEach((item, i) => {
-        item.value = parseFloat(item.value);
-      });
-      this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-      this._data = {"name": "chart", "translate": "", "children": this._data};
+      this.#change_chart();
       this.#get_suffix();
-      this.refresh();
+      this.#init();
     });
   }
-  #draw_inputs = () => {
+  #change_chart = () => {
+    const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
+    if(select_list_interval != undefined)
+      this.current_chart_interval = select_list_interval.value;
+    else
+      this.current_chart_interval = "year";
+    this._data.forEach((item, i) => {
+      item[this.current_chart_interval] = parseFloat(item[this.current_chart_interval]);
+    });
+    this.current_data = d3.filter(this._data, d => d[this.current_chart_interval] != 0);
+    this.current_data.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
+    this.current_data = {"name": "chart", "translate": "", "children": this.current_data};
+  }
+  #get_suffix = () => {
+    //Zwraca końcówkę danych na podstawie ilości zer na końcu
+	  let max = d3.max(this.current_data.children, d => d[this.current_chart_interval]);
+	  if(max >= 1000000){
+		  this.current_data.children.forEach((item) => item[this.current_chart_interval] /= 1000000.0);
+		  this.suffix = "mld";
+	  } else if(max >= 1000){
+		  this.current_data.children.forEach((item) => item[this.current_chart_interval] /= 1000.0);
+		  this.suffix = "mln";
+    } else {
+		  this.suffix = "tys";
+	  }
+  }
+  #init = () => {
+    // Robi reset div'a wykresu, rysuje go od nowa
+    d3.select(this.container)
+      .selectAll(".button-div")
+      .remove();
+      d3.select(this.container)
+        .selectAll(".svg-div")
+        .remove();
+    d3.select(this.container)
+      .append("div")
+        .classed("button-div", true);
+    d3.select(this.container)
+      .append("div")
+        .attr("height", this.svg_height)
+        .attr("width", this.width)
+        .classed("svg-div", true);
+    if(this._show_chart) {
+      this.svg = d3.select(this.container)
+                    .select(".svg-div")
+                    .append("svg");
+    }
+    this.#update();
+    this.#init_inputs();
+    if(this._show_chart) {
+      this.#init_chart();
+    } else {
+      this.#init_table();
+    }
+  }
+  #update = () => {
+    this.width = parseInt(this.container.clientWidth);
+		this.height = parseInt(this.container.clientHeight);
+    this.svg_height = this.height*0.75;
+		this.button_height = this.width*0.25;
+    d3.select(this.container)
+      .select(".button-div")
+      .attr("height", this.button_height)
+      .attr("width", this.width);
+    d3.select(this.container)
+      .select(".svg-div")
+      .attr("height", this.svg_height)
+      .attr("width", this.width);
+    if(this._show_chart) {
+      this.svg
+        .attr("height", this.svg_height)
+        .attr("width", this.width);
+    }
+  }
+  #init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -102,7 +131,7 @@ class TreeChart{
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.year)
-      .on("click", () => {this._show_chart = !this._show_chart; this.refresh();})
+      .on("click", () => {this._show_chart = !this._show_chart; this.#init();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
@@ -111,10 +140,36 @@ class TreeChart{
 			.text("🠖")
 			.on("click", this.#later_year)
 			.classed("treechart-button", true);
+    const field_interval = d3.select(this.container)
+                             .select(".button-div")
+				                        .append("select")
+          				                .on("change", this.#load_data)
+          				                .classed("chart-input", true);
+    let array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
+    for(let i = 0; i < array_interval.length; i++){
+  		field_interval.append("option")
+  			         .attr("value", array_interval[i])
+  			         .text(array_interval[i]);
+  	}
+    const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
+  	if(select_list_interval != undefined){
+  		select_list_interval.value = this.current_chart_interval;
+  	}
   }
-  #draw_chart = () => {
-    let root = d3.hierarchy(this._data);
-    root.sum(d => d.value);
+  #init_chart = () => {
+    this.svg.html("");
+    if(this.current_data.children.length == 0) {
+      this.svg.append("text")
+              .attr("text-anchor", "middle")
+              .attr("x", this.width/2)
+              .attr("y", this.svg_height/2)
+              .text("Brak danych")
+              .attr("fill", "black")
+              .attr("font-size", "26px");
+      return;
+    }
+    let root = d3.hierarchy(this.current_data);
+    root.sum(d => d[this.current_chart_interval]);
 
     let treemap_layout = d3.treemap();
     treemap_layout
@@ -122,8 +177,9 @@ class TreeChart{
       .paddingOuter(5);
     treemap_layout(root);
     let colors = d3.scaleLinear()
-            .domain([d3.min(this._data.children, d => d.value), d3.max(this._data.children, d => d.value)])
+            .domain([d3.min(this.current_data.children, d => d[this.current_chart_interval]),d3.max(this.current_data.children, d => d[this.current_chart_interval])])
             .range(["rgb(150,255,150)", "green"]);
+
     const g = this.svg.append("g");
     g.selectAll("rect")
           .data(root.descendants())
@@ -136,7 +192,7 @@ class TreeChart{
           .attr('height', d => d.y1 - d.y0)
           .attr('stroke', "black")
           .attr('stroke-width', "1")
-          .attr("fill",d => colors(d.value))
+          .attr("fill", d => colors(d.data[this.current_chart_interval]))
           .classed("treechart-chunk", true);
 
     g.selectAll("text")
@@ -185,7 +241,7 @@ class TreeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [String(d.data.translate + d.value + this.suffix + this.currency).length*10+10, 40];
+  				let tooltipsize = [String(d.data.translate + d.data[this.current_chart_interval] + this.suffix + this.currency).length*10+10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
@@ -204,7 +260,7 @@ class TreeChart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.translate + " " + d.value + this.suffix + " " + this.currency);
+  				.text(d.data.translate + " " + d.data[this.current_chart_interval] + this.suffix + " " + this.currency);
 
   			})
   			.on("mouseout", (ev, d) => {
@@ -217,21 +273,19 @@ class TreeChart{
                   .style("opacity", "1");
   			});
   }
-  #draw_table = () => {
+  #init_table = () => {
     let earnings_string = '<table class="earnings-table">';
-		for(let i = 0; i < this._data.children.length; i++){
-			earnings_string += "<tr><td align='center'>" + this._data.children[i].translate + "</td><td align='right'>" + this._data.children[i].value + this.suffix + " " + this.currency + "</td></tr>";
+		for(let i = 0; i < this.current_data.children.length; i++){
+			earnings_string += "<tr><td align='center'>" + this.current_data.children[i].translate + "</td><td align='right'>" + this.current_data.children[i][this.current_chart_interval] + this.suffix + " " + this.currency + "</td></tr>";
 		}
-    earnings_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._data.children, d => d.value)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+    earnings_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this.current_data.children, d => d[this.current_chart_interval])).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		earnings_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(earnings_string);
   }
   refresh = () => {
-    this.#reset();
-    this.#draw_inputs();
-    if(this._show_chart)
-      this.#draw_chart();
-    else
-      this.#draw_table();
+    this.#update();
+    if(this._show_chart) {
+        this.#init_chart();
+    }
   }
 }

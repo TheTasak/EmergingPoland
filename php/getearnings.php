@@ -15,7 +15,7 @@
   $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = reset($stock);
 
-	$myquery = "SELECT `{$date}`, sposoby_uzyskania_przychodu  FROM `{$date}_podzial_przychodow` WHERE idspolki='{$stock_value}';";
+	$myquery = "SELECT * FROM `{$date}_podzial_przychodow` WHERE idspolki='{$stock_value}';";
   $data = sql_getdataarray($sqli, $myquery);
 
   $translate_data = array();
@@ -34,7 +34,11 @@
 
     $translate_data[$i] = (object)[
         'name' => $data[$i]['sposoby_uzyskania_przychodu'],
-        'value' => intval($data[$i][$date]),
+        'year' => intval($data[$i][$date]),
+        'quarter1' => intval($data[$i][$date . "_1"]),
+        'quarter2' => intval($data[$i][$date . "_2"]),
+        'quarter3' => intval($data[$i][$date . "_3"]),
+        'quarter4' => intval($data[$i][$date . "_4"]),
         'translate' => $translate,
     ];
   }

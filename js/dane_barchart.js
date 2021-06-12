@@ -372,8 +372,9 @@ class Chart{
   }
   refresh = () => {
     this.#update();
+    clearTimeout(this.resizeTimer);
   	if(this._show_chart){
-  		this.#update_chart();
+  		this.resizeTimer = setTimeout(this.#update_chart, 10);
       this.#update_title();
   	} else {
   		this.#update_table();
