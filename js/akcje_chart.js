@@ -19,6 +19,17 @@ class PieChart{
 		this.year++;
 		this.#load_data();
 	}
+  #split_value = (value) => {
+    let new_value = [];
+    let rev_value = value.length % 3;
+    if(rev_value != 0) {
+      new_value.push(value.substr(0, rev_value));
+    }
+    for(let j = 0 + rev_value; j < value.length; j += 3) {
+      new_value.push(value.substr(j, 3));
+    }
+    return new_value;
+  }
   #reset = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
@@ -165,8 +176,14 @@ class PieChart{
               .style("user-select", "none")
               .classed("tooltip-text", true);
     this.svg.selectAll('.treechart-chunk')
+        .on("mouseover", (ev, d) => {
+          this.svg.selectAll(".treechart-chunk")
+                  .style("opacity", "0.4");
+          ev.target.style.opacity = "1";
+        })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [(d.data.name.length + String(d.value).length)*12, 40];
+          let value = this.#split_value(String(d.value));
+  				let tooltipsize = [String(d.data.name + value).length*10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
@@ -185,23 +202,27 @@ class PieChart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.name + " " + d.value);
+  				.text(d.data.name + " " + value);
 
   			})
-  			.on("mouseout", function(ev, d){
+  			.on("mouseout", (ev, d) => {
   				tooltip
   					.style("opacity", "0")
             .attr("width", "0px");
   				tooltiptext
   					.attr("display", "none");
+
+          this.svg.selectAll(".treechart-chunk")
+                  .style("opacity", "1");
   			});
   }
   #draw_table = () => {
     let stock_string = '<table class="stock-table">';
 		for(let i = 0; i < this._data.children.length; i++){
-			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this._data.children[i].value + "</td></tr>";
+      let value = String(this._data.children[i].value);
+			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this.#split_value(value) + "</td></tr>";
 		}
-    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + parseInt(d3.sum(this._data.children, d => d.value)) + "</td></tr>";
+    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + this.#split_value(String(parseInt(d3.sum(this._data.children, d => d.value)))) + "</td></tr>";
 		stock_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(stock_string);
   }

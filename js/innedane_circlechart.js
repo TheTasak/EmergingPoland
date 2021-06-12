@@ -112,7 +112,7 @@ class CircleChart{
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-			.text("Inne dane")
+			.text(this._data[this.year][this.current_chart_index].name)
 			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")
@@ -366,7 +366,6 @@ class CircleChart{
     }
     for(let i = 0; i < keys.length; i++) {
       let accumulated_height = 0;
-      console.log(keys);
       keys[i].children.sort((a,b) => {
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
       });
@@ -398,6 +397,7 @@ class CircleChart{
                   .attr('height', data => data["height"])
                   .attr('fill', data => colorScale(data.id))
                   .attr("y", data => data["y"])
+                  .attr("class", data => data.name)
                   .classed("bar", true);
             })
     this.g.selectAll(".bar-group")
@@ -422,8 +422,15 @@ class CircleChart{
   						.classed("tooltip-text", true);
     //Obsługa eventów tooltipa
   	this.svg.selectAll('.bar')
+        .on("mouseover", (ev, d) => {
+          this.svg.selectAll(".bar")
+                  .style("opacity", "0.4");
+          let className = ev.target.classList[0];
+          this.svg.selectAll("." + className)
+                  .style("opacity", "1");
+        })
   			.on("mousemove", (ev, d) => {
-          let tooltipsize = [String(d.name + parseFloat(d[this.current_chart_interval])).length*12, 40];
+          let tooltipsize = [String(d.translate + parseFloat(d[this.current_chart_interval])).length*10 + 5, 40];
   				let tooltippos = [d3.pointer(ev)[0] + this.padding_horizontal*(2/3) - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           tooltip
@@ -439,7 +446,9 @@ class CircleChart{
     				.attr("display", "inherit")
     				.text(d.translate + " " + parseFloat(d[this.current_chart_interval]));
   			})
-  			.on("mouseout", function(ev){
+  			.on("mouseout", (ev) => {
+          this.svg.selectAll(".bar")
+                  .style("opacity", "1");
   				tooltip
   					.style("opacity", "0")
             .attr("width", 0);

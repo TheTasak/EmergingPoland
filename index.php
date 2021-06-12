@@ -25,11 +25,9 @@
   <body id="body">
     <div id="sidenav" class="sidenav">
       <button class="closebtn" type="button" onclick="closeNav()">&times;</button>
-      <div id="links">
-          <a href="#">About</a>
-          <a href="#">About</a>
-          <a href="#">About</a>
-          <a href="#">About</a>
+      <div id="links-main">
+        </div>
+      <div id="links-secondary">
         </div>
     </div>
     <header>

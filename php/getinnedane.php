@@ -38,7 +38,13 @@
         if(null !== $tlumaczenie) {
           $podzial_object->{"translate"} = $tlumaczenie[$lang];
         } else {
-          $podzial_object->{"translate"} = $podzial[$j]["podzial"];
+          $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$podzial[$j]["podzial"]}';";
+          $tlumaczenie = sql_getdatarecord($sqli, $myquery);
+          if(null !== $tlumaczenie) {
+            $podzial_object->{"translate"} = $tlumaczenie[$lang];
+          } else {
+            $podzial_object->{"translate"} = $podzial[$j]["podzial"];
+          }
         }
         $podzial_object->{"name"} = $podzial[$j]["podzial"];
 

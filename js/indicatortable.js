@@ -303,6 +303,9 @@ class Indicators{
 				.text(this._table[i]["name"]);
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
+			if(min == max) {
+				continue;
+			}
 			noUiSlider.create(sliders_el[i], {
 	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
 	      behaviour: 'unconstrained-tap',

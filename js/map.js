@@ -107,6 +107,7 @@ class WorldMap{
 		}
 	}
 	#draw_map = () => {
+		this.svg.html("");
 		// Typ projekcji mapy
 		this.mapProjection = d3.geoNaturalEarth()
 							.scale(this.svg_height / Math.PI)
@@ -239,14 +240,6 @@ class WorldMap{
 				tooltiptext
 					.attr("display", "none");
   	});
-	}
-	#update_map = () => {
-		this.mapProjection = d3.geoNaturalEarth()
-							.scale(this.svg_height / Math.PI)
-							.translate([this.width / 2, this.svg_height / 2]);
-		let geoPath = d3.geoPath(this.mapProjection);
-		this.svg.selectAll("path")
-						.attr("d", geoPath);
 		// Dodanie możliwości przybliżenia i przesuwania mapy
 		this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
 			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
@@ -315,6 +308,6 @@ class WorldMap{
 	refresh = () => {
 		this.#update();
 		clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(this.#update_map, 50);
+    this.resizeTimer = setTimeout(this.#draw_map, 30);
 	}
 }

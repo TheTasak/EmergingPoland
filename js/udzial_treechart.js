@@ -6,7 +6,7 @@ class TreeChartUdzial{
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
-    this.end_year = end_year;
+    this.end_year = end_year.split("_")[0];
     this.currency = currency;
     this.language = language;
     this.#load_data();
@@ -70,8 +70,8 @@ class TreeChartUdzial{
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight);
-    this.svg_height = this.height*0.8;
-    this.button_height = this.width*0.2;
+    this.svg_height = this.height*0.75;
+    this.button_height = this.width*0.25;
     d3.select(this.container)
       .select(".button-div")
       .attr("height", this.button_height)
@@ -89,6 +89,9 @@ class TreeChartUdzial{
   #load_data = () => {
     d3.json("php/getudzialdane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
+      if(this._data.length == 0) {
+        this._data = [{"name" : "no data", "children" : []}];
+      }
       this.#change_chart();
       this.#init();
     });
@@ -97,7 +100,7 @@ class TreeChartUdzial{
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-			.text("Inne dane")
+			.text("Udział")
 			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")

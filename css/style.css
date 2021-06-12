@@ -21,7 +21,7 @@ button{
   font-size: 40px;
 }
 .sidenav{
-  height: 100%;
+  height: 100vh;
   width: 0;
   position: fixed;
   z-index: 1;
@@ -35,7 +35,7 @@ button{
   align-items: center;
 }
 .sidenav a{
-  padding: 10px 0 ;
+  padding: 10px 0;
   text-decoration: none;
   text-align: center;
   font-size: 3vh;
@@ -46,11 +46,28 @@ button{
 .sidenav a:hover{
   color: gray;
 }
-.sidenav #links{
+#links-main{
   width: 50%;
   height: 100%;
   margin: 0 auto;
   position: relative;
+  transition: 0.5s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#links-secondary{
+  width: 0;
+  height: 80%;
+  position: relative;
+  transition: 0.5s;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#links-main a {
+  padding: 30px 0;
 }
 .closebtn{
   position: absolute;
@@ -59,6 +76,7 @@ button{
   right: 25px;
   margin-left: 50px;
   transition: 0.5s;
+  z-index: 9;
 }
 .closebtn:hover{
   color: gray;
@@ -103,33 +121,35 @@ main h1{
   font-size: 46px;
 }
 .content{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
-  grid-gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
 }
-@media (max-width: 900px){
-  .content{
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  }
+.content > div{
+  width: 50%;
 }
-@media (max-width: 500px){
-  .content{
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+@media (max-width: 1200px){
+  .content > div{
+    width: 100%;
   }
 }
 .content-bottom{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
-  grid-gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
-@media (max-width: 900px){
-  .content-bottom{
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+.content-bottom > div{
+  width: 33%;
+}
+@media (max-width: 2000px){
+  .content-bottom > div{
+    width: 50%;
   }
 }
-@media (max-width: 500px){
-  .content-bottom{
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+@media (max-width: 1200px){
+  .content-bottom > div{
+    width: 100%;
   }
 }
 .hidden-div{
@@ -185,7 +205,8 @@ main h1{
   }
 }
 .bar{
-  transition: fill 0.5s ease-out;
+  transition: fill, stroke 0.5s ease-out;
+  stroke: transparent;
 }
 .bar:hover{
   fill: #ff8080;
@@ -313,6 +334,9 @@ fieldset{
 }
 .stock-table td{
   padding: 2px 8px;
+}
+.treechart-chunk{
+  transition: 0.5s;
 }
 .treechart-button{
   color: black;

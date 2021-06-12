@@ -19,6 +19,7 @@ class Stock{
       this.description = d.opis;
       document.getElementById("description").innerHTML = stock.description;
       this.currency = d.waluta;
+      let container_counter = 0;
       //stworzenie tablicy potrzebnych modułów spółki
       this._tables = [];
       if(d.kraje != null || d.regiony != null) {
@@ -27,6 +28,8 @@ class Stock{
           this.map_types.push("getcountries");
         if(d.regiony != null)
           this.map_types.push("getregions");
+      } else {
+        container_counter++;
       }
       if(d.dane != null)
         this._tables.push("dane");
@@ -44,7 +47,7 @@ class Stock{
         this._tables.push("udzial");
       if(d.inne_dane != null)
         this._tables.push("inne_dane");
-      let container_counter = 0;
+
       //tworzenie modułów na podstawie tablicy
       for(let i = 0; i < this._tables.length; i++){
         if(this._tables[i] == "dane") {
@@ -70,7 +73,12 @@ class Stock{
          container_counter++;
        }
       }
-      for(let i = this._modules.length; i < this._containers.length; i++) {
+      let array_begin = this._modules.length;
+      if(d.kraje == null && d.regiony == null) {
+        this._containers[0].classList.add("hidden-div");
+        array_begin++;
+      }
+      for(let i = array_begin; i < this._containers.length; i++) {
         this._containers[i].classList.add("hidden-div");
       }
     }).catch(error => {
