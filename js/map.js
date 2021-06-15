@@ -17,12 +17,12 @@ class WorldMap{
 	}
 	#get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let val = d3.max(this._country_arr, d => d.value);
+	  let val = d3.max(this._country_arr, d => d.year);
 	  if(val >= 1000000){
-		  this._country_arr.forEach((item) => item.value /= 1000000.0);
+		  this._country_arr.forEach((item) => item.year /= 1000000.0);
 		  this.suffix = "mld";
 	  } else if(val >= 1000){
-		  this._country_arr.forEach((item) => item.value /= 1000.0);
+		  this._country_arr.forEach((item) => item.year /= 1000.0);
 		  this.suffix = "mln";
 		} else {
 		  this.suffix = "tys";
@@ -38,7 +38,7 @@ class WorldMap{
 				this.#load_data();
 				return;
 			}
-			this._country_arr.sort((a,b) => (a.value < b.value) ? 1 : -1);
+			this._country_arr.sort((a,b) => (a.year < b.year) ? 1 : -1);
 			this.#get_suffix();
 			d3.json("js/world.geojson").then( (d) => {
 				// Wczytanie danych geometrii mapy
@@ -106,154 +106,6 @@ class WorldMap{
 							.attr("height", this.svg_height);
 		}
 	}
-	#draw_map = () => {
-		this.svg.html("");
-		// Typ projekcji mapy
-		this.mapProjection = d3.geoNaturalEarth()
-							.scale(this.svg_height / Math.PI)
-							.translate([this.width / 2, this.svg_height / 2]);
-		let geoPath = d3.geoPath(this.mapProjection);
-		// Skala kolorów na podstawie ilości przychodów
-		let colors = d3.scaleLinear()
-						.domain([d3.min(this._country_arr, d => d.value), d3.max(this._country_arr, d => d.value)])
-						.range(["rgb(150,255,150)", "green"]);
-		// Rysowanie geometrii mapy
-		this.svg.append("g")
-				.selectAll("path")
-				.data(this._map_data.features)
-				.enter()
-				.append("path")
-				.attr("d", geoPath)
-				.classed("country", true);
-		// Kolorowanie krajów które znajdują się w tablicy przychodów
-		this.svg.selectAll("path")
-			.filter( (d) => {
-					let country_array = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < country_array.length; i++) {
-						let country = country_array[i].find(element => element == d.properties["name"]);
-						if(country != undefined)
-							return true;
-					}
-					return false;
-				})
-				.attr("fill",	(d) => {
-					let country_array = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < country_array.length; i++) {
-						let country = country_array[i].find(element => element == d.properties["name"]);
-						if(country != undefined)
-							return colors(this._country_arr[i].value);
-					}
-				})
-				.attr("class", (d) => {
-					let country_array = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < country_array.length; i++) {
-						let country = country_array[i].find(element => element == d.properties["name"]);
-						if(country != undefined)
-							return this._country_arr[i].name;
-					}
-				});
-		// Kolorowanie reszty krajów
-		this.svg.selectAll("path")
-			.filter( (d) => {
-					let country_array = this._country_arr.map(obj => obj.country);
-					for(let i = 0; i < country_array.length; i++) {
-						let country = country_array[i].find(element => element == d.properties["name"]);
-						if(country != undefined)
-							return false;
-					}
-					return true;
-				})
-				.attr("fill", "#e0e0e0");
-		// Dodanie tooltipa
-		const tooltip = this.svg.append("rect")
-              .attr("width", "0px")
-              .attr("height", "0px")
-              .style("fill", "white")
-              .style("stroke", "black")
-              .classed("tooltip", true);
-    const tooltiptext = this.svg.append("text")
-              .classed("tooltip-text", true);
-		// Eventy tooltipa - Wyświetlanie tooltipa tylko jeśli kraj znajduje się w tablicy przychodów
-    this.svg.selectAll("path")
-			.filter(data => {
-				let country_array = this._country_arr.map(obj => obj.country);
-				for(let i = 0; i < country_array.length; i++) {
-					let country = country_array[i].find(element => element == data.properties["name"]);
-					if(country != undefined)
-						return true;
-				}
-				return false;
-			})
-			.on("mouseenter", (ev, d) => {
-				let region_countries = ev.target.className.baseVal;
-				d3.select(this.container)
-					.selectAll("." + region_countries)
-					.transition()
-					.attr("fill", "#aa5555")
-					.duration(500);
-			})
-			.on("mousemove", (ev, d) => {
-				let country_array = this._country_arr.map(obj => obj.country);
-				let index_main;
-				for(let i = 0; i < country_array.length; i++) {
-					let index = country_array[i].findIndex(element => element == d.properties["name"]);
-					if(index != -1) {
-						index_main = i;
-						break;
-					}
-				}
-				let name = this._country_arr[index_main].translate;
-				let value = this._country_arr[index_main].value + this.suffix + " " + this.currency;
-
-				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
-        let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
-        tooltip
-          .attr("x", tooltippos[0])
-	        .attr("y", tooltippos[1])
-	        .attr("width", tooltipsize[0])
-	        .attr("height", tooltipsize[1])
-          .style("opacity", "0.7");
-
-			tooltiptext
-				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-				.attr("display", "inherit")
-				.text(name + " " + value);
-			})
-			.on("mouseout", (ev, d) => {
-				let country_array = this._country_arr.map(obj => obj.country);
-				for(let i = 0; i < country_array.length; i++) {
-					let index = country_array[i].findIndex(element => element == d.properties["name"]);
-					if(index != -1) {
-						let region_countries = ev.target.className.baseVal;
-						d3.select(this.container)
-							.selectAll("." + region_countries)
-							.transition()
-							.attr("fill", colors(this._country_arr[i].value))
-							.duration(200);
-							break;
-					}
-				}
-				tooltip
-					.style("opacity", "0")
-          .attr("width", "0px");
-				tooltiptext
-					.attr("display", "none");
-  	});
-		// Dodanie możliwości przybliżenia i przesuwania mapy
-		this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
-			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
-		}));
-	}
-	#init_table = () => {
-		let country_string = '<table class="map-country-table">';
-		for(let i = 0; i < this._country_arr.length; i++){
-			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].value).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
-		}
-		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d.value)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
-		country_string += "</table>";
-		d3.select(this.container).select(".svg-div").html(country_string);
-	}
 	#init_inputs = () => {
 		// Tytuł wykresu
 		d3.select(this.container)
@@ -297,7 +149,7 @@ class WorldMap{
 					console.log(this.maps);
 					 if(this.current_map < this.maps.length-1)
 					 		this.current_map++;
-					 else
+					 else if(this.current_map > 0)
 					 		this.current_map--;
 					 this.#load_data();
 				 })
@@ -305,6 +157,125 @@ class WorldMap{
 				.append("img")
 					.attr("src", "map.png");
 	}
+	#draw_map = () => {
+		this.svg.html("");
+		// Typ projekcji mapy
+		this.mapProjection = d3.geoNaturalEarth()
+							.scale(this.svg_height / Math.PI)
+							.translate([this.width / 2, this.svg_height / 2]);
+		let geoPath = d3.geoPath(this.mapProjection);
+		// Skala kolorów na podstawie ilości przychodów
+		let colors = d3.scaleLinear()
+						.domain([d3.min(this._country_arr, d => d.year), d3.max(this._country_arr, d => d.year)])
+						.range(["rgb(150,255,150)", "green"]);
+		// Rysowanie geometrii mapy
+		this.svg.append("g")
+				.selectAll("path")
+				.data(this._map_data.features)
+				.enter()
+				.append("path")
+				.attr("d", geoPath);
+		// Kolorowanie krajów które znajdują się w tablicy przychodów
+		this.svg.selectAll("path")
+			.filter( (d) => {
+					let country_array = d3.map(this._country_arr, d => d.country).flat();
+					let index = country_array.indexOf(d.properties["name"]);
+					return index != -1 && this._country_arr[index].year > 0;
+				})
+				.attr("fill",	(d) => {
+					let country_array = d3.map(this._country_arr, d => d.country).flat();
+					let index = country_array.indexOf(d.properties["name"]);
+					return colors(parseFloat(this._country_arr[index].year));
+				})
+				.attr("class", (d) => {
+					let country_array = d3.map(this._country_arr, d => d.country).flat();
+					let index = country_array.indexOf(d.properties["name"]);
+					return this._country_arr[index].name;
+				})
+				.classed("country", true);
+		// Kolorowanie reszty krajów
+		this.svg.selectAll("path")
+			.filter( (d) => {
+					let country_array = d3.map(this._country_arr, d => d.country).flat();
+					let index = country_array.indexOf(d.properties["name"]);
+					return index == -1 || this._country_arr[index].year <= 0;
+				})
+				.attr("fill", "#e0e0e0")
+				.classed("country", true);
+		// Dodanie tooltipa
+		const tooltip = this.svg.append("rect")
+              .attr("width", "0px")
+              .attr("height", "0px")
+              .style("fill", "white")
+              .style("stroke", "black")
+              .classed("tooltip", true);
+    const tooltiptext = this.svg.append("text")
+              .classed("tooltip-text", true);
+		// Eventy tooltipa - Wyświetlanie tooltipa tylko jeśli kraj znajduje się w tablicy przychodów
+    this.svg.selectAll("path")
+			.filter(d => {
+				let country_array = d3.map(this._country_arr, d => d.country).flat();
+				let index = country_array.indexOf(d.properties["name"]);
+				return index != -1 && this._country_arr[index].year > 0;
+			})
+			.on("mouseenter", (ev, d) => {
+				let region_countries = ev.target.className.baseVal.split(" ")[0];
+				d3.select(this.container)
+					.selectAll("." + region_countries)
+					.attr("fill", "#aa5555");
+			})
+			.on("mousemove", (ev, d) => {
+				let country_array = d3.map(this._country_arr, d => d.country).flat();
+				let index = country_array.indexOf(d.properties["name"]);
+
+				let name = this._country_arr[index].translate;
+				let value = this._country_arr[index].year + this.suffix + " " + this.currency;
+
+				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
+        let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+        tooltip
+          .attr("x", tooltippos[0])
+	        .attr("y", tooltippos[1])
+	        .attr("width", tooltipsize[0])
+	        .attr("height", tooltipsize[1])
+          .style("opacity", "0.7");
+
+			tooltiptext
+				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+				.attr("display", "inherit")
+				.text(name + " " + value);
+			})
+			.on("mouseout", (ev, d) => {
+				let country_array = d3.map(this._country_arr, d => d.country).flat();
+				let index = country_array.indexOf(d.properties["name"]);
+
+				let region_countries = ev.target.className.baseVal.split(" ")[0];
+				d3.select(this.container)
+					.selectAll("." + region_countries)
+					.attr("fill", colors(this._country_arr[index].year));
+
+				tooltip
+					.style("opacity", "0")
+          .attr("width", "0px");
+				tooltiptext
+					.attr("display", "none");
+  	});
+		// Dodanie możliwości przybliżenia i przesuwania mapy
+		this.svg.call(d3.zoom().scaleExtent([1, 6]).translateExtent([[0, 0], [this.width, this.svg_height]]).on("zoom", (ev) => {
+			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
+		}));
+	}
+	#init_table = () => {
+		let country_string = '<table class="map-country-table">';
+		for(let i = 0; i < this._country_arr.length; i++){
+			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].year).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+		}
+		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d.year)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+		country_string += "</table>";
+		d3.select(this.container).select(".svg-div").html(country_string);
+	}
+
 	refresh = () => {
 		this.#update();
 		clearTimeout(this.resizeTimer);

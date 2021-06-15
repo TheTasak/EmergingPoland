@@ -17,8 +17,14 @@
     $data->{"ticket"} = $stock["ticket"];
     $data->{"index"} = $stock["indeks"];
     $data->{"ISIN"} = $stock["ISIN"];
-    $data->{"industry"} = $stock["branza"];
     $data->{"debut_date"} = $stock["data_debiutu"];
+
+    $myquery = "SELECT * FROM `branże` WHERE baza='{$stock["branza"]}';";
+    $translate = sql_getdatarecord($sqli, $myquery);
+    if(null !== $translate)
+      $data->{"industry"} = $translate["pl"];
+    else
+      $data->{"industry"} = $stock["branza"];
 
   	$stock_value = $stock["idspolki"];
     $stocks_count = null;

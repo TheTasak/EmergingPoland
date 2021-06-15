@@ -212,9 +212,13 @@ class TreeChartUdzial{
               .style("user-select", "none")
               .classed("tooltip-text", true);
     this.svg.selectAll('.treechart-chunk')
-        .filter(d => {return d.data.name != this.current_data.name;})
+        .on("mouseover", (ev, d) => {
+          this.svg.selectAll(".treechart-chunk")
+                  .style("opacity", "0.4");
+          ev.target.style.opacity = "1";
+        })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [String(d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%").length*12, 40];
+  				let tooltipsize = [String(d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%").length*10+10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
@@ -235,12 +239,14 @@ class TreeChartUdzial{
   				.attr("display", "inherit")
   				.text(d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%");
   			})
-  			.on("mouseout", function(ev, d){
+  			.on("mouseout", (ev, d) => {
   				tooltip
   					.style("opacity", "0")
             .attr("width", "0px");
   				tooltiptext
   					.attr("display", "none");
+          this.svg.selectAll(".treechart-chunk")
+                  .style("opacity", "1");
   			});
   }
   #init_table = () => {

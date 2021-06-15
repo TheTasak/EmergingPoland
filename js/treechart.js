@@ -168,7 +168,9 @@ class TreeChart{
               .attr("font-size", "26px");
       return;
     }
-    let root = d3.hierarchy(this.current_data);
+    const data = Object.assign({}, this.current_data);
+    data.children = d3.filter(data.children, d => d[this.current_chart_interval] > 0);
+    let root = d3.hierarchy(data);
     root.sum(d => d[this.current_chart_interval]);
 
     let treemap_layout = d3.treemap();
@@ -177,7 +179,7 @@ class TreeChart{
       .paddingOuter(5);
     treemap_layout(root);
     let colors = d3.scaleLinear()
-            .domain([d3.min(this.current_data.children, d => d[this.current_chart_interval]),d3.max(this.current_data.children, d => d[this.current_chart_interval])])
+            .domain([d3.min(data.children, d => d[this.current_chart_interval]),d3.max(data.children, d => d[this.current_chart_interval])])
             .range(["rgb(150,255,150)", "green"]);
 
     const g = this.svg.append("g");
@@ -274,13 +276,16 @@ class TreeChart{
   			});
   }
   #init_table = () => {
-    let earnings_string = '<table class="earnings-table">';
+    d3.select(this.container).select(".svg-div")
+      .append("div")
+        .classed("earnings-table", true);
+    let earnings_string = '<table>';
 		for(let i = 0; i < this.current_data.children.length; i++){
 			earnings_string += "<tr><td align='center'>" + this.current_data.children[i].translate + "</td><td align='right'>" + this.current_data.children[i][this.current_chart_interval] + this.suffix + " " + this.currency + "</td></tr>";
 		}
     earnings_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this.current_data.children, d => d[this.current_chart_interval])).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		earnings_string += "</table>";
-		d3.select(this.container).select(".svg-div").html(earnings_string);
+		d3.select(this.container).select(".earnings-table").html(earnings_string);
   }
   refresh = () => {
     this.#update();

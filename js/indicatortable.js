@@ -21,7 +21,7 @@ class Indicators{
 			{"name":"ROA", "function": this.#roa, "suffix": "%"},
 			{"name":"Jakość zysku", "function": this.#earnings_quality, "suffix": ""},
 			{"name":"Marża operacyjna", "function": this.#operating_margin, "suffix": "%"},
-			{"name":"Marża zysku ze sprzedaży", "function": this.#gross_margin_ratio, "suffix": "%"},
+			{"name":"Marża zysku brutto ze sprzedaży", "function": this.#gross_margin_ratio, "suffix": "%"},
 			{"name":"Produktywność aktywów", "function": this.#asset_turnover_ratio, "suffix": "%"},
 			{"name":"Płynność bieżąca", "function": this.#current_ratio, "suffix": ""},
 			{"name":"Zadłużenie ogólne", "function": this.#debt_ratio, "suffix": ""},
@@ -82,6 +82,8 @@ class Indicators{
 		return parseFloat(this._data[year]["cena_akcji"] / (this._data[year]["kurs_waluty"]*sum*1000 / this._data[year]["akcje"])).toFixed(2);
 	}
   #dividend_yield = (year) => {
+		if(isNaN(this._data[year]["dywidenda"]))
+			return 0;
     return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["dywidenda"]) / (this._data[year]["cena_akcji"]) * 100).toFixed(2);
   }
 	#roa = (year) => {
@@ -150,33 +152,24 @@ class Indicators{
 		return points;
 	}
 	#historical_min = (func) => {
-		let min = func(this.start_year*1 + 1);
+		let min = Number.MAX_SAFE_INTEGER;
 		let num = 0;
 		for(let i = this.start_year; i <= this.end_year; i++) {
 			if(i == this.end_year)
 				num = parseFloat(func(i + "_" + this.end_quarter));
 			else
 			 	num = parseFloat(func(i));
-			if(num < min && !isNaN(num))
+			if(num < min && !isNaN(num) && isFinite(num))
 				min = num;
+		}
+		if(min == Number.MAX_SAFE_INTEGER) {
+			return 0;
 		}
 		return parseFloat(min).toFixed(2);
 	}
 	#historical_median = (func) => {
 		let years = this.end_year - this.start_year + 1;
 		let array = [];
-		for(let i = this.start_year; i <= this.end_year; i++) {
-			if(i == this.end_year) {
-				array.push(parseFloat(func(i + "_" + this.end_quarter)));
-			} else {
-				array.push(parseFloat(func(i)));
-			}
-		}
-		array.sort();
-		return array[parseInt(years/2)];
-	}
-	#historical_max = (func) => {
-		let max = func(this.start_year);
 		let num = 0;
 		for(let i = this.start_year; i <= this.end_year; i++) {
 			if(i == this.end_year) {
@@ -184,12 +177,32 @@ class Indicators{
 			} else {
 				num = parseFloat(func(i));
 			}
-			if(num > max && !isNaN(num))
+			if(!isNaN(num) && isFinite(num)) {
+				array.push(num);
+			}
+		}
+		array.sort();
+		return array[parseInt(years/2)];
+	}
+	#historical_max = (func) => {
+		let max = Number.MIN_SAFE_INTEGER;
+		let num = 0;
+		for(let i = this.start_year; i <= this.end_year; i++) {
+			if(i == this.end_year) {
+				num = parseFloat(func(i + "_" + this.end_quarter));
+			} else {
+				num = parseFloat(func(i));
+			}
+			if(num > max && !isNaN(num) && isFinite(num))
 				max = num;
+		}
+		if(max == Number.MIN_SAFE_INTEGER) {
+			return 0;
 		}
 		return parseFloat(max).toFixed(2);
 	}
 	#load_data = () => {
+		console.log("stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year);
 		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year).then( d => {
 			this._data = d;
       this.#init();

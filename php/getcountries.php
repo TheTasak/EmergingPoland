@@ -17,16 +17,19 @@
   $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = reset($stock);
 
-	$myquery = "SELECT `{$date}`, kraje FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';";
+	$myquery = "SELECT *, kraje FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';";
   $data = sql_getdataarray($sqli, $myquery);
 
   for($i = 0; $i < count($data); $i++) {
     $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["kraje"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
-
     $data[$i] = (object)[
         'country' => array($country["strona"]),
-        'value' => intval($data[$i][$date]),
+        'year' => intval($data[$i][$date]),
+        'quarter1' => intval($data[$i][$date . "_1"]),
+        'quarter2' => intval($data[$i][$date . "_2"]),
+        'quarter3' => intval($data[$i][$date . "_3"]),
+        'quarter4' => intval($data[$i][$date . "_4"]),
         'translate' => $country[$language],
         'name' => $country["baza"],
     ];
