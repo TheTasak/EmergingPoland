@@ -7,7 +7,9 @@
     if(isset($_GET['year'])){
       $year = $_GET['year'];
     }
-
+    if(isset($_GET['lang'])){
+      $lang = $_GET['lang'];
+    }
   	$sqli = sql_open();
 
   	$myquery = "SELECT idspolki, ticket, indeks, ISIN, branza, data_debiutu FROM `spis` WHERE spolki='{$stock_name}';";
@@ -22,7 +24,7 @@
     $myquery = "SELECT * FROM `branże` WHERE baza='{$stock["branza"]}';";
     $translate = sql_getdatarecord($sqli, $myquery);
     if(null !== $translate)
-      $data->{"industry"} = $translate["pl"];
+      $data->{"industry"} = $translate[$lang];
     else
       $data->{"industry"} = $stock["branza"];
 

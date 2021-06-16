@@ -25,7 +25,7 @@
     $country_arr = explode(",", $country["strona"]);
     $data[$i] = (object)[
         'country' => $country_arr,
-        'value' => intval($data[$i][$date]),
+        'year' => intval($data[$i][$date]),
         'translate' => $country[$language],
         'name' => $country["baza"],
     ];

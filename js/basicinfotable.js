@@ -26,7 +26,7 @@ class BasicInfo{
 		}
   }
 	#load_data = () => {
-		d3.json("php/getbasicinfo.php?" + "stock_name=" + this.stock_name + "&year=" + this.year).then( d => {
+		d3.json("php/getbasicinfo.php?" + "stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then( d => {
 			  this._data = d;
 				this.#get_suffix();
         this._table = [

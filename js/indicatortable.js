@@ -202,7 +202,6 @@ class Indicators{
 		return parseFloat(max).toFixed(2);
 	}
 	#load_data = () => {
-		console.log("stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year);
 		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year).then( d => {
 			this._data = d;
       this.#init();

@@ -6,6 +6,7 @@ class WorldMap{
 	maps = ["getcountries", "getregions"];
 	stock_name = "";
 	year = 2020;
+	current_chart_interval = -1;
 	constructor(container, stock_name, start_year, currency, language, map_types){
 		this.container = container;
 		this.stock_name = stock_name;
@@ -17,17 +18,26 @@ class WorldMap{
 	}
 	#get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let val = d3.max(this._country_arr, d => d.year);
+	  let val = d3.max(this._country_arr, d => d[this.current_chart_interval]);
 	  if(val >= 1000000){
-		  this._country_arr.forEach((item) => item.year /= 1000000.0);
+		  this._country_arr.forEach((item) => item[this.current_chart_interval] /= 1000000.0);
 		  this.suffix = "mld";
 	  } else if(val >= 1000){
-		  this._country_arr.forEach((item) => item.year /= 1000.0);
+		  this._country_arr.forEach((item) => item[this.current_chart_interval] /= 1000.0);
 		  this.suffix = "mln";
 		} else {
 		  this.suffix = "tys";
 	  }
   }
+	#change_chart = () => {
+		const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
+		if(select_list_interval != undefined)
+			this.current_chart_interval = select_list_interval.value;
+		else
+			this.current_chart_interval = "year";
+		this._country_arr.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
+		this.#get_suffix();
+	}
 	#load_data = () => {
 		d3.json("php/"+ this.maps[this.current_map] +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
@@ -38,8 +48,7 @@ class WorldMap{
 				this.#load_data();
 				return;
 			}
-			this._country_arr.sort((a,b) => (a.year < b.year) ? 1 : -1);
-			this.#get_suffix();
+			this.#change_chart();
 			d3.json("js/world.geojson").then( (d) => {
 				// Wczytanie danych geometrii mapy
 				this._map_data = d;
@@ -108,10 +117,11 @@ class WorldMap{
 	}
 	#init_inputs = () => {
 		// Tytuł wykresu
+		let text = this.maps[this.current_map] == "getcountries" ? "Podział przychodów ze względu na kraje" : "Podział przychodów ze względu na regiony";
 		d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-				.text("Podział przychodów ze względu na kraje")
+				.text(text)
 				.classed("chart-title", true);
 		d3.select(this.container)
 			.select(".button-div")
@@ -141,21 +151,38 @@ class WorldMap{
 				.text("🠖")
 				.on("click", this.#later_year)
 				.classed("map-button", true);
-		d3.select(this.container)
-			.select(".map-button-div")
-			.append("button")
-				.attr("type", "button")
-				.on("click", () => {
-					console.log(this.maps);
-					 if(this.current_map < this.maps.length-1)
-					 		this.current_map++;
-					 else if(this.current_map > 0)
-					 		this.current_map--;
-					 this.#load_data();
-				 })
-				.classed("map-button", true)
-				.append("img")
-					.attr("src", "map.png");
+		if(this.maps.length > 1) {
+			d3.select(this.container)
+				.select(".map-button-div")
+				.append("button")
+					.attr("type", "button")
+					.on("click", () => {
+						console.log(this.maps);
+						 if(this.current_map < this.maps.length-1)
+								this.current_map++;
+						 else if(this.current_map > 0)
+								this.current_map--;
+						 this.#load_data();
+					 })
+					.classed("map-button", true)
+					.append("img")
+						.attr("src", "map.png");
+		}
+		const field_interval = d3.select(this.container)
+                             .select(".map-button-div")
+				                        .append("select")
+          				                .on("change", this.#load_data)
+          				                .classed("chart-input", true);
+    let array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
+    for(let i = 0; i < array_interval.length; i++){
+  		field_interval.append("option")
+  			         .attr("value", array_interval[i])
+  			         .text(array_interval[i]);
+  	}
+    const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
+  	if(select_list_interval != undefined){
+  		select_list_interval.value = this.current_chart_interval;
+  	}
 	}
 	#draw_map = () => {
 		this.svg.html("");
@@ -166,7 +193,7 @@ class WorldMap{
 		let geoPath = d3.geoPath(this.mapProjection);
 		// Skala kolorów na podstawie ilości przychodów
 		let colors = d3.scaleLinear()
-						.domain([d3.min(this._country_arr, d => d.year), d3.max(this._country_arr, d => d.year)])
+						.domain([d3.min(this._country_arr, d => d[this.current_chart_interval]), d3.max(this._country_arr, d => d[this.current_chart_interval])])
 						.range(["rgb(150,255,150)", "green"]);
 		// Rysowanie geometrii mapy
 		this.svg.append("g")
@@ -178,27 +205,23 @@ class WorldMap{
 		// Kolorowanie krajów które znajdują się w tablicy przychodów
 		this.svg.selectAll("path")
 			.filter( (d) => {
-					let country_array = d3.map(this._country_arr, d => d.country).flat();
-					let index = country_array.indexOf(d.properties["name"]);
-					return index != -1 && this._country_arr[index].year > 0;
+					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
+					return arr_index != -1 && this._country_arr[arr_index][this.current_chart_interval] > 0;
 				})
 				.attr("fill",	(d) => {
-					let country_array = d3.map(this._country_arr, d => d.country).flat();
-					let index = country_array.indexOf(d.properties["name"]);
-					return colors(parseFloat(this._country_arr[index].year));
+					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
+					return colors(parseFloat(this._country_arr[arr_index][this.current_chart_interval]));
 				})
 				.attr("class", (d) => {
-					let country_array = d3.map(this._country_arr, d => d.country).flat();
-					let index = country_array.indexOf(d.properties["name"]);
-					return this._country_arr[index].name;
+					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
+					return this._country_arr[arr_index].name;
 				})
 				.classed("country", true);
 		// Kolorowanie reszty krajów
 		this.svg.selectAll("path")
 			.filter( (d) => {
-					let country_array = d3.map(this._country_arr, d => d.country).flat();
-					let index = country_array.indexOf(d.properties["name"]);
-					return index == -1 || this._country_arr[index].year <= 0;
+					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
+					return arr_index == -1 || this._country_arr[arr_index][this.current_chart_interval] <= 0;
 				})
 				.attr("fill", "#e0e0e0")
 				.classed("country", true);
@@ -206,17 +229,22 @@ class WorldMap{
 		const tooltip = this.svg.append("rect")
               .attr("width", "0px")
               .attr("height", "0px")
+							.attr("rx", "20px")
+              .attr("ry", "20px")
               .style("fill", "white")
               .style("stroke", "black")
+							.attr("pointer-events", "none")
+              .style("user-select", "none")
               .classed("tooltip", true);
     const tooltiptext = this.svg.append("text")
+							.attr("pointer-events", "none")
+							.style("user-select", "none")
               .classed("tooltip-text", true);
 		// Eventy tooltipa - Wyświetlanie tooltipa tylko jeśli kraj znajduje się w tablicy przychodów
     this.svg.selectAll("path")
 			.filter(d => {
-				let country_array = d3.map(this._country_arr, d => d.country).flat();
-				let index = country_array.indexOf(d.properties["name"]);
-				return index != -1 && this._country_arr[index].year > 0;
+				let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
+				return arr_index != -1 && this._country_arr[arr_index][this.current_chart_interval] > 0;
 			})
 			.on("mouseenter", (ev, d) => {
 				let region_countries = ev.target.className.baseVal.split(" ")[0];
@@ -225,14 +253,13 @@ class WorldMap{
 					.attr("fill", "#aa5555");
 			})
 			.on("mousemove", (ev, d) => {
-				let country_array = d3.map(this._country_arr, d => d.country).flat();
-				let index = country_array.indexOf(d.properties["name"]);
+				let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
 
-				let name = this._country_arr[index].translate;
-				let value = this._country_arr[index].year + this.suffix + " " + this.currency;
+				let name = this._country_arr[arr_index].translate;
+				let value = this._country_arr[arr_index][this.current_chart_interval] + this.suffix + " " + this.currency;
 
-				let tooltipsize = [String(name + " " + value).length*10, this.height / 16];
-        let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-80];
+				let tooltipsize = [String(name + " " + value).length*10+10, 40];
+        let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
         tooltip
           .attr("x", tooltippos[0])
 	        .attr("y", tooltippos[1])
@@ -247,13 +274,12 @@ class WorldMap{
 				.text(name + " " + value);
 			})
 			.on("mouseout", (ev, d) => {
-				let country_array = d3.map(this._country_arr, d => d.country).flat();
-				let index = country_array.indexOf(d.properties["name"]);
+				let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
 
 				let region_countries = ev.target.className.baseVal.split(" ")[0];
 				d3.select(this.container)
 					.selectAll("." + region_countries)
-					.attr("fill", colors(this._country_arr[index].year));
+					.attr("fill", colors(this._country_arr[arr_index][this.current_chart_interval]));
 
 				tooltip
 					.style("opacity", "0")
@@ -268,10 +294,11 @@ class WorldMap{
 	}
 	#init_table = () => {
 		let country_string = '<table class="map-country-table">';
+		console.log(this._country_arr);
 		for(let i = 0; i < this._country_arr.length; i++){
-			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i].year).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i][this.current_chart_interval]).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		}
-		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d.year)).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d[this.current_chart_interval])).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
@@ -281,4 +308,12 @@ class WorldMap{
 		clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(this.#draw_map, 10);
 	}
+}
+function search_index(element) {
+	let arr = element.country;
+	for(let i = 0; i < arr.length; i++) {
+		if(arr[i] == this)
+			return true;
+	}
+	return false;
 }
