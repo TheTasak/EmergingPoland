@@ -58,13 +58,12 @@ button{
 }
 #links-secondary{
   width: 0;
-  height: 80%;
+  max-height: 90%;
   position: relative;
   transition: 0.5s;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  overflow-y: auto;
 }
 #links-main a {
   padding: 30px 0;
@@ -205,12 +204,11 @@ main h1{
   }
 }
 .bar{
-  transition: fill, stroke 0.5s ease-out;
-  stroke: transparent;
+  transition: fill 0.5s ease-out;
+  stroke: black;
 }
 .bar:hover{
   fill: #ff8080;
-  stroke: black;
 }
 .tooltip{
 	opacity: 0;
@@ -234,7 +232,6 @@ fieldset{
 }
 .chart-input{
   font-size: min(3vw, 14px);
-  margin-right: 20px;
 }
 .chart-input img{
   width: 50px;
@@ -248,6 +245,7 @@ fieldset{
 .chart-button-div{
   display: flex;
   justify-content: center;
+  margin-left: 10px;
   width: 100%;
 }
 .chart-button-div > *{
@@ -406,15 +404,32 @@ fieldset{
 }
 .info-table{
   overflow: auto;
-  max-height: 500px;
+  height: 100%;
+  margin-left: 20px;
 	display: flex;
   border: none;
 	justify-content: center;
+  align-items: center;
   font-size: min(4vw, 18px);
 }
-.info-table table{
-  border-collapse: separate;
-  border-spacing: 40px;
+.info-table td{
+  padding-bottom: 30px;
+}
+.dividend-table{
+  overflow: auto;
+  text-align: center;
+  max-height: 500px;
+  height: 100%;
+	display: flex;
+	justify-content: center;
+  align-items: center;
+  font-size: min(3vw, 20px);
+}
+.dividend-table tr:first-child{
+  font-weight: bold;
+}
+.dividend-table td{
+  padding-bottom: 10px;
 }
 .circle-node:hover{
   stroke-width: 5px !important;

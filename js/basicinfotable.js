@@ -30,34 +30,32 @@ class BasicInfo{
 			  this._data = d;
 				this.#get_suffix();
         this._table = [
-    			{"name":"Nazwa spółki", "data": this._data["name"], "suffix": "PLN"},
+    			{"name":"Nazwa spółki", "data": this._data["name"], "suffix": ""},
     			{"name":"Data debiutu", "data": this._data["debut_date"], "suffix": ""},
     			{"name":"Ticket", "data": this._data["ticket"], "suffix": ""},
     			{"name":"Indeks", "data": this._data["index"], "suffix": ""},
           {"name":"Branża", "data": this._data["industry"], "suffix": ""},
     			{"name":"ISIN", "data": this._data["ISIN"], "suffix": ""},
-          {"name":"Kapitalizacja", "data": parseFloat(this._data["capitalization"]).toFixed(2) + this.suffix, "suffix": ""}
+					{"name":"Cena akcji", "data": parseFloat(this._data["price"]).toFixed(2), "suffix": "PLN"},
+          {"name":"Kapitalizacja", "data": parseFloat(this._data["capitalization"]).toFixed(2), "suffix": this.suffix}
     		];
         this.refresh();
 		});
 	}
 	reset = () => {
 		d3.select(this.container)
-			.selectAll(".svg-div")
+			.selectAll(".info-table")
 			.remove();
 		this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
 
 		d3.select(this.container)
 			.append("div")
-			.attr("width", this.width)
-			.attr("height", this.height)
-			.classed("svg-div", true);
+			.classed("info-table", true);
 	}
   draw_table = () => {
     const rows = d3.select(this.container)
-      .select(".svg-div")
-      .classed("info-table", true)
+			.select(".info-table")
       .append("table")
         .attr("width", "100%")
         .selectAll(".table-row")
@@ -77,7 +75,7 @@ class BasicInfo{
 											.selectAll(".table-row")
 											.append("td")
 												.classed("row-value", true)
-												.attr("width", "100%");
+												.attr("width", "50%");
 		const values_el = values.nodes();
 
     for(let i = 0; i < this._table.length; i++) {
@@ -85,7 +83,7 @@ class BasicInfo{
         .text(this._table[i]["name"]);
 
       d3.select(values_el[i])
-        .text(this._table[i]["data"]);
+        .text(this._table[i]["data"] + " " + this._table[i]["suffix"]);
     }
   }
 	refresh = () => {

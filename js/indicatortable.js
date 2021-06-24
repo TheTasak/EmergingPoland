@@ -16,7 +16,6 @@ class Indicators{
 			{"name":"Cena/Wartość księgowa Grahama", "function": this.#price_graham_book_value, "suffix": ""},
 			{"name":"Cena/Przychody", "function": this.#price_revenue, "suffix": ""},
 			{"name":"Cena/Zysk operacyjny", "function": this.#price_operating_profit, "suffix": ""},
-			{"name":"Stopa dywidendy", "function": this.#dividend_yield, "suffix": "%"},
 			{"name":"ROE", "function": this.#roe, "suffix": "%"},
 			{"name":"ROA", "function": this.#roa, "suffix": "%"},
 			{"name":"Jakość zysku", "function": this.#earnings_quality, "suffix": ""},

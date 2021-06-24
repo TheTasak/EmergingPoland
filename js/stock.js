@@ -53,9 +53,10 @@ class Stock{
         if(this._tables[i] == "dane") {
          this._modules.push(new BasicInfo(this._containers[container_counter], this.stock_name, this.end_report, this.language));
          this._modules.push(new Indicators(this._containers[container_counter+1], this.stock_name, this.start_year, this.end_report, this.language));
-         this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "dywidenda", "year", this.start_year, this.end_report, this.currency, this.language));
+         this._modules.push(new Chart(this._containers[container_counter+2], this.stock_name, "zysk_netto", "year", this.start_year, this.end_report, this.currency, this.language));
          this._modules.push(new Chart(this._containers[container_counter+3], this.stock_name, "koszt_sprzedazy", "quarter", this.start_year, this.end_report, this.currency, this.language));
-         container_counter = container_counter + 4;
+         this._modules.push(new DividendChart(this._containers[container_counter+4], this.stock_name, this.currency, this.language));
+         container_counter = container_counter + 5;
        } else if(this._tables[i] == "mapa") {
          this._modules.push(new WorldMap(this._containers[container_counter], this.stock_name, this.start_year, this.currency, this.language, this.map_types));
          container_counter++;
@@ -63,7 +64,7 @@ class Stock{
          this._modules.push(new CircleChart(this._containers[container_counter], this.stock_name, this.start_year, this.end_report, this.currency, this.language));
          container_counter++;
        } else if(this._tables[i] == "akcje") {
-         this._modules.push(new PieChart(this._containers[container_counter], this.stock_name, this.start_year));
+         this._modules.push(new AkcjeChart(this._containers[container_counter], this.stock_name, this.start_year));
          container_counter++;
        } else if(this._tables[i] == "podzial_przychodow") {
          this._modules.push(new TreeChart(this._containers[container_counter], this.stock_name, this.start_year, this.currency, this.language));

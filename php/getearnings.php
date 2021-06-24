@@ -31,16 +31,25 @@
     else{
       $translate = $data[$i]['sposoby_uzyskania_przychodu'];
     }
-
-    $translate_data[$i] = (object)[
-        'name' => $data[$i]['sposoby_uzyskania_przychodu'],
-        'year' => intval($data[$i][$date]),
-        'quarter1' => intval($data[$i][$date . "_1"]),
-        'quarter2' => intval($data[$i][$date . "_2"]),
-        'quarter3' => intval($data[$i][$date . "_3"]),
-        'quarter4' => intval($data[$i][$date . "_4"]),
-        'translate' => $translate,
-    ];
+    $object = new stdClass();
+    $object->{"name"} = $data[$i]['sposoby_uzyskania_przychodu'];
+    $object->{"translate"} = $translate;
+    if(null !== $data[$i][$date . "_1"]) {
+      $object->{"quarter1"} = $data[$i][$date . "_1"];
+    }
+    if(null !== $data[$i][$date . "_2"]) {
+      $object->{"quarter2"} = $data[$i][$date . "_2"];
+    }
+    if(null !== $data[$i][$date . "_3"]) {
+      $object->{"quarter3"} = $data[$i][$date . "_3"];
+    }
+    if(null !== $data[$i][$date . "_4"]) {
+      $object->{"quarter4"} = $data[$i][$date . "_4"];
+    }
+    if(null !== $data[$i][$date]) {
+      $object->{"year"} = $data[$i][$date];
+    }
+    $translate_data[$i] = $object;
   }
     echo json_encode($translate_data);
     mysqli_close($sqli);

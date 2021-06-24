@@ -6,22 +6,13 @@
     <script src="libs/wNumb.js" defer></script>
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>
-    <link rel="stylesheet" href="css/style.css?v=1">
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
-    <script src="js/dane_barchart.js?v=1" defer></script>
-    <script src="js/dividendchart.js?v=1" defer></script>
-  	<script src="js/treechart.js?v=1" defer></script>
-    <script src="js/udzial_treechart.js?v=1" defer></script>
-    <script src="js/innedane_circlechart.js?v=1" defer></script>
-    <script src="js/map.js?v=1" defer></script>
-    <script src="js/akcje_chart.js?v=1" defer></script>
-    <script src="js/indicatortable.js?v=1" defer></script>
-    <script src="js/basicinfotable.js?v=1" defer></script>
-    <script src="js/stock.js?v=1" defer></script>
-    <script src="js/script.js?v=1" defer></script>
+    <script src="js/stock.js" defer></script>
+    <script src="js/script.js" defer></script>
   </head>
   <body id="body">
     <div id="sidenav" class="sidenav">
@@ -41,37 +32,12 @@
       </div>
     </header>
     <main>
-      <h1 id="name"><?php echo $_GET['stock'] ?> </h1>
+      <h1 id="indeks"><?php echo $_GET['indeks'] ?> </h1>
       <input type="hidden" id="language" value='<?php echo $_GET['lang'] ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
               <p id="description"></p>
             </div>
-        </div>
-      <div class="content">
-        <div id="top_1" class="chart-div">
-          </div>
-        <div id="top_2" class="chart-div">
-          </div>
-        <div id="top_3" class="chart-div">
-          </div>
-        <div id="top_4" class="chart-div">
-          </div>
-        <div id="top_5" class="chart-div">
-          </div>
-      </div>
-      <div class="content-bottom">
-        <div id="middleleft" class="chart-div">
-          </div>
-        <div id="middleright" class="chart-div">
-          </div>
-        <div id="bottomleft" class="chart-div">
-          </div>
-        <div id="bottomright" class="chart-div">
-          </div>
-      </div>
-    </br>
-      <div id="bottom" class="map-div">
         </div>
     </main>
     <footer>

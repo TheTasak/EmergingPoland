@@ -10,7 +10,7 @@ class Chart{
   stock_name = "";
   data_name = "";
   padding_vertical = 20;
-  padding_horizontal = 100;
+  padding_horizontal = 70;
   chart_title = "";
   constructor(container, stock_name, data_name, chart_type, start_year, end_year, currency, language){
     this.container = container;

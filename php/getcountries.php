@@ -17,22 +17,32 @@
   $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = reset($stock);
 
-	$myquery = "SELECT *, kraje FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';";
+	$myquery = "SELECT * FROM `{$date}_kraje` WHERE idspolki='{$stock_value}';";
   $data = sql_getdataarray($sqli, $myquery);
 
   for($i = 0; $i < count($data); $i++) {
     $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["kraje"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
-    $data[$i] = (object)[
-        'country' => array($country["strona"]),
-        'year' => intval($data[$i][$date]),
-        'quarter1' => intval($data[$i][$date . "_1"]),
-        'quarter2' => intval($data[$i][$date . "_2"]),
-        'quarter3' => intval($data[$i][$date . "_3"]),
-        'quarter4' => intval($data[$i][$date . "_4"]),
-        'translate' => $country[$language],
-        'name' => $country["baza"],
-    ];
+    $object = new stdClass();
+    $object->{"country"} = array($country["strona"]);
+    $object->{"name"} = $country["baza"];
+    $object->{"translate"} = $country[$language];
+    if(null !== $data[$i][$date . "_1"]) {
+      $object->{"quarter1"} = $data[$i][$date . "_1"];
+    }
+    if(null !== $data[$i][$date . "_2"]) {
+      $object->{"quarter2"} = $data[$i][$date . "_2"];
+    }
+    if(null !== $data[$i][$date . "_3"]) {
+      $object->{"quarter3"} = $data[$i][$date . "_3"];
+    }
+    if(null !== $data[$i][$date . "_4"]) {
+      $object->{"quarter4"} = $data[$i][$date . "_4"];
+    }
+    if(null !== $data[$i][$date]) {
+      $object->{"year"} = $data[$i][$date];
+    }
+    $data[$i] = $object;
   }
   echo json_encode($data);
   mysqli_close($sqli);

@@ -37,14 +37,10 @@
       $stocks_count = sql_getdatarecord($sqli, $myquery);
       $year_akcje--;
     }
-    $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
+    $myquery = "SELECT * FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
     $stocks_price = sql_getdatarecord($sqli, $myquery);
-    $quarter_kurs = 4;
-    while($stocks_price[$year . "_" . $quarter_kurs] == null)
-    {
-      $quarter_kurs--;
-    }
-    $data->{"capitalization"} = $stocks_count[$year_akcje+1 . "_akcje"] * $stocks_price[$year . "_" . $quarter_kurs];
+    $data->{"price"} = $stocks_price["cena"];
+    $data->{"capitalization"} = $stocks_count[$year_akcje+1 . "_akcje"] * $stocks_price["cena"];
     echo json_encode($data);
     mysqli_close($sqli);
 ?>

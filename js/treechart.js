@@ -36,15 +36,22 @@ class TreeChart{
     });
   }
   #change_chart = () => {
+    let temp_array = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
+		this.array_interval = [];
+		temp_array.forEach((item, i) => {
+			let new_arr = d3.map(this._data, d => d[item]).filter(value => value != undefined && !isNaN(value));
+			if(new_arr.length != 0)
+				this.array_interval.push(item);
+		});
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_interval != undefined)
       this.current_chart_interval = select_list_interval.value;
     else
-      this.current_chart_interval = "year";
+      this.current_chart_interval = this.array_interval[this.array_interval.length-1];
     this._data.forEach((item, i) => {
       item[this.current_chart_interval] = parseFloat(item[this.current_chart_interval]);
     });
-    this.current_data = d3.filter(this._data, d => d[this.current_chart_interval] != 0);
+    this.current_data = d3.filter(this._data, d => !isNaN(d[this.current_chart_interval]));
     this.current_data.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
     this.current_data = {"name": "chart", "translate": "", "children": this.current_data};
   }
@@ -145,11 +152,10 @@ class TreeChart{
 				                        .append("select")
           				                .on("change", this.#load_data)
           				                .classed("chart-input", true);
-    let array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
-    for(let i = 0; i < array_interval.length; i++){
+    for(let i = 0; i < this.array_interval.length; i++){
   		field_interval.append("option")
-  			         .attr("value", array_interval[i])
-  			         .text(array_interval[i]);
+  			         .attr("value", this.array_interval[i])
+  			         .text(this.array_interval[i]);
   	}
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
   	if(select_list_interval != undefined){

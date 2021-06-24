@@ -2,36 +2,43 @@ var stock;
 var menu_stock_data;
 var language;
 function load(){
-  const stock_name = document.getElementById("name").innerHTML;
+  const stock_name = document.getElementById("name");
 
-  if(stock_name != "") {
-    const container1 = document.getElementById("bottom");
-    const container2 = document.getElementById("topleft");
-    const container3 = document.getElementById("topmiddleleft");
-    const container4 = document.getElementById("topmiddleright");
-    const container5 = document.getElementById("topright");
-    const container6 = document.getElementById("middleright");
-    const container7 = document.getElementById("middleleft");
-    const container8 = document.getElementById("bottomleft");
-    const container9 = document.getElementById("bottomright");
+  language = document.getElementById("language").value;
+  if(language == undefined)
+    language = "pl";
 
-    let container_table = [container1, container2, container3, container4, container5, container6, container7, container8, container9];
+  if(stock_name != undefined) {
+    let name = stock_name.innerHTML;
+    if(name != "") {
+      const container1 = document.getElementById("bottom");
+      const container2 = document.getElementById("top_1");
+      const container3 = document.getElementById("top_2");
+      const container4 = document.getElementById("top_3");
+      const container5 = document.getElementById("top_4");
+      const container6 = document.getElementById("top_5");
+      const container7 = document.getElementById("middleright");
+      const container8 = document.getElementById("middleleft");
+      const container9 = document.getElementById("bottomleft");
+      const container10 = document.getElementById("bottomright");
 
-    language = document.getElementById("language").value;
-    if(language == undefined)
-      language = "pl";
-    document.getElementById("lang-pl").href = "index.php?stock=" + stock_name.trim() + "&lang=pl";
-    document.getElementById("lang-en").href = "index.php?stock=" + stock_name.trim() + "&lang=en";
-    stock = new Stock(stock_name, container_table, language);
-    d3.json("php/getallstocks.php").then( d => {
-      let string = "";
-      for(let i = 0; i < d.length; i++) {
-        string += '<a href="#" class="sidenav-linkmain" onmouseover="navCategoryClick(this)">' + d[i].index + "</a>";
-      }
-      menu_stock_data = d;
-      document.getElementById("links-main").innerHTML = string;
-    });
+      let container_table = [container1, container2, container3, container4, container5, container6, container7, container8, container9, container10];
+      stock = new Stock(name, container_table, language);
+      document.getElementById("lang-pl").href = "index.php?stock=" + name.trim() + "&lang=pl";
+      document.getElementById("lang-en").href = "index.php?stock=" + name.trim() + "&lang=en";
+    }
   }
+  getStocks();
+}
+function getStocks(){
+  d3.json("php/getallstocks.php").then( d => {
+    let string = "";
+    menu_stock_data = d;
+    for(let i = 0; i < d.length; i++) {
+      string += '<a href="#" class="sidenav-linkmain" onclick="navCategoryClick(this)">' + d[i].index + "</a>";
+    }
+    document.getElementById("links-main").innerHTML = string;
+  });
 }
 function draw() {
   stock.refresh();

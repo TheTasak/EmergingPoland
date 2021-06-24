@@ -27,6 +27,13 @@
       $tabela_object = new stdClass();
       $tabela_object->{"name"} = $tables[$i]["tabela"];
 
+      $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$tables[$i]["tabela"]}';";
+      $tlumaczenie_tabela = sql_getdatarecord($sqli, $myquery);
+      if(null !== $tlumaczenie_tabela) {
+        $tabela_object->{"translate"} = $tlumaczenie_tabela[$lang];
+      } else {
+        $tabela_object->{"translate"} = $tables[$i]["tabela"];
+      }
       $myquery = "SELECT * FROM `{$year}_inne_dane` WHERE idspolki='{$stock_value}' AND tabela='{$tables[$i]["tabela"]}';";
       $podzial = sql_getdataarray($sqli, $myquery);
       for($j = 0; $j < count($podzial); $j++) {

@@ -23,6 +23,16 @@
     	}
       return $query->fetch_assoc();
   }
+  function sql_updaterecord($mysqli, $sql_query)
+  {
+      $query = mysqli_query($mysqli, $sql_query);
+
+      if ( ! $query ) {
+        echo mysqli_error($mysqli);
+        return false;
+      }
+      return true;
+  }
   function sql_getdataarray($mysqli, $sql_query)
   {
     $query = mysqli_query($mysqli, $sql_query);
@@ -31,7 +41,7 @@
       echo mysqli_error($mysqli);
       return false;
     }
-    
+
     $data = array();
     while($temp = $query->fetch_assoc()) {
       if(null !== reset($temp)){

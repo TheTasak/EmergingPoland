@@ -1,4 +1,4 @@
-class PieChart{
+class AkcjeChart{
   year = 2020;
   show_table = false;
   constructor(container, stock_name, start_year){
@@ -22,13 +22,17 @@ class PieChart{
   #split_value = (value) => {
     let new_value = [];
     let rev_value = value.length % 3;
+    let string = "";
     if(rev_value != 0) {
       new_value.push(value.substr(0, rev_value));
     }
-    for(let j = 0 + rev_value; j < value.length; j += 3) {
-      new_value.push(value.substr(j, 3));
+    for(let i = 0 + rev_value; i < value.length; i += 3) {
+      new_value.push(value.substr(i, 3));
     }
-    return new_value;
+    for(let i = 0; i < new_value.length; i++) {
+      string += new_value[i] + " ";
+    }
+    return string;
   }
   #reset = () => {
     this.width = parseInt(this.container.clientWidth);

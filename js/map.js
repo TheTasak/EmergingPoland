@@ -16,13 +16,27 @@ class WorldMap{
 		this.maps = map_types;
 		this.#load_data();
 	}
+	#split_value = (value) => {
+    let new_value = [];
+    let split_value = String(value).split(".")[0];
+		let rev_value = split_value.length % 3;
+		let string = "";
+    if(rev_value != 0) {
+      new_value.push(split_value.substr(0, rev_value));
+    }
+    for(let i = 0 + rev_value; i < split_value.length; i += 3) {
+      new_value.push(split_value.substr(i, 3));
+    }
+		for(let i = 0; i < new_value.length; i++) {
+      string += new_value[i] + " ";
+    }
+		string = string.slice(0, -1);
+    return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
+  }
 	#get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let val = d3.max(this._country_arr, d => d[this.current_chart_interval]);
-	  if(val >= 1000000){
-		  this._country_arr.forEach((item) => item[this.current_chart_interval] /= 1000000.0);
-		  this.suffix = "mld";
-	  } else if(val >= 1000){
+	  if(val >= 1000){
 		  this._country_arr.forEach((item) => item[this.current_chart_interval] /= 1000.0);
 		  this.suffix = "mln";
 		} else {
@@ -30,11 +44,24 @@ class WorldMap{
 	  }
   }
 	#change_chart = () => {
+		let temp_array = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
+		this.array_interval = [];
+		temp_array.forEach((item, i) => {
+			let new_arr = d3.map(this._country_arr, d => d[item]).filter(value => value != undefined && !isNaN(value));
+			if(new_arr.length != 0)
+				this.array_interval.push(item);
+		});
 		const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
-		if(select_list_interval != undefined)
-			this.current_chart_interval = select_list_interval.value;
+		if(select_list_interval != undefined) {
+			let index = this.array_interval.indexOf(select_list_interval.value);
+			if(index == -1)
+				this.current_chart_interval = this.array_interval[this.array_interval.length-1];
+			else
+				this.current_chart_interval = select_list_interval.value;
+		}
 		else
-			this.current_chart_interval = "year";
+			this.current_chart_interval = this.array_interval[this.array_interval.length-1];
+		this._country_arr.forEach((item) => item[this.current_chart_interval] = parseFloat(item[this.current_chart_interval]));
 		this._country_arr.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
 		this.#get_suffix();
 	}
@@ -157,7 +184,6 @@ class WorldMap{
 				.append("button")
 					.attr("type", "button")
 					.on("click", () => {
-						console.log(this.maps);
 						 if(this.current_map < this.maps.length-1)
 								this.current_map++;
 						 else if(this.current_map > 0)
@@ -173,11 +199,10 @@ class WorldMap{
 				                        .append("select")
           				                .on("change", this.#load_data)
           				                .classed("chart-input", true);
-    let array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
-    for(let i = 0; i < array_interval.length; i++){
+    for(let i = 0; i < this.array_interval.length; i++){
   		field_interval.append("option")
-  			         .attr("value", array_interval[i])
-  			         .text(array_interval[i]);
+  			         .attr("value", this.array_interval[i])
+  			         .text(this.array_interval[i]);
   	}
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
   	if(select_list_interval != undefined){
@@ -206,7 +231,7 @@ class WorldMap{
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
-					return arr_index != -1 && this._country_arr[arr_index][this.current_chart_interval] > 0;
+					return arr_index != -1 && !isNaN(this._country_arr[arr_index][this.current_chart_interval]);
 				})
 				.attr("fill",	(d) => {
 					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
@@ -221,7 +246,7 @@ class WorldMap{
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
-					return arr_index == -1 || this._country_arr[arr_index][this.current_chart_interval] <= 0;
+					return arr_index == -1 || isNaN(this._country_arr[arr_index][this.current_chart_interval]);
 				})
 				.attr("fill", "#e0e0e0")
 				.classed("country", true);
@@ -256,7 +281,7 @@ class WorldMap{
 				let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
 
 				let name = this._country_arr[arr_index].translate;
-				let value = this._country_arr[arr_index][this.current_chart_interval] + this.suffix + " " + this.currency;
+				let value = this.#split_value(this._country_arr[arr_index][this.current_chart_interval]) + this.suffix + " " + this.currency;
 
 				let tooltipsize = [String(name + " " + value).length*10+10, 40];
         let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
@@ -296,9 +321,11 @@ class WorldMap{
 		let country_string = '<table class="map-country-table">';
 		console.log(this._country_arr);
 		for(let i = 0; i < this._country_arr.length; i++){
-			country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + parseFloat(this._country_arr[i][this.current_chart_interval]).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+			if(!isNaN(this._country_arr[i][this.current_chart_interval])) {
+				country_string += "<tr><td align='center'>" + this._country_arr[i].translate + "</td><td align='right'>" + this.#split_value(parseFloat(this._country_arr[i][this.current_chart_interval]).toFixed(3)) + this.suffix + " " + this.currency + "</td></tr>";
+			}
 		}
-		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + parseFloat(d3.sum(this._country_arr, d => d[this.current_chart_interval])).toFixed(4) + this.suffix + " " + this.currency + "</td></tr>";
+		country_string += "<tr><td align='center'>" + "Suma przychodów:" + "</td><td align='right'>" + this.#split_value(parseFloat(d3.sum(this._country_arr, d => d[this.current_chart_interval])).toFixed(3)) + this.suffix + " " + this.currency + "</td></tr>";
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
