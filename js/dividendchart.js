@@ -11,7 +11,7 @@ class DividendChart{
     this.stock_name = stock_name;
     this.currency = currency;
     this.language = language;
-    this.chart_types = ["value", "yield"];
+    this.chart_types = [{"name":"Dywidenda na akcję", "variable": "value"}, {"name":"Stopa dywidendy", "variable": "yield"}, {"name":"Stopień wypłaty", "variable": "ratio"}];
     this.show_table = false;
     this.#load_data();
   }
@@ -25,27 +25,40 @@ class DividendChart{
       let objects = [];
       let dividend_yield = 0;
       let dividend_value = 0;
+      let dividend_ratio = 0;
       for(let j = 0; j < this._data.length; j++) {
         if(this._data[j].year == this.keys[i]) {
           dividend_value += parseFloat(this._data[j].value);
+          let current_ratio = 0;
+          if(this._data[j].value != 0) {
+            current_ratio = parseFloat(this._data[j].stocks * this._data[j].value / this._data[j].earnings * 100).toFixed(2);
+            dividend_ratio += parseFloat(current_ratio);
+          }
           let current_yield = 0;
           if(this._data[j].stock_price != null) {
             current_yield = parseFloat(this._data[j].value * this._data[j].exchange_rate / this._data[j].stock_price * 100).toFixed(2);
             dividend_yield += parseFloat(current_yield);
           }
-          objects.push({"value" : this._data[j].value, "yield": current_yield});
+          objects.push({"value" : this._data[j].value, "yield": current_yield, "ratio": current_ratio});
         }
       }
       if(isNaN(parseFloat(dividend_yield)))
         dividend_yield = 0;
       if(isNaN(parseFloat(dividend_value)))
         dividend_value = 0;
-      this.keys[i] = {"year": this.keys[i], "children" : objects, "yield" : dividend_yield, "value": dividend_value};
+      if(isNaN(parseFloat(dividend_ratio)))
+        dividend_ratio = 0;
+      this.keys[i] = {"year": this.keys[i], "children" : objects, "yield" : dividend_yield, "value": dividend_value, "ratio" : dividend_ratio};
     }
 		this.init();
 	  });
   }
   init = () => {
+    const select_list_type = this.container.getElementsByClassName("chart-input")[1];
+    if(select_list_type != undefined)
+      this.chart_index = select_list_type.value;
+    else
+      this.chart_index = 0;
     // Usunięcie starego wykresu
     d3.select(this.container)
       .html("");
@@ -92,21 +105,20 @@ class DividendChart{
       .select(".button-div")
         .append("div")
         .classed("innerbutton-div", true);
-    d3.select(this.container)
-      .select(".innerbutton-div")
-      .append("button")
-  	    .attr("type", "button")
-        .attr("font-size", "16px")
-  			.classed("chart-input", true)
-        .on("click", () => {
-          if(this.chart_index < this.chart_types.length-1)
-            this.chart_index++;
-          else
-            this.chart_index = 0;
-          this.init();
-        })
-        .append("img")
-          .attr("src", "chart_type.png");
+    const field_type = d3.select(this.container)
+                         .select(".button-div")
+                            .append("select")
+                              .on("change", this.init)
+                              .classed("chart-input", true);
+    for(let i = 0; i < this.chart_types.length; i++){
+      field_type.append("option")
+                 .attr("value", i)
+                 .text(this.chart_types[i].name);
+    }
+    const select_list_type = this.container.getElementsByClassName("chart-input")[0];
+    if(select_list_type != undefined){
+      select_list_type.value = this.chart_index;
+    }
     d3.select(this.container)
 			.select(".innerbutton-div")
 			.append("button")
@@ -119,7 +131,7 @@ class DividendChart{
   }
   #init_chart = () => {
     // Ustawienie skali i domeny osi x
-    let chart_type = this.chart_types[this.chart_index];
+    let chart_type = this.chart_types[this.chart_index].variable;
     const min = 0;
     const max = d3.max(this.keys, d => d3.sum(d.children, d => d[chart_type]));
     this.xScale = d3.scaleBand()
@@ -131,6 +143,14 @@ class DividendChart{
                     .range([this.heightpadding,this.padding_vertical]);
     this.g = this.svg.append("g")
                 .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
+    if(this._data.length == 0) {
+      this.svg.append("text")
+              .attr("text-anchor", "middle")
+              .attr("font-size", "24px")
+              .text("Brak dywidend")
+              .classed("nodata-text", true);
+      return;
+    }
     // Dodanie dolnej osi wykresu
     this.g.append("g")
       		.classed("axis_bottom",true)
@@ -200,7 +220,7 @@ class DividendChart{
       //Obsługa eventów tooltipa
      this.svg.selectAll('.bar')
     			.on("mousemove", (ev, d) => {
-            let tooltipstring = String(d[chart_type] + " " + (chart_type == "yield" ? "%" : this.currency));
+            let tooltipstring = String(d[chart_type] + " " + (chart_type == "value" ? this.currency : "%"));
             let tooltipsize = [tooltipstring.length*12, 40];
     				let tooltippos = [d3.pointer(ev)[0] + this.padding_horizontal*(2/3) - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
@@ -226,6 +246,12 @@ class DividendChart{
     			});
   }
   #update_chart = () => {
+    if(this._data.length == 0) {
+      this.svg.select(".nodata-text")
+              .attr("x", this.width/2)
+              .attr("y", this.svg_height/2);
+      return;
+    }
     this.xScale.range([0, this.width-this.padding_horizontal]);
     this.g.select(".axis_bottom")
           .html("")
@@ -253,15 +279,17 @@ class DividendChart{
 		const table_el = table.nodes();
 		let table_string = "";
 		table_string += '<tr class="table-row">';
-		table_string += "<td width='33%'>" + "Rok" + "</td>";
-		table_string += "<td width='33%'>" + "Dywidenda na akcję" + "</td>";
-		table_string += "<td width='33%'>" + "Stopa dywidendy" + "</td>";
+		table_string += "<td width='25%'>" + "Rok" + "</td>";
+		table_string += "<td width='25%'>" + "Dywidenda na akcję" + "</td>";
+		table_string += "<td width='25%'>" + "Stopa dywidendy" + "</td>";
+    table_string += "<td width='25%'>" + "Stopień wypłaty" + "</td>";
 		table_string += "</tr>";
 		for(let i = this.keys.length-1; i > 0; i--) {
 			table_string += '<tr class="table-row">';
-			table_string += "<td width='33%'>" + this.keys[i].year + "</td>";
-			table_string += "<td width='33%'>" + parseFloat(this.keys[i].value).toFixed(2) + this.currency + "</td>";
-			table_string += "<td width='33%'>" +  parseFloat(this.keys[i].yield).toFixed(2) + "%" + "</td>";
+			table_string += "<td width='25%'>" + this.keys[i].year + "</td>";
+			table_string += "<td width='25%'>" + parseFloat(this.keys[i].value).toFixed(2) + this.currency + "</td>";
+			table_string += "<td width='25%'>" +  parseFloat(this.keys[i].yield).toFixed(2) + "%" + "</td>";
+      table_string += "<td width='25%'>" +  parseFloat(this.keys[i].ratio).toFixed(2) + "%" + "</td>";
 			table_string += "</tr>";
 		}
 		d3.select(table_el[0])
