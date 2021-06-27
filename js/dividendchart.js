@@ -287,9 +287,15 @@ class DividendChart{
 		for(let i = this.keys.length-1; i > 0; i--) {
 			table_string += '<tr class="table-row">';
 			table_string += "<td width='25%'>" + this.keys[i].year + "</td>";
-			table_string += "<td width='25%'>" + parseFloat(this.keys[i].value).toFixed(2) + this.currency + "</td>";
-			table_string += "<td width='25%'>" +  parseFloat(this.keys[i].yield).toFixed(2) + "%" + "</td>";
-      table_string += "<td width='25%'>" +  parseFloat(this.keys[i].ratio).toFixed(2) + "%" + "</td>";
+      if(this.keys[i].value == 0) {
+        table_string += "<td width='25%'>" + "-" + "</td>";
+  			table_string += "<td width='25%'>" + "-" + "</td>";
+        table_string += "<td width='25%'>" + "-" + "</td>";
+      } else {
+        table_string += "<td width='25%'>" + parseFloat(this.keys[i].value).toFixed(2) + this.currency + "</td>";
+        table_string += "<td width='25%'>" + parseFloat(this.keys[i].yield).toFixed(2) + "%" + "</td>";
+        table_string += "<td width='25%'>" + parseFloat(this.keys[i].ratio).toFixed(2) + "%" + "</td>";
+      }
 			table_string += "</tr>";
 		}
 		d3.select(table_el[0])

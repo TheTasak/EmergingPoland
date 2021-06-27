@@ -81,8 +81,6 @@ class TreeChart{
         .classed("button-div", true);
     d3.select(this.container)
       .append("div")
-        .attr("height", this.svg_height)
-        .attr("width", this.width)
         .classed("svg-div", true);
     if(this._show_chart) {
       this.svg = d3.select(this.container)

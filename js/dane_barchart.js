@@ -10,7 +10,7 @@ class Chart{
   stock_name = "";
   data_name = "";
   padding_vertical = 20;
-  padding_horizontal = 70;
+  padding_horizontal = 100;
   chart_title = "";
   constructor(container, stock_name, data_name, chart_type, start_year, end_year, currency, language){
     this.container = container;
@@ -108,6 +108,7 @@ class Chart{
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight)-100;
+
     this.heightpadding = this.height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
     if(this._show_chart) {
@@ -351,13 +352,13 @@ class Chart{
   }
   #init_table = () => {
 	  let data_string = '<table class="data_table">';
-	  for(let i = 0; i < this._data.length; i++){
+	  for(let i = this._data.length-1; i >= 0; i--){
       let percent = "";
       if(i != 0 && this._data[i-1].value != 0) {
         percent = parseFloat(this._data[i].value/this._data[i-1].value*100 - 100).toFixed(2);
         percent = (percent > 0) ? "+" + percent + "%" : percent + "%";
       }
-		  data_string += "<tr><td>" + this._data[i].date + "</td><td>" + this._data[i].value + this.suffix + " " + this.currency + "</td><td>" + percent + "</td></tr>";
+		  data_string += "<tr><td>" + this._data[i].date + "</td><td align='right'>" + parseFloat(this._data[i].value).toFixed(3) + this.suffix + " " + this.currency + "</td><td align='right'>" + percent + "</td></tr>";
 	  }
 	  data_string += "</table>";
 	  d3.select(this.container)

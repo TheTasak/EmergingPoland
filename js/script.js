@@ -1,9 +1,9 @@
-var stock;
+var page_object;
 var menu_stock_data;
 var language;
 function load(){
   const stock_name = document.getElementById("name");
-
+  const index_name = document.getElementById("indeks");
   language = document.getElementById("language").value;
   if(language == undefined)
     language = "pl";
@@ -23,9 +23,22 @@ function load(){
       const container10 = document.getElementById("bottomright");
 
       let container_table = [container1, container2, container3, container4, container5, container6, container7, container8, container9, container10];
-      stock = new Stock(name, container_table, language);
+      page_object = new Stock(name, container_table, language);
       document.getElementById("lang-pl").href = "index.php?stock=" + name.trim() + "&lang=pl";
       document.getElementById("lang-en").href = "index.php?stock=" + name.trim() + "&lang=en";
+    }
+  } else if(index_name != undefined) {
+    let name = index_name.innerHTML;
+    if(name != ""){
+      const container1 = document.getElementById("top_1");
+      const container2 = document.getElementById("top_2");
+      const container3 = document.getElementById("top_3");
+      const container4 = document.getElementById("top_4");
+
+      let container_table = [container1, container2, container3, container4];
+      page_object = new Index(name, container_table, language);
+      document.getElementById("lang-pl").href = "indekspage.php?indeks=" + name.trim() + "&lang=pl";
+      document.getElementById("lang-en").href = "indekspage.php?indeks=" + name.trim() + "&lang=en";
     }
   }
   getStocks();
@@ -34,14 +47,14 @@ function getStocks(){
   d3.json("php/getallstocks.php").then( d => {
     let string = "";
     menu_stock_data = d;
-    for(let i = 0; i < d.length; i++) {
+    for(let i = d.length-1; i >= 0; i--) {
       string += '<a href="#" class="sidenav-linkmain" onclick="navCategoryClick(this)">' + d[i].index + "</a>";
     }
     document.getElementById("links-main").innerHTML = string;
   });
 }
 function draw() {
-  stock.refresh();
+  page_object.refresh();
 }
 function openNav() {
   document.getElementById("sidenav").style.width = "100%";

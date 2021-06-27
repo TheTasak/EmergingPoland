@@ -17,7 +17,7 @@ class Stock{
       this.start_year = d.rok;
       this.end_report = d.ostatnie_sprawozdanie;
       this.description = d.opis;
-      document.getElementById("description").innerHTML = stock.description;
+      document.getElementById("description").innerHTML = this.description;
       this.currency = d.waluta;
       let container_counter = 0;
       //stworzenie tablicy potrzebnych modułów spółki

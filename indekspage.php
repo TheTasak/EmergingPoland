@@ -11,7 +11,8 @@
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
-    <script src="js/stock.js" defer></script>
+    <script src="js/captreechart.js" defer></script>
+    <script src="js/indeks.js" defer></script>
     <script src="js/script.js" defer></script>
   </head>
   <body id="body">
@@ -39,6 +40,16 @@
               <p id="description"></p>
             </div>
         </div>
+      <div class="content">
+        <div id="top_1" class="chart-div">
+          </div>
+        <div id="top_2" class="chart-div">
+          </div>
+        <div id="top_3" class="chart-div">
+          </div>
+        <div id="top_4" class="chart-div">
+          </div>
+      </div>
     </main>
     <footer>
       Copyright strona
