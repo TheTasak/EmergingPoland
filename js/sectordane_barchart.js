@@ -1,9 +1,11 @@
-class CircleChart{
+class SectorChart{
   year = 2020;
   _show_table = false;
   _show_bar_chart = true;
   current_chart_index = -1;
   current_chart_interval = -1;
+  padding_down = 80;
+  padding_left = 100;
   padding_vertical = 20;
   padding_horizontal = 100;
   empty_data = false;
@@ -31,7 +33,7 @@ class CircleChart{
 		this.#change_chart();
 	}
   #load_data = () => {
-    d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language).then((d) => {
+    d3.json("php/getsectordata.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language).then((d) => {
       this._data = d;
       this.#change_chart();
     });
@@ -41,7 +43,7 @@ class CircleChart{
     if(this._show_bar_chart)
       this.#change_barchart();
     else
-      this.#change_circlechart();
+      this.#change_lolipopchart();
     this.#init();
   }
   #change_barchart = () => {
@@ -63,7 +65,7 @@ class CircleChart{
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
   }
-  #change_circlechart = () => {
+  #change_lolipopchart = () => {
     this.indexes = [];
     this._data[this.year].forEach((item) => {
       this.indexes.push(item.translate);
@@ -116,8 +118,7 @@ class CircleChart{
         this.#init_barchart();
         this.#update_barchart();
       } else {
-        this.#init_circlechart();
-        this.#update_circlechart();
+        this.#init_lolipopchart();
       }
     } else {
       this.#init_table();
@@ -126,6 +127,7 @@ class CircleChart{
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
+    this.padding_left = this.width / 8;
     this.svg_height = this.height*0.8;
 		this.button_height = this.width*0.2;
     d3.select(".button-div")
@@ -214,121 +216,104 @@ class CircleChart{
   		select_list_interval.value = this.current_chart_interval;
   	}
   }
-  #init_circlechart = () => {
-    const scale = d3.scaleLinear()
-                    .domain([d3.min(this.current_data.children, d => d[this.current_chart_interval]),d3.max(this.current_data.children, d => d[this.current_chart_interval])])
-                    .range([20, 120]);
-    const g = this.svg.append("g");
-    this.node = g.selectAll("circle")
-                   .data(this.current_data.children)
-                   .enter()
-                   .append("circle")
-                    .attr("r", d => scale(d[this.current_chart_interval]))
-                    .attr("cx", this.width / 2)
-                    .attr("cy", this.svg_height / 2)
-                    .style("fill", "#66a3b2")
-                    .style("fill-opacity", 0.5)
-                    .attr("stroke", "#66a2b3")
-                    .style("stroke-width", 3)
-                    .classed("circle-node", true)
-                    .call(d3.drag()
-                            .on("start", d => {
-                              if (!d.target.active)
-                                this.simulation.alphaTarget(0.01).restart();
-                              d.subject.x = d.x;
-                              d.subject.y = d.y;
-                            })
-                            .on("drag", d => {
-                              tooltip
-                      					.style("opacity", "0")
-                                .attr("width", 0);
-                      				tooltiptext
-                      					.attr("display", "none");
-                              d.subject.x = d.x;
-                              d.subject.y = d.y;
-                            })
-                            .on("end", d => {
-                              if (!d.target.active)
-                                this.simulation.alphaTarget(0.3);
-                            }));
+  #init_lolipopchart = () => {
+    this.svg.html("");
+    const max = d3.max(this.current_data.children, d => d[this.current_chart_interval]);
+    this.xScale = d3.scaleLinear()
+                    .domain([0, max]).nice()
+                    .range([this.padding_left*2, this.width -  this.padding_left]);
+    this.g = this.svg.append("g");
+    this.g.append("g")
+            .classed("axis_bottom", true)
+            .attr("transform", "translate(0," + (this.svg_height -  this.padding_down) + ")")
+            .call(d3.axisBottom(this.xScale).tickFormat( (d) => {
+        			return d.toString();
+        		}))
+            .selectAll("text")
+              .attr("transform", "translate(-10,0)rotate(-30)")
+              .style("text-anchor", "end")
+              .style("user-select", "none");
 
-    const node_text = g.selectAll("text")
-                        .data(this.current_data.children)
-                        .enter()
-                        .append("text")
-                          .text(d => d.translate)
-                          .attr("font-family", "monospace")
-                          .attr("pointer-events", "none")
-                          .style("user-select", "none")
-                          .attr("text-anchor", "middle")
-                          .attr("font-size", (d) => {
-                              let cut_text = scale(d[this.current_chart_interval])*2 / d.translate.length;
-                              if(cut_text*1.4 > 26)
-                                cut_text = 24;
-                              return String(cut_text*1.4) + "px";
-                          })
-                          .attr("fill", "black");
-    this.simulation = d3.forceSimulation()
-                         .force("manyBody", d3.forceManyBody().strength(40))
-                         .force("collide", d3.forceCollide().strength(.6).radius( d => scale(d[this.current_chart_interval])+3).iterations(1))
-                         .alpha(0.03)
-                         .restart();
-    this.simulation.nodes(this.current_data.children)
-               .on("tick", () => {
-                 this.node
-                     .attr("cx", d => d.x)
-                     .attr("cy", d => d.y);
-                 node_text
-                     .attr("x", d => d.x)
-                     .attr("y", d => d.y + scale(d[this.current_chart_interval]) / 10);
-               });
-    // Dodanie tooltipa pokazującego wartość słupka po najechaniu
-  	const tooltip = this.svg.append("rect")
-  						.attr("width", "0px")
-  						.attr("height", "0px")
-              .attr("rx", "20px")
-              .attr("ry", "20px")
-              .attr("pointer-events", "none")
-  						.style("fill", "white")
-  						.style("stroke", "black")
-  						.classed("tooltip", true)
-  	const tooltiptext = this.svg.append("text")
-              .attr("pointer-events", "none")
-              .style("user-select", "none")
-  						.classed("tooltip-text", true);
-    //Obsługa eventów tooltipa
-  	this.svg.selectAll('circle')
-  			.on("mousemove", (ev, d) => {
-          let tooltipsize = [String(d.translate + d[this.current_chart_interval]).length*12, 40];
-  				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
+    this.yScale = d3.scaleBand()
+                    .range([0, this.svg_height - this.padding_down])
+                    .domain(this.current_data.children.map(d => d.translate))
+                    .padding(1);
+    this.g.append("g")
+            .classed("axis_left", true)
+            .attr("transform", "translate(" + this.padding_left*2 +",0)")
+            .call(d3.axisLeft(this.yScale))
+            .style("user-select", "none");
+    let max_font_size = this.padding_left*2.8 / d3.max(this.current_data.children, d => d.translate.length);
+    if(max_font_size > 20)
+      max_font_size = 20;
+    this.g.select(".axis_left")
+          .selectAll(".tick text")
+          .style("font-size", parseInt(max_font_size) + "px");
 
-          tooltip
-            .attr("x", tooltippos[0])
-    			  .attr("y", tooltippos[1])
-    			  .attr("width", tooltipsize[0])
-    			  .attr("height", tooltipsize[1])
-            .style("opacity", "0.8");
+    this.g.selectAll(".lolipop-line")
+          .data(this.current_data.children)
+          .enter()
+          .append("line")
+            .attr("x1", d => this.xScale(d[this.current_chart_interval]))
+            .attr("x2", this.xScale(0))
+            .attr("y1", d => this.yScale(d.translate))
+            .attr("y2", d => this.yScale(d.translate))
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
+      this.g.selectAll(".lolipop-circle")
+          .data(this.current_data.children)
+          .enter()
+          .append("circle")
+            .attr("cx", d => this.xScale(d[this.current_chart_interval]))
+            .attr("cy", d => this.yScale(d.translate))
+            .attr("r", "7")
+            .style("fill", "red")
+            .attr("stroke", "black")
+            .classed("lolipop-circle", true);
+      // Dodanie tooltipa pokazującego wartość słupka po najechaniu
+      const tooltip = this.svg.append("rect")
+     						.attr("width", "0px")
+     						.attr("height", "0px")
+                .attr("rx", "20px")
+                .attr("ry", "20px")
+     						.style("fill", "white")
+                .attr("pointer-events", "none")
+     						.style("stroke", "black")
+     						.classed("tooltip", true)
+      const tooltiptext = this.svg.append("text")
+                .attr("pointer-events", "none")
+                .style("user-select", "none")
+     						.classed("tooltip-text", true);
+       //Obsługa eventów tooltipa
+      this.svg.selectAll('.lolipop-circle')
+     			.on("mousemove", (ev, d) => {
+            let tooltipsize = [String(d.translate + d[this.current_chart_interval] + this.currency).length*12, 40];
+     				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1] - tooltipsize[1] - 10];
 
-  			  tooltiptext
-    				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-    				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-    				.attr("display", "inherit")
-    				.text(d.translate + " " + d[this.current_chart_interval]);
-  			})
-  			.on("mouseout", function(ev){
-  				tooltip
-  					.style("opacity", "0")
-            .attr("width", 0);
-  				tooltiptext
-  					.attr("display", "none");
-  			});
-  }
-  #update_circlechart = () => {
-    this.simulation.force("center", d3.forceCenter().strength(1).x(this.width / 2).y(this.svg_height / 2))
-                   .alpha(0.3)
-                   .restart();
-    this.node.attr("cx", this.width / 2)
-             .attr("cy", this.svg_height / 2);
+            if(tooltippos[0]+tooltipsize[0] > this.width)
+              tooltippos[0] = this.width - tooltipsize[0];
+            if(tooltippos[0] < 0)
+              tooltippos[0] = 0;
+            tooltip
+              .attr("x", tooltippos[0])
+       			  .attr("y", tooltippos[1])
+       			  .attr("width", tooltipsize[0])
+       			  .attr("height", tooltipsize[1])
+              .style("opacity", "0.8");
+
+     			  tooltiptext
+       				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+       				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+       				.attr("display", "inherit")
+       				.text(d.translate + " " + d[this.current_chart_interval] + " " + this.currency);
+     			})
+     			.on("mouseout", (ev) => {
+     				tooltip
+     					.style("opacity", "0")
+               .attr("width", 0);
+     				tooltiptext
+     					.attr("display", "none");
+     			});
   }
   #search_index = (array) => {
     for(let i = 0; i < array.length; i++) {
@@ -422,10 +407,11 @@ class CircleChart{
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
       });
       for(let index = 0; index < keys[i].children.length; index++) {
-          if(keys[i].children[index][this.current_chart_interval] != null) {
-            accumulated_height += this.yScale(0) - this.yScale(keys[i].children[index][this.current_chart_interval]);
-            keys[i].children[index]["y"] = this.yScale(0) - accumulated_height;
-            keys[i].children[index]["height"] = this.yScale(0) - this.yScale(keys[i].children[index][this.current_chart_interval]);
+          let current_child = keys[i].children[index];
+          if(current_child[this.current_chart_interval] != null && current_child[this.current_chart_interval] > 0) {
+            accumulated_height += this.yScale(0) - this.yScale(current_child[this.current_chart_interval]);
+            current_child["y"] = this.yScale(0) - accumulated_height;
+            current_child["height"] = this.yScale(0) - this.yScale(current_child[this.current_chart_interval]);
         }
       }
     }
@@ -443,7 +429,7 @@ class CircleChart{
                 .selectAll(".bar")
                 .data(d.children)
                 .enter()
-                .filter(data => data[current_interval] != undefined)
+                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
                 .append("rect")
                   .attr('stroke', "#f7f7f7")
                   .attr('height', data => data["height"])
@@ -535,6 +521,12 @@ class CircleChart{
               .attr("y", this.svg_height/2);
       return;
     }
+    let max_font_size = this.padding_horizontal / String(d3.sum(this._data["2020"][0].children, d => d[this.current_chart_interval]) + ",,").length;
+    if(max_font_size > 20)
+      max_font_size = 20;
+    this.g.select(".axis_left")
+          .selectAll(".tick text")
+          .style("font-size", max_font_size + "px");
     this.xScale.range([0, this.width-this.padding_horizontal]);
     this.g.select(".axis_bottom")
           .html("")
@@ -557,7 +549,7 @@ class CircleChart{
               });
   }
   #init_table = () => {
-    this.#change_circlechart();
+    this.#change_lolipopchart();
     let data_string = '<table class="earnings-table">';
     let data_children = this.current_data.children;
     for(let i = 0; i < data_children.length; i++){
@@ -572,7 +564,7 @@ class CircleChart{
       if(this._show_bar_chart) {
         this.#update_barchart();
       } else {
-        this.#update_circlechart();
+        this.#init_lolipopchart();
       }
     }
   }

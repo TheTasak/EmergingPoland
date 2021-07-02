@@ -7,7 +7,7 @@
 
   	$sqli = sql_open();
 
-  	$myquery = "SELECT ostatnie_sprawozdanie, branza, idspolki FROM `spis` WHERE indeks='{$index}';";
+  	$myquery = "SELECT ostatnie_sprawozdanie, waluta, branza, idspolki FROM `spis` WHERE indeks='{$index}';";
     $stocks = sql_getdataarray($sqli, $myquery);
     $array = [];
     for($i = 0; $i < count($stocks); $i++) {
@@ -17,6 +17,19 @@
       $sum = 0;
       $new_quarter = $date[1];
       $new_year = $date[0];
+
+      $waluta = $stocks[$i]["waluta"];
+      if($waluta != "PLN") {
+        $myquery = "SELECT * FROM `{$new_year}_kurs_walut` WHERE para_walutowa='{$waluta}/PLN';";
+        $currency = sql_getdatarecord($sqli, $myquery);
+        if(null !== $currency) {
+          $currency = $currency[$new_year . "_" . $new_quarter];
+        } else {
+          $currency = 1;
+        }
+      } else {
+        $currency = 1;
+      }
       for($j = 0; $j < 4; $j++) {
         $myquery = "SELECT * FROM `{$new_year}_dane` WHERE idspolki='{$stocks[$i]["idspolki"]}' AND dane_ksiegowe='zysk_netto';";
         $earnings = sql_getdatarecord($sqli, $myquery);
@@ -39,7 +52,7 @@
       } else {
         $object->{"name"} = $stocks[$i]["branza"];
       }
-      $object->{"value"} = $sum * 1000;
+      $object->{"value"} = $sum * 1000 * $currency;
       $array[] = $object;
     }
     $data = [];

@@ -24,7 +24,10 @@
     $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["kraje"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
     $object = new stdClass();
-    $object->{"country"} = array($country["strona"]);
+    
+    $country_arr = explode(",", $country["strona"]);
+    $object->{"country"} = $country_arr;
+
     $object->{"name"} = $country["baza"];
     $object->{"translate"} = $country[$language];
     if(null !== $data[$i][$date . "_1"]) {

@@ -148,6 +148,7 @@ class TreeChartUdzial{
   }
   #init_chart = () => {
     this.svg.html("");
+
     let root = d3.hierarchy(this.current_data);
     root.sum(d => d.year);
 
@@ -156,9 +157,11 @@ class TreeChartUdzial{
       .size([this.width, this.svg_height])
       .paddingOuter(5);
     treemap_layout(root);
+
     let colors = d3.scaleLinear()
             .domain([d3.min(this.current_data.children, d => d.year), d3.max(this.current_data.children, d => d.year)])
             .range(["rgb(150,255,150)", "green"]);
+
     const g = this.svg.append("g");
     g.selectAll("rect")
           .data(root.descendants())
@@ -218,7 +221,8 @@ class TreeChartUdzial{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [String(d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%").length*10+10, 40];
+          let text = d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%";
+  				let tooltipsize = [text.length*10+10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
@@ -237,7 +241,7 @@ class TreeChartUdzial{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.translate + " " + parseFloat(d.data.year*100).toFixed(2) + "%");
+  				.text(text);
   			})
   			.on("mouseout", (ev, d) => {
   				tooltip

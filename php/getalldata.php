@@ -13,11 +13,14 @@
 
   	$sqli = sql_open();
 
-  	$myquery = "SELECT idspolki, waluta FROM `spis` WHERE spolki='{$stock_name}';";
+  	$myquery = "SELECT idspolki, waluta, ostatnie_sprawozdanie FROM `spis` WHERE spolki='{$stock_name}';";
     $stock = sql_getdatarecord($sqli, $myquery);
   	$stock_value = $stock["idspolki"];
     $currency = $stock["waluta"];
-
+    $last_year = $stock["ostatnie_sprawozdanie"];
+    $myquery = "SELECT * FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
+    $price = sql_getdatarecord($sqli, $myquery);
+    $price = $price["cena"];
     $data = new stdClass();
     for($i = 0; $i < $end_year - $start_year + 1; $i++) {
       $year = $start_year + $i;
@@ -81,11 +84,31 @@
       $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
       $ceny = sql_getdatarecord($sqli, $myquery);
       if(null !== $ceny) {
-        $data->{$year}->{"cena_akcji"} = $ceny[$year];
-        $data->{$first_quarter}->{"cena_akcji"} = $ceny[$first_quarter];
-        $data->{$second_quarter}->{"cena_akcji"} = $ceny[$second_quarter];
-        $data->{$third_quarter}->{"cena_akcji"} = $ceny[$third_quarter];
-        $data->{$forth_quarter}->{"cena_akcji"} = $ceny[$forth_quarter];
+        if($year == $last_year) {
+          $data->{$year}->{"cena_akcji"} = $price;
+        } else {
+          $data->{$year}->{"cena_akcji"} = $ceny[$year];
+        }
+        if($first_quarter == $last_year) {
+          $data->{$first_quarter}->{"cena_akcji"} = $price;
+        } else {
+          $data->{$first_quarter}->{"cena_akcji"} = $ceny[$first_quarter];
+        }
+        if($second_quarter == $last_year) {
+          $data->{$second_quarter}->{"cena_akcji"} = $price;
+        } else {
+          $data->{$second_quarter}->{"cena_akcji"} = $ceny[$second_quarter];
+        }
+        if($third_quarter == $last_year) {
+          $data->{$third_quarter}->{"cena_akcji"} = $price;
+        } else {
+          $data->{$third_quarter}->{"cena_akcji"} = $ceny[$third_quarter];
+        }
+        if($forth_quarter == $last_year) {
+          $data->{$forth_quarter}->{"cena_akcji"} = $price;
+        } else {
+          $data->{$forth_quarter}->{"cena_akcji"} = $ceny[$forth_quarter];
+        }
       }
       if($currency != "PLN") {
         $myquery = "SELECT * FROM `{$year}_kurs_walut` WHERE `para_walutowa`='{$currency}/PLN';";

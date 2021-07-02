@@ -35,10 +35,10 @@ class Stock{
         this._tables.push("dane");
       if(d.akcje != null)
         this._tables.push("akcje");
-      if(d.podzial_przychodow != null)
-        this._tables.push("podzial_przychodow");
       if(d.podzial_sektorow != null)
         this._tables.push("podzial_sektorow");
+      if(d.podzial_przychodow != null)
+        this._tables.push("podzial_przychodow");
       if(d.inne != null)
         this._tables.push("inne");
       if(d.miasta != null)
@@ -62,6 +62,9 @@ class Stock{
          container_counter++;
        } else if(this._tables[i] == "inne_dane") {
          this._modules.push(new CircleChart(this._containers[container_counter], this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+         container_counter++;
+       } else if(this._tables[i] == "podzial_sektorow") {
+         this._modules.push(new SectorChart(this._containers[container_counter], this.stock_name, this.start_year, this.end_report, this.currency, this.language));
          container_counter++;
        } else if(this._tables[i] == "akcje") {
          this._modules.push(new AkcjeChart(this._containers[container_counter], this.stock_name, this.start_year));

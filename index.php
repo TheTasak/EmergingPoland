@@ -15,6 +15,7 @@
     <script src="js/dividendchart.js?v=1" defer></script>
   	<script src="js/treechart.js?v=1" defer></script>
     <script src="js/udzial_treechart.js?v=1" defer></script>
+    <script src="js/sectordane_barchart.js?v=1" defer></script>
     <script src="js/innedane_circlechart.js?v=1" defer></script>
     <script src="js/map.js?v=1" defer></script>
     <script src="js/akcje_chart.js?v=1" defer></script>
@@ -61,13 +62,15 @@
           </div>
       </div>
       <div class="content-bottom">
-        <div id="middleleft" class="chart-div">
+        <div id="middle_1" class="chart-div">
           </div>
-        <div id="middleright" class="chart-div">
+        <div id="middle_2" class="chart-div">
           </div>
-        <div id="bottomleft" class="chart-div">
+        <div id="middle_3" class="chart-div">
           </div>
-        <div id="bottomright" class="chart-div">
+        <div id="middle_4" class="chart-div">
+          </div>
+        <div id="middle_5" class="chart-div">
           </div>
       </div>
     </br>

@@ -12,6 +12,7 @@
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
     <script src="js/captreechart.js" defer></script>
+    <script src="js/indexmap.js" defer></script>
     <script src="js/indeks.js" defer></script>
     <script src="js/script.js" defer></script>
   </head>
@@ -50,6 +51,8 @@
         <div id="top_4" class="chart-div">
           </div>
       </div>
+      <div id="bottom" class="map-div">
+        </div>
     </main>
     <footer>
       Copyright strona

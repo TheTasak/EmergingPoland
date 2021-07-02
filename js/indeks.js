@@ -12,6 +12,7 @@ class Index{
      this._modules.push(new CapTreeChart(this._containers[1], this.index_name, this.language, "getindustrycap.php", "Podział indeksu ze względu na kapitalizację branż"));
      this._modules.push(new CapTreeChart(this._containers[2], this.index_name, this.language, "getstocksearn.php", "Podział indeksu ze względu na zyski spółek"));
      this._modules.push(new CapTreeChart(this._containers[3], this.index_name, this.language, "getindustryearn.php", "Podział indeksu ze względu na zyski branż"));
+     this._modules.push(new IndexMap(this._containers[4], this.index_name, this.language));
      let array_begin = this._modules.length;
      for(let i = array_begin; i < this._containers.length; i++) {
        this._containers[i].classList.add("hidden-div");

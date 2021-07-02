@@ -31,10 +31,12 @@
 
         $myquery = "SELECT * FROM `{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
         $row = sql_getdatarecord($sqli, $myquery);
-        $data[] = (object)[
-          "value" => $row["{$date}"],
-          "date" => "{$date}",
-        ];
+        if(null !== $row[$date]) {
+          $object = new stdClass();
+          $object->{"value"} = $row[$date];
+          $object->{"date"} = $date;
+          $data[] = $object;
+        }
       }
     } else if($type == "quarter") {
       $count_of_quarters = 8;
@@ -43,22 +45,30 @@
 
     		$myquery = "SELECT * FROM `{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
     		$row = sql_getdatarecord($sqli, $myquery);
-        $data[] = (object)[
-          "value" => $row["{$date}"."_4"],
-          "date" => "IV {$date}",
-        ];
-        $data[] = (object)[
-          "value" => $row["{$date}"."_3"],
-          "date" => "III {$date}",
-        ];
-        $data[] = (object)[
-          "value" => $row["{$date}"."_2"],
-          "date" => "II {$date}",
-        ];
-        $data[] = (object)[
-          "value" => $row["{$date}"."_1"],
-          "date" => "I {$date}",
-        ];
+        if(null !== $row["{$date}"."_4"]) {
+          $object = new stdClass();
+          $object->{"value"} = $row["{$date}"."_4"];
+          $object->{"date"} = "IV {$date}";
+          $data[] = $object;
+        }
+        if(null !== $row["{$date}"."_3"]) {
+          $object = new stdClass();
+          $object->{"value"} = $row["{$date}"."_3"];
+          $object->{"date"} = "III {$date}";
+          $data[] = $object;
+        }
+        if(null !== $row["{$date}"."_2"]) {
+          $object = new stdClass();
+          $object->{"value"} = $row["{$date}"."_2"];
+          $object->{"date"} = "II {$date}";
+          $data[] = $object;
+        }
+        if(null !== $row["{$date}"."_1"]) {
+          $object = new stdClass();
+          $object->{"value"} = $row["{$date}"."_1"];
+          $object->{"date"} = "I {$date}";
+          $data[] = $object;
+        }
 	     }
        $data = array_reverse($data);
     }

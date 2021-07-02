@@ -1,5 +1,6 @@
 <?php
   require_once("sql_functions.php");
+
 	if(isset($_GET['stock_name'])) {
 		$stock_name = $_GET['stock_name'];
 	}
@@ -17,24 +18,25 @@
 	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
   $stock = sql_getdatarecord($sqli, $myquery);
 	$stock_value = $stock["idspolki"];
+
   $data = new stdClass();
   for($year = $start_year; $year <= $end_year; $year++) {
-    $myquery = "SELECT DISTINCT tabela  FROM `{$year}_inne_dane` WHERE idspolki='{$stock_value}';";
+    $myquery = "SELECT DISTINCT sektor  FROM `{$year}_podzial_sektorow` WHERE idspolki='{$stock_value}';";
     $tables = sql_getdataarray($sqli, $myquery);
     $data_year = array();
     for($i = 0; $i < count($tables); $i++) {
       $tabela_array = array();
       $tabela_object = new stdClass();
-      $tabela_object->{"name"} = $tables[$i]["tabela"];
+      $tabela_object->{"name"} = $tables[$i]["sektor"];
 
-      $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$tables[$i]["tabela"]}';";
+      $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$tables[$i]["sektor"]}';";
       $tlumaczenie_tabela = sql_getdatarecord($sqli, $myquery);
       if(null !== $tlumaczenie_tabela) {
         $tabela_object->{"translate"} = $tlumaczenie_tabela[$lang];
       } else {
-        $tabela_object->{"translate"} = $tables[$i]["tabela"];
+        $tabela_object->{"translate"} = $tables[$i]["sektor"];
       }
-      $myquery = "SELECT * FROM `{$year}_inne_dane` WHERE idspolki='{$stock_value}' AND tabela='{$tables[$i]["tabela"]}';";
+      $myquery = "SELECT * FROM `{$year}_podzial_sektorow` WHERE idspolki='{$stock_value}' AND sektor='{$tables[$i]["sektor"]}';";
       $podzial = sql_getdataarray($sqli, $myquery);
       for($j = 0; $j < count($podzial); $j++) {
         $podzial_object = new stdClass();

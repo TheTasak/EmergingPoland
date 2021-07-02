@@ -10,22 +10,27 @@ class CapTreeChart{
   }
   #get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  this.suffix = "";
+	  this.suffix = "mln";
+    this._data.forEach((item, i) => {
+      item.value /= 1000000.0;
+    });
   }
   #split_value = (value) => {
     let new_value = [];
-    let rev_value = value.length % 3;
-    let string = "";
+    let split_value = String(value).split(".")[0];
+		let rev_value = split_value.length % 3;
+		let string = "";
     if(rev_value != 0) {
-      new_value.push(value.substr(0, rev_value));
+      new_value.push(split_value.substr(0, rev_value));
     }
-    for(let i = 0 + rev_value; i < value.length; i += 3) {
-      new_value.push(value.substr(i, 3));
+    for(let i = 0 + rev_value; i < split_value.length; i += 3) {
+      new_value.push(split_value.substr(i, 3));
     }
-    for(let i = 0; i < new_value.length; i++) {
+		for(let i = 0; i < new_value.length; i++) {
       string += new_value[i] + " ";
     }
-    return string;
+		string = string.slice(0, -1);
+    return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
   }
   #load_data = () => {
     d3.json("php/" + this.data_file + "?index=" + this.index_name).then((d) => {
@@ -33,9 +38,9 @@ class CapTreeChart{
       this._data.forEach((item, i) => {
         item.value = parseInt(item.value);
       });
-      this._data = d3.filter(this._data, d => d.value > 0);
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
-      this._data = {"name": "chart", "children": this._data};
+      this.current_data = d3.filter(this._data, d => d.value > 0);
+      this.current_data = {"name": "chart", "children": this.current_data};
       this.#get_suffix();
       this.#init();
     });
@@ -107,7 +112,7 @@ class CapTreeChart{
   }
   #init_chart = () => {
     this.svg.html("");
-    if(this._data.children.length == 0) {
+    if(this.current_data.children.length == 0) {
       this.svg.append("text")
               .attr("text-anchor", "middle")
               .attr("x", this.width/2)
@@ -117,7 +122,7 @@ class CapTreeChart{
               .attr("font-size", "26px");
       return;
     }
-    let root = d3.hierarchy(this._data);
+    let root = d3.hierarchy(this.current_data);
     root.sum(d => d.value);
 
     let treemap_layout = d3.treemap();
@@ -126,7 +131,7 @@ class CapTreeChart{
       .paddingOuter(5);
     treemap_layout(root);
     let colors = d3.scaleLinear()
-            .domain([d3.min(this._data.children, d => d.value),d3.max(this._data.children, d => d.value)])
+            .domain([d3.min(this.current_data.children, d => d.value),d3.max(this.current_data.children, d => d.value)])
             .range(["rgb(150,255,150)", "green"]);
 
     const g = this.svg.append("g");
@@ -190,7 +195,7 @@ class CapTreeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-          let sum = d3.sum(this._data.children, d => d.value);
+          let sum = d3.sum(this.current_data.children, d => d.value);
   				let tooltipsize = [String(d.data.name + (d.data.value / sum * 100) + "%" + this.suffix).length*10+10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
@@ -227,11 +232,12 @@ class CapTreeChart{
     d3.select(this.container).select(".svg-div")
       .append("div")
         .classed("earnings-table", true);
+    let sum = d3.sum(this._data, d => d.value);
     let earnings_string = '<table>';
-		for(let i = 0; i < this._data.children.length; i++){
-			earnings_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this.#split_value(String(this._data.children[i].value)) + this.suffix + " " + "PLN" + "</td></tr>";
+		for(let i = 0; i < this._data.length; i++){
+			earnings_string += "<tr><td align='center'>" + this._data[i].name + "</td><td align='right'>" + this.#split_value(parseFloat(String(this._data[i].value)).toFixed(2)) + this.suffix + " " + "PLN" + "</td><td align='right'>" + parseFloat(this._data[i].value / sum*100).toFixed(2) + "%" + "</td></tr>";
 		}
-    earnings_string += "<tr><td align='center'>" + "Suma:" + "</td><td align='right'>" + this.#split_value(String(d3.sum(this._data.children, d => d.value))) + this.suffix + " " + "PLN" + "</td></tr>";
+    earnings_string += "<tr><td align='center'>" + "Suma:" + "</td><td align='right'>" + this.#split_value(parseFloat(String(d3.sum(this._data, d => d.value))).toFixed(2)) + this.suffix + " " + "PLN" + "</td></tr>";
 		earnings_string += "</table>";
 		d3.select(this.container).select(".earnings-table").html(earnings_string);
   }
