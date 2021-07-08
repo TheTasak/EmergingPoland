@@ -167,7 +167,6 @@ class Indicators{
 		return parseFloat(min).toFixed(2);
 	}
 	#historical_median = (func) => {
-		let years = this.end_year - this.start_year + 1;
 		let array = [];
 		let num = 0;
 		for(let i = this.start_year; i <= this.end_year; i++) {
@@ -181,7 +180,11 @@ class Indicators{
 			}
 		}
 		array.sort();
-		return array[parseInt(years/2)];
+		let index = array.length / 2;
+		if(index % 1 == 1)
+			return (array[parseInt(index)] + array[parseInt(index)+1]) / 2;
+		else
+			return array[parseInt(index)];
 	}
 	#historical_max = (func) => {
 		let max = Number.MIN_SAFE_INTEGER;
@@ -227,19 +230,19 @@ class Indicators{
 		if(this.show_table) {
 			this.init_table();
 		} else {
-    	this.init_sliderstable();
+    	this.init_table();
 		}
 	}
 	#update = () => {
 		this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
 
-		this.svg_height = this.height*0.8;
-		this.button_height = this.width*0.2;
+		this.svg_height = this.height*0.9;
+		this.button_height = this.height*0.1;
 		d3.select(this.container)
 			.select(".button-div")
 			.attr("width", this.width)
-			.attr("height", this.button_height);
+			.attr("height", this.svg_height);
 		d3.select(this.container)
 			.select(".svg-div")
 			.attr("width", this.width)
@@ -263,19 +266,19 @@ class Indicators{
 		const table_el = table.nodes();
 		let table_string = "";
 		table_string += '<tr class="table-row">';
-		table_string += "<td width='40%'>" + "Nazwa wskaźnika" + "</td>";
-		table_string += "<td width='15%'>" + "Aktualna wartość" + "</td>";
-		table_string += "<td width='15%'>" + "Minimum" + "</td>";
-		table_string += "<td width='15%'>" + "Mediana" + "</td>";
-		table_string += "<td width='15%'>" + "Maximum" + "</td>";
+		table_string += "<td align='center'>" + "Nazwa wskaźnika" + "</td>";
+		table_string += "<td align='center'>" + "Aktualna wartość" + "</td>";
+		table_string += "<td align='center'>" + "Minimum" + "</td>";
+		table_string += "<td align='center'>" + "Mediana" + "</td>";
+		table_string += "<td align='center'>" + "Maximum" + "</td>";
 		table_string += "</tr>";
 		for(let i = 0; i < this._table.length; i++) {
 			table_string += '<tr class="table-row">';
-			table_string += "<td width='40%'>" + this._table[i]["name"] + "</td>";
-			table_string += "<td width='15%'>" + parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter)) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td width='15%'>" + parseFloat(this.#historical_min(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td width='15%'>" + parseFloat(this.#historical_median(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td width='15%'>" + parseFloat(this.#historical_max(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td>" + this._table[i]["name"] + "</td>";
+			table_string += "<td align='center'>" + parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter)) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td align='center'>" + parseFloat(this.#historical_min(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td align='center'>" + parseFloat(this.#historical_median(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
+			table_string += "<td align='center'>" + parseFloat(this.#historical_max(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
 			table_string += "</tr>";
 		}
 		d3.select(table_el[0])
@@ -286,39 +289,34 @@ class Indicators{
 			.select(".svg-div")
 			.classed("indicator-table", true)
 			.append("table")
-				.attr("width", "100%")
-				.selectAll(".table-row")
-				.data(this._table)
-				.enter()
-				.append("tr")
-					.classed("table-row", true);
-
-		const labels = d3.select(this.container)
-											.selectAll(".table-row")
-											.append("td")
-												.attr("width", "50%")
-												.classed("row-name", true);
-		const labels_el = labels.nodes();
-
-		const sliders = d3.select(this.container)
-											.selectAll(".table-row")
-											.append("td")
-												.classed("row-slider", true)
-												.attr("width", "100%")
-												.append("div")
-													.classed("row-slider-div", true);
-		const sliders_el = sliders.nodes();
+				.attr("width", "100%");
 
 		for(let i = 0; i < this._table.length; i++) {
-			d3.select(labels_el[i])
-				.text(this._table[i]["name"]);
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
-			if(min == max) {
+			let median = parseFloat(this.#historical_median(this._table[i]["function"]));
+			if(min == max || isNaN(max) || isNaN(min) || isNaN(median)) {
 				continue;
 			}
-			noUiSlider.create(sliders_el[i], {
-	      start: [parseFloat(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
+			let row = d3.select(this.container)
+										.select(".indicator-table")
+										.select("table")
+										.append("tr")
+											.classed("table-row", true);
+			row.append("td")
+				.text(this._table[i]["name"])
+				.classed("row-name", true);
+			row.append("td")
+				.style("text-align", "right")
+				.text(this._table[i]["function"](this.end_year + "_" + this.end_quarter) + this._table[i]["suffix"]);
+			let slider_div = row.append("td")
+													.classed("row-slider", true)
+													.attr("width", "50%")
+													.append("div")
+														.classed("row-slider-div", true);
+			let slider_el = slider_div.nodes()[0];
+			noUiSlider.create(slider_el, {
+	      start: [median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
 	      behaviour: 'unconstrained-tap',
 				tooltips: [false, true],
 				connect: [false, true, false],
@@ -337,12 +335,12 @@ class Indicators{
 	          'max': max
 	      }
 			});
-			let handles = d3.select(sliders_el[i])
+			let handles = d3.select(slider_el)
 											.selectAll(".noUi-handle").nodes();
 			d3.select(handles[0])
 				.classed("handle-invisible", true);
-			sliders_el[i].noUiSlider.on("change", () => {
-				sliders_el[i].noUiSlider.set([(this.#historical_median(this._table[i]["function"])), parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
+			slider_el.noUiSlider.on("change", () => {
+				slider_el.noUiSlider.set([median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
 			});
 		}
   }

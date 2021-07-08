@@ -2,6 +2,7 @@ class TreeChartUdzial{
   year = 2020;
   _show_chart = true;
   current_chart_index = -1;
+  max_font_size = 24;
   constructor(container, stock_name, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
@@ -26,10 +27,8 @@ class TreeChartUdzial{
   #change_chart = () => {
     const select_list_type = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_type != undefined) {
-      if(select_list_type.value >= this._data.length)
-        this.current_chart_index = 0;
-      else
-        this.current_chart_index = select_list_type.value;
+      let valueNotInRange = select_list_type.value >= this._data.length;
+      this.current_chart_index = valueNotInRange == true ? 0 : select_list_type.value;
     }
     else
       this.current_chart_index = 0;
@@ -174,32 +173,33 @@ class TreeChartUdzial{
           .attr('height', d => d.y1 - d.y0)
           .attr('stroke', "black")
           .attr('stroke-width', "1")
-          .attr("fill",d => colors(d.value))
+          .attr("fill", d => colors(d.value))
           .classed("treechart-chunk", true);
-
     g.selectAll("text")
           .data(root.descendants())
           .enter()
           .filter(d => (d.data.name != this.current_data.name && !isNaN(d.data.year)))
           .append("text")
             .text(d => d.data.translate)
-            .attr("x", d => d.x0+5)
-            .attr("y", (d) => {
+            .attr("x", d => d.x0 + (d.x1 - d.x0) / 2)
+            .attr("y", d =>  {
               let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-              if(cut_text*1.4 > 26)
-                cut_text = 24;
-              return d.y0+(cut_text*1.4);
+              cut_text = (cut_text > 26 ? 26 : cut_text);
+              cut_text = (cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text);
+              return d.y0 + (d.y1 - d.y0) / 2 + (cut_text / 2);
             })
             .attr("font-family", "monospace")
             .attr("font-size", (d) => {
                 let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
-                if(cut_text*1.4 > 26)
-                  cut_text = 24;
+                cut_text = (cut_text > 26 ? 26 : cut_text);
+                cut_text = (cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text);
                 return String(cut_text*1.4) + "px";
             })
             .attr("pointer-events", "none")
             .style("user-select", "none")
+            .style("text-anchor", "middle")
             .attr("fill", "white");
+            
     const tooltip = this.svg.append("rect")
               .attr("width", "0px")
               .attr("height", "0px")
@@ -254,18 +254,39 @@ class TreeChartUdzial{
   			});
   }
   #init_table = () => {
-    let data_string = '<table class="earnings-table">';
-    let data_children = this.current_data.children;
-    for(let i = 0; i < data_children.length; i++){
-      data_string += "<tr><td align='center'>" + data_children[i].translate + "</td><td align='right'>" + parseFloat(data_children[i].year*100).toFixed(2) + "%" + "</td></tr>";
-    }
-    data_string += "</table>";
-    d3.select(this.container).select(".svg-div").html(data_string);
+    let font_size = parseInt(this.width / d3.max(this.current_data.children, d => String(d.translate).length));
+    font_size = (font_size > this.max_font_size ?  this.max_font_size : font_size);
+
+    let rows = d3.select(this.container).select(".svg-div")
+                  .append("div")
+                    .classed("earnings-table", true)
+                    .append("table")
+                    .selectAll(".rows")
+                    .data(this.current_data.children)
+                    .enter()
+                      .append("tr")
+                      .style("font-size", font_size + "px");
+    rows.append("td")
+        .style("text-align", "center")
+        .html(d => d.translate);
+    rows.append("td")
+        .style("text-align", "right")
+        .html(d => parseFloat(d.year*100).toFixed(2) + "%");
+  }
+  #update_table = () => {
+    let font_size = parseInt(this.width / d3.max(this.current_data.children, d => String(d.translate).length));
+    font_size = (font_size > this.max_font_size ?  this.max_font_size : font_size);
+
+    d3.select(this.container).select(".earnings-table table")
+      .selectAll("tr")
+      .style("font-size", font_size + "px");
   }
   refresh = () => {
     this.#update();
     if(this._show_chart) {
-        this.#init_chart();
+      this.#init_chart();
+    } else {
+      this.#update_table();
     }
   }
 }

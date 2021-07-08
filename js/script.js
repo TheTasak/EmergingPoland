@@ -12,19 +12,16 @@ function load_page(){
   if(stock_name != undefined) {
     let name = stock_name.innerHTML;
     if(name != "") {
-      const container1 = document.getElementById("bottom");
-      const container2 = document.getElementById("top_1");
-      const container3 = document.getElementById("top_2");
-      const container4 = document.getElementById("top_3");
-      const container5 = document.getElementById("top_4");
-      const container6 = document.getElementById("top_5");
-      const container7 = document.getElementById("middle_1");
-      const container8 = document.getElementById("middle_2");
-      const container9 = document.getElementById("middle_3");
-      const container10 = document.getElementById("middle_4");
-      const container11 = document.getElementById("middle_5");
+      const container1 = document.getElementById("podstawowe");
+      const container2 = document.getElementById("dane");
+      const container3 = document.getElementById("wskazniki");
+      const container4 = document.getElementById("dywidenda");
+      const container5 = document.getElementById("mapa");
+      const container6 = document.getElementById("podzial_przychodow");
+      const container7 = document.getElementById("akcjonariat");
+      const container8 = document.getElementById("inne");
 
-      let container_table = [container1, container2, container3, container4, container5, container6, container7, container8, container9, container10, container11];
+      let container_table = [container1, container2, container3, container4, container5, container6, container7, container8];
       page_object = new Stock(name, container_table, language);
       document.getElementById("lang-pl").href = "index.php?stock=" + name.trim() + "&lang=pl";
       document.getElementById("lang-en").href = "index.php?stock=" + name.trim() + "&lang=en";
@@ -87,6 +84,16 @@ function navCategoryClick(object) {
 
   linksmain.style.width = "40%";
   linkssecond.style.width = "60%";
+}
+function setActive(object) {
+  let buttons = document.getElementsByClassName("stockbtn");
+  for(let i = 0; i < buttons.length; i++) {
+    let temp = document.getElementById(buttons[i].value);
+    temp.classList.add("hidden-div");
+  }
+  let temp = document.getElementById(object.value);
+  temp.classList.remove("hidden-div");
+  draw();
 }
 window.onload = load_page;
 window.onresize = draw;

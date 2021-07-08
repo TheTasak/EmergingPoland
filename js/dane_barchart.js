@@ -107,7 +107,7 @@ class Chart{
   }
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
-    this.height = parseInt(this.container.clientHeight)-100;
+    this.height = parseInt(this.container.clientHeight)*0.75;
 
     this.heightpadding = this.height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;

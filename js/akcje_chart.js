@@ -146,23 +146,23 @@ class AkcjeChart{
           .filter(d => d.data.name != "chart")
           .append("text")
             .text(d => d.data.name)
-            .attr("pointer-events", "none")
-            .style("user-select", "none")
-            .attr("x", d => d.x0+5)
-            .attr("y", (d) => {
+            .attr("x", d => d.x0 + (d.x1 - d.x0) / 2)
+            .attr("y", d =>  {
               let cut_text = parseInt((d.x1 - d.x0) / d.data.name.length);
-              if(cut_text*1.4 > 26)
-                cut_text = 24;
-              return d.y0+(cut_text*1.4);
+              cut_text = (cut_text > 26 ? 26 : cut_text);
+              cut_text = (cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text);
+              return d.y0 + (d.y1 - d.y0) / 2 + (cut_text / 2);
             })
             .attr("font-family", "monospace")
             .attr("font-size", (d) => {
                 let cut_text = parseInt((d.x1 - d.x0) / d.data.name.length);
-                if(cut_text*1.4 > 26)
-                  cut_text = 24;
+                cut_text = (cut_text > 26 ? 26 : cut_text);
+                cut_text = (cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text);
                 return String(cut_text*1.4) + "px";
             })
-
+            .style("text-anchor", "middle")
+            .attr("pointer-events", "none")
+            .style("user-select", "none")
             .attr("fill", "white");
 
     const tooltip = this.svg.append("rect")

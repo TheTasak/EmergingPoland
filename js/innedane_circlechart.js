@@ -126,7 +126,7 @@ class CircleChart{
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
-    this.svg_height = this.height*0.8;
+    this.svg_height = this.height*0.75;
 		this.button_height = this.width*0.2;
     d3.select(".button-div")
       .attr("height", this.button_height)

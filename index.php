@@ -11,6 +11,7 @@
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
+    <script src="js/datatable.js?v=1" defer></script>
     <script src="js/dane_barchart.js?v=1" defer></script>
     <script src="js/dividendchart.js?v=1" defer></script>
   	<script src="js/treechart.js?v=1" defer></script>
@@ -49,33 +50,33 @@
               <p id="description"></p>
             </div>
         </div>
-      <div class="content">
-        <div id="top_1" class="chart-div">
-          </div>
-        <div id="top_2" class="chart-div">
-          </div>
-        <div id="top_3" class="chart-div">
-          </div>
-        <div id="top_4" class="chart-div">
-          </div>
-        <div id="top_5" class="chart-div">
-          </div>
+      <div id="stock_tabs">
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="podstawowe">Podstawowe informacje</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="dane">Dane</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="wskazniki">Wskaźniki</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="dywidenda">Dywidenda</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="mapa">Mapa</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="podzial_przychodow">Podział przychodów</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="akcjonariat">Akcjonariat</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="inne">Inne</button>
       </div>
-      <div class="content-bottom">
-        <div id="middle_1" class="chart-div">
-          </div>
-        <div id="middle_2" class="chart-div">
-          </div>
-        <div id="middle_3" class="chart-div">
-          </div>
-        <div id="middle_4" class="chart-div">
-          </div>
-        <div id="middle_5" class="chart-div">
-          </div>
+      <div class="content" id="podstawowe">
+      </div>
+      <div class="content" id="dane">
+      </div>
+      <div class="content" id="wskazniki">
+      </div>
+      <div class="content" id="dywidenda">
+      </div>
+      <div class="content" id="mapa">
+      </div>
+      <div class="content" id="podzial_przychodow">
+      </div>
+      <div class="content" id="akcjonariat">
+      </div>
+      <div class="content" id="inne">
       </div>
     </br>
-      <div id="bottom" class="map-div">
-        </div>
     </main>
     <footer>
       Copyright strona
