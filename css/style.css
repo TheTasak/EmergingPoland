@@ -236,6 +236,7 @@ fieldset{
   border: none;
 }
 .chart-input{
+  margin-top: 10px;
   font-size: min(3vw, 14px);
 }
 .chart-input img{
@@ -282,6 +283,11 @@ fieldset{
   height: 100%;
   width: 80%;
 }
+@media (max-width: 900px){
+  .nolimit-div{
+    width: 100%;
+  }
+}
 .tabledata-div{
   height: 800px;
   width: 100%;
@@ -293,11 +299,12 @@ fieldset{
 .tabledata-div table{
 	border-collapse: collapse;
 }
-.tabledata-div tr:nth-child(2n+3){
+.tabledata-div tr:nth-child(even){
   background-color: #f0f0f0;
+  border-bottom: 1px solid #a0a0a0;
+  border-top: 1px solid #a0a0a0;
 }
 .tabledata-div td{
-  border: 1px solid #a0a0a0;
   padding: 5px 8px;
   font-size: min(2vw, 18px);
 }
@@ -410,17 +417,6 @@ fieldset{
   color: #c5c5c5;
 	cursor: pointer;
 }
-.indicator-table{
-	display: flex;
-	justify-content: center;
-  font-size: min(4vw, 18px);
-}
-.indicator-table table{
-  border-collapse: collapse;
-}
-.indicator-table table td{
-  padding-bottom: 20px;
-}
 .indicator-table-nosliders{
 	display: flex;
   font-size: min(2.5vw, 18px);
@@ -431,9 +427,7 @@ fieldset{
   width: 100%;
 }
 .indicator-table-nosliders td{
-  padding-bottom: 15px;
-  padding-top: 15px;
-  padding-left: 10px;
+  padding: 30px 20px 35px 0;
 }
 .indicator-table-nosliders tr:nth-child(even){
   border-bottom: 1px solid #a0a0a0;
@@ -459,7 +453,7 @@ fieldset{
 .dividend-table{
   overflow: auto;
   text-align: center;
-  max-height: 500px;
+  max-height: 100%;
   height: 100%;
 	display: flex;
 	justify-content: center;

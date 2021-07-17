@@ -92,7 +92,7 @@ class DataTable{
         start: [this._table_start, this._table_end],
         step: 1,
         limit: 4,
-        behaviour: 'drag',
+        behaviour: 'drag-fixed',
         pips: {
             mode: 'values',
             values: [this.start_year, this.end_year],
@@ -110,7 +110,7 @@ class DataTable{
         start: [this._table_end-1, this._table_end],
         step: 1,
         limit: 2,
-        behaviour: 'drag',
+        behaviour: 'drag-fixed',
         pips: {
             mode: 'values',
             values: [this.start_year, this.end_year],
@@ -136,8 +136,8 @@ class DataTable{
   }
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
-    this.table_height = parseInt(this.container.clientHeight)*0.75;
-    this.input_height = parseInt(this.container.clientHeight)*0.25
+    this.table_height = parseInt(this.container.clientHeight)*0.8;
+    this.input_height = parseInt(this.container.clientHeight)*0.2
     d3.select(this.container)
       .select(".data-div")
       .attr("width", this.width)
@@ -188,6 +188,7 @@ class DataTable{
       for(let i = 0; i < 2; i++) {
         for(let j = 0; j < 4; j++) {
           let quarter = this._table_end-1+i + "_" + (j+1);
+          console.log(quarter);
           rows.filter(d => d[quarter] == quarter && d[quarter] != undefined)
             .append("td")
               .style("text-align", "center")
@@ -197,6 +198,10 @@ class DataTable{
             .append("td")
             .style("text-align", "right")
             .html(d => this.#split_value(String(parseInt(d[quarter]))));
+          rows.filter(d => d[quarter] != quarter && isNaN(d[quarter]))
+            .append("td")
+            .style("text-align", "right")
+            .html("Brak danych");
         }
       }
     }

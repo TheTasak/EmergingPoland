@@ -263,87 +263,68 @@ class Indicators{
 			.classed("indicator-table-nosliders", true)
 			.append("table")
 				.attr("width", "100%");
-		const table_el = table.nodes();
-		let table_string = "";
-		table_string += '<tr class="table-row">';
-		table_string += "<td align='center'>" + "Nazwa wskaźnika" + "</td>";
-		table_string += "<td align='center'>" + "Aktualna wartość" + "</td>";
-		table_string += "<td align='center'>" + "Minimum" + "</td>";
-		table_string += "<td align='center'>" + "Mediana" + "</td>";
-		table_string += "<td align='center'>" + "Maximum" + "</td>";
-		table_string += "</tr>";
-		for(let i = 0; i < this._table.length; i++) {
-			table_string += '<tr class="table-row">';
-			table_string += "<td>" + this._table[i]["name"] + "</td>";
-			table_string += "<td align='center'>" + parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter)) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td align='center'>" + parseFloat(this.#historical_min(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td align='center'>" + parseFloat(this.#historical_median(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
-			table_string += "<td align='center'>" + parseFloat(this.#historical_max(this._table[i]["function"])) + this._table[i]["suffix"] + "</td>";
-			table_string += "</tr>";
-		}
-		d3.select(table_el[0])
-			.html(table_string);
-	}
-  init_sliderstable = () => {
-    const rows = d3.select(this.container)
-			.select(".svg-div")
-			.classed("indicator-table", true)
-			.append("table")
-				.attr("width", "100%");
 
-		for(let i = 0; i < this._table.length; i++) {
+		const first_row = table.append("tr");
+		first_row.append("td")
+						 .style("text-align", "center")
+						 .html("Nazwa wskaźnika");
+		first_row.append("td")
+						 .style("text-align", "center")
+						 .html("Aktualna wartość");
+		first_row.append("td")
+							.style("text-align", "center")
+							.html("Slider");
+
+		const rows = table.selectAll(".table-row")
+										 .data(this._table)
+										 .enter()
+										 .append("tr")
+										 	.classed("table-row", true);
+		rows.append("td")
+				.style("text-align", "right")
+				.html(d => d.name);
+		rows.append("td")
+				.style("text-align", "center")
+				.html(d => parseFloat(d.function(this.end_year + "_" + this.end_quarter)) + d.suffix);
+		const slider_divs = rows.append("td")
+														.append("div")
+															.classed("row-slider-div", true);
+		let slider_el = slider_divs.nodes();
+		slider_el.forEach((item, i) => {
 			let max = parseFloat(this.#historical_max(this._table[i]["function"]));
 			let min = parseFloat(this.#historical_min(this._table[i]["function"]));
 			let median = parseFloat(this.#historical_median(this._table[i]["function"]));
-			if(min == max || isNaN(max) || isNaN(min) || isNaN(median)) {
-				continue;
+			if(min != max && !isNaN(max) && !isNaN(min) && !isNaN(median)) {
+				noUiSlider.create(item, {
+		      start: [median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
+		      behaviour: 'unconstrained-tap',
+					tooltips: [false, true],
+					connect: [false, true, false],
+					pips: {
+		          mode: 'values',
+		          values: [min, max],
+		          density: 10,
+							format: wNumb({
+		            decimals: 2,
+								suffix: this._table[i]["suffix"]
+	        		}),
+							stepped: true
+		      },
+		      range: {
+		          'min': min,
+		          'max': max
+		      }
+				});
+				let handles = d3.select(item)
+												.selectAll(".noUi-handle").nodes();
+				d3.select(handles[0])
+					.classed("handle-invisible", true);
+				item.noUiSlider.on("change", () => {
+					item.noUiSlider.set([median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
+				});
 			}
-			let row = d3.select(this.container)
-										.select(".indicator-table")
-										.select("table")
-										.append("tr")
-											.classed("table-row", true);
-			row.append("td")
-				.text(this._table[i]["name"])
-				.classed("row-name", true);
-			row.append("td")
-				.style("text-align", "right")
-				.text(this._table[i]["function"](this.end_year + "_" + this.end_quarter) + this._table[i]["suffix"]);
-			let slider_div = row.append("td")
-													.classed("row-slider", true)
-													.attr("width", "50%")
-													.append("div")
-														.classed("row-slider-div", true);
-			let slider_el = slider_div.nodes()[0];
-			noUiSlider.create(slider_el, {
-	      start: [median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
-	      behaviour: 'unconstrained-tap',
-				tooltips: [false, true],
-				connect: [false, true, false],
-				pips: {
-	          mode: 'values',
-	          values: [min, max],
-	          density: 10,
-						format: wNumb({
-	            decimals: 2,
-							suffix: this._table[i]["suffix"]
-        		}),
-						stepped: true
-	      },
-	      range: {
-	          'min': min,
-	          'max': max
-	      }
-			});
-			let handles = d3.select(slider_el)
-											.selectAll(".noUi-handle").nodes();
-			d3.select(handles[0])
-				.classed("handle-invisible", true);
-			slider_el.noUiSlider.on("change", () => {
-				slider_el.noUiSlider.set([median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
-			});
-		}
-  }
+		});
+	}
 	refresh = () => {
 		this.#update();
   }

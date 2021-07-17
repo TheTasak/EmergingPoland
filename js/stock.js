@@ -51,6 +51,11 @@ class Stock{
                           .classed("chart-div", true);
         let con6_node = d3.select(container6.nodes()[0]).nodes()[0];
         this._modules.push(new DividendChart(con6_node, this.stock_name, this.currency, this.language));
+        let container7 = d3.select(this._containers[3])
+                          .append("div")
+                          .classed("chart-div", true);
+        let con7_node = d3.select(container7.nodes()[0]).nodes()[0];
+        this._modules.push(new DividendTable(con7_node, this.stock_name, this.currency, this.language));
       }
       if(d.podzial_przychodow != null) {
         let container1 = d3.select(this._containers[5])
@@ -105,14 +110,13 @@ class Stock{
           let temp = document.getElementById(buttons[i].value);
           temp.classList.add("hidden-div");
         }
-      }, 400);
+      }, 600);
 
     }).catch(error => {
       console.error(error);
     });
   }
   refresh = () => {
-    console.log(this._modules);
     for(let i = 0; i < this._modules.length; i++){
       this._modules[i].refresh();
     }
