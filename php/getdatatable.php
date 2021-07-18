@@ -62,37 +62,24 @@
         $myquery = "SELECT * FROM `{$year}_dane_bilans` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$column}';";
         $bilans_row = sql_getdatarecord($sqli, $myquery);
         if(null !== $row) {
-          if(null !== $row[$year]) {
-            $object->{$year} = $row[$year];
-          }
-          if(null !== $row[$first_quarter]) {
-            $object->{$first_quarter} = $row[$first_quarter];
-          }
-          if(null !== $row[$second_quarter]) {
-            $object->{$second_quarter} = $row[$second_quarter];
-          }
-          if(null !== $row[$third_quarter]) {
-            $object->{$third_quarter} = $row[$third_quarter];
-          }
-          if(null !== $row[$forth_quarter]) {
-            $object->{$forth_quarter} = $row[$forth_quarter];
-          }
-        } else if(null !== $bilans_row){
-          if(null !== $bilans_row[$year]) {
-            $object->{$year} = $bilans_row[$year];
-          }
-          if(null !== $bilans_row[$first_quarter]) {
-            $object->{$first_quarter} = $bilans_row[$first_quarter];
-          }
-          if(null !== $bilans_row[$second_quarter]) {
-            $object->{$second_quarter} = $bilans_row[$second_quarter];
-          }
-          if(null !== $bilans_row[$third_quarter]) {
-            $object->{$third_quarter} = $bilans_row[$third_quarter];
-          }
-          if(null !== $bilans_row[$forth_quarter]) {
-            $object->{$forth_quarter} = $bilans_row[$forth_quarter];
-          }
+          $data_row = $row;
+        } else if(null !== $bilans_row) {
+          $data_row = $bilans_row;
+        }
+        if(null !== $data_row[$year]) {
+          $object->{$year} = $data_row[$year];
+        }
+        if(null !== $data_row[$first_quarter]) {
+          $object->{$first_quarter} = $data_row[$first_quarter];
+        }
+        if(null !== $data_row[$second_quarter]) {
+          $object->{$second_quarter} = $data_row[$second_quarter];
+        }
+        if(null !== $data_row[$third_quarter]) {
+          $object->{$third_quarter} = $data_row[$third_quarter];
+        }
+        if(null !== $data_row[$forth_quarter]) {
+          $object->{$forth_quarter} = $data_row[$forth_quarter];
         }
       }
       $object->{"name"} = $column;
