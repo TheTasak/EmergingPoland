@@ -15,8 +15,9 @@
     }
     if(isset($_GET['type'])){
       $type = $_GET['type'];
+    } else {
+      $type = "year";
     }
-
 
   	$sqli = sql_open();
 
@@ -31,11 +32,24 @@
 
         $myquery = "SELECT * FROM `{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
         $row = sql_getdatarecord($sqli, $myquery);
-        if(null !== $row[$date]) {
-          $object = new stdClass();
-          $object->{"value"} = $row[$date];
-          $object->{"date"} = $date;
-          $data[] = $object;
+
+        $myquery = "SELECT * FROM `{$date}_dane_bilans` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
+    		$bilans_row = sql_getdatarecord($sqli, $myquery);
+
+        if(null !== $row) {
+          if(null !== $row[$date]) {
+            $object = new stdClass();
+            $object->{"value"} = $row[$date];
+            $object->{"date"} = $date;
+            $data[] = $object;
+          }
+        } else if(null !== $bilans_row){
+          if(null !== $bilans_row[$date]) {
+            $object = new stdClass();
+            $object->{"value"} = $bilans_row[$date];
+            $object->{"date"} = $date;
+            $data[] = $object;
+          }
         }
       }
     } else if($type == "quarter") {
@@ -45,29 +59,59 @@
 
     		$myquery = "SELECT * FROM `{$date}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
     		$row = sql_getdatarecord($sqli, $myquery);
-        if(null !== $row["{$date}"."_4"]) {
-          $object = new stdClass();
-          $object->{"value"} = $row["{$date}"."_4"];
-          $object->{"date"} = "IV {$date}";
-          $data[] = $object;
-        }
-        if(null !== $row["{$date}"."_3"]) {
-          $object = new stdClass();
-          $object->{"value"} = $row["{$date}"."_3"];
-          $object->{"date"} = "III {$date}";
-          $data[] = $object;
-        }
-        if(null !== $row["{$date}"."_2"]) {
-          $object = new stdClass();
-          $object->{"value"} = $row["{$date}"."_2"];
-          $object->{"date"} = "II {$date}";
-          $data[] = $object;
-        }
-        if(null !== $row["{$date}"."_1"]) {
-          $object = new stdClass();
-          $object->{"value"} = $row["{$date}"."_1"];
-          $object->{"date"} = "I {$date}";
-          $data[] = $object;
+
+        $myquery = "SELECT * FROM `{$date}_dane_bilans` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='{$data_index}';";
+    		$bilans_row = sql_getdatarecord($sqli, $myquery);
+        if(null !== $row) {
+          if(null !== $row["{$date}"."_4"]) {
+            $object = new stdClass();
+            $object->{"value"} = $row["{$date}"."_4"];
+            $object->{"date"} = "IV {$date}";
+            $data[] = $object;
+          }
+          if(null !== $row["{$date}"."_3"]) {
+            $object = new stdClass();
+            $object->{"value"} = $row["{$date}"."_3"];
+            $object->{"date"} = "III {$date}";
+            $data[] = $object;
+          }
+          if(null !== $row["{$date}"."_2"]) {
+            $object = new stdClass();
+            $object->{"value"} = $row["{$date}"."_2"];
+            $object->{"date"} = "II {$date}";
+            $data[] = $object;
+          }
+          if(null !== $row["{$date}"."_1"]) {
+            $object = new stdClass();
+            $object->{"value"} = $row["{$date}"."_1"];
+            $object->{"date"} = "I {$date}";
+            $data[] = $object;
+          }
+        } else if(null !== $bilans_row) {
+          if(null !== $bilans_row["{$date}"."_4"]){
+            $object = new stdClass();
+            $object->{"value"} = $bilans_row["{$date}"."_4"];
+            $object->{"date"} = "IV {$date}";
+            $data[] = $object;
+          }
+          if(null !== $bilans_row["{$date}"."_3"]) {
+            $object = new stdClass();
+            $object->{"value"} = $bilans_row["{$date}"."_3"];
+            $object->{"date"} = "III {$date}";
+            $data[] = $object;
+          }
+          if(null !== $bilans_row["{$date}"."_2"]) {
+            $object = new stdClass();
+            $object->{"value"} = $bilans_row["{$date}"."_2"];
+            $object->{"date"} = "II {$date}";
+            $data[] = $object;
+          }
+          if(null !== $bilans_row["{$date}"."_1"]) {
+            $object = new stdClass();
+            $object->{"value"} = $bilans_row["{$date}"."_1"];
+            $object->{"date"} = "I {$date}";
+            $data[] = $object;
+          }
         }
 	     }
        $data = array_reverse($data);

@@ -23,18 +23,34 @@
 
   $translate_data = array();
   for($i = 0; $i < count($data); $i++){
-    $temp = reset($data[$i]);
+    $temp = $data[$i]["dane_ksiegowe"];
   	$myquery = "SELECT `{$lang}` FROM tlumaczenie WHERE baza='{$temp}';";
 
     $translate = sql_getdatarecord($sqli, $myquery);
     if(null == $translate) {
       $translate = $data[$i];
     }
-    $translate_data[$i] = (object)[
-      "dane_ksiegowe" => reset($data[$i]),
-      "tlumaczenie" => reset($translate),
-    ];
+    $object = new stdClass();
+    $object->{"dane_ksiegowe"} = $data[$i]["dane_ksiegowe"];
+    $object->{"tlumaczenie"} = $translate[$lang];
+    $translate_data[] = $object;
   }
+
+  $myquery = "SELECT dane_ksiegowe FROM `{$year}_dane_bilans` WHERE idspolki='{$stock_value}';";
+  $bilans_data = sql_getdataarray($sqli, $myquery);
+  for($i = 0; $i < count($bilans_data); $i++){
+    $temp = $bilans_data[$i]["dane_ksiegowe"];
+  	$myquery = "SELECT `{$lang}` FROM tlumaczenie WHERE baza='{$temp}';";
+
+    $translate = sql_getdatarecord($sqli, $myquery);
+    if(null == $translate) {
+      $translate = $bilans_data[$i];
+    }
+    $object = new stdClass();
+    $object->{"dane_ksiegowe"} = $bilans_data[$i]["dane_ksiegowe"];
+    $object->{"tlumaczenie"} = $translate[$lang];
+    $translate_data[] = $object;
+    }
     echo json_encode($translate_data);
     mysqli_close($sqli);
 ?>

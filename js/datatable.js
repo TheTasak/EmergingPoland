@@ -11,6 +11,7 @@ class DataTable{
     this.language = language;
 
     this.data_year = true;
+    this.data_type = "rachunek";
     this.#load_data();
   }
   #split_value = (value) => {
@@ -44,8 +45,7 @@ class DataTable{
 	  }
   }
   #load_data = () => {
-  console.log("php/getdatatable.php?stock_name=" + this.stock_name + "&start_year=" + String(this.start_year) + "&end_year=" + String(this.end_year) + "&lang=" + this.language);
-	let json_data = d3.json("php/getdatatable.php?stock_name=" + this.stock_name + "&start_year=" + String(this.start_year) + "&end_year=" + String(this.end_year) + "&lang=" + this.language).then( (d) => {
+	let json_data = d3.json("php/getdatatable.php?stock_name=" + this.stock_name + "&start_year=" + String(this.start_year) + "&end_year=" + String(this.end_year) + "&lang=" + this.language + "&type=" + this.data_type).then( (d) => {
     // Wyciąga z bazy kolumny z danymi
 		this._data = d;
 		this.init();
@@ -128,11 +128,17 @@ class DataTable{
     d3.select(this.container)
       .select(".input-div")
       .append("button")
-        .classed("chart-input", true)
+        .classed("chart-button", true)
         .attr("type", "button")
         .on("click", () => {this.data_year = !this.data_year; this.init();})
-        .append("img")
-          .attr("src", "table_icon.png");;
+        .html( this.data_year == 1 ? "<b>Rok</b>/Kwartał" : "Rok/<b>Kwartał</b>");
+    d3.select(this.container)
+      .select(".input-div")
+      .append("button")
+        .classed("chart-button", true)
+        .attr("type", "button")
+        .on("click", () => {this.data_type = (this.data_type == "rachunek" ? "bilans" : "rachunek"); this.#load_data();})
+        .html(this.data_type == "rachunek" ? "<b>Rachunek</b>/Bilans" : "Rachunek/<b>Bilans</b>");
   }
   #update = () => {
     this.width = parseInt(this.container.clientWidth);
@@ -188,7 +194,6 @@ class DataTable{
       for(let i = 0; i < 2; i++) {
         for(let j = 0; j < 4; j++) {
           let quarter = this._table_end-1+i + "_" + (j+1);
-          console.log(quarter);
           rows.filter(d => d[quarter] == quarter && d[quarter] != undefined)
             .append("td")
               .style("text-align", "center")
