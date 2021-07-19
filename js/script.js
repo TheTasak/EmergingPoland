@@ -93,7 +93,7 @@ function setActive(object) {
   }
   let temp = document.getElementById(object.value);
   temp.classList.remove("hidden-div");
-  draw();
+  page_object.load_layout();
 }
 window.onload = load_page;
 window.onresize = draw;

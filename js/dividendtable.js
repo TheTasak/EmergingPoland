@@ -8,9 +8,8 @@ class DividendTable{
     this.language = language;
     this.chart_types = [{"name":"Dywidenda na akcję", "variable": "value"}, {"name":"Stopa dywidendy", "variable": "yield"}, {"name":"Stopień wypłaty", "variable": "ratio"}];
     this.show_table = false;
-    this.#load_data();
   }
-  #load_data = () => {
+  load_data = () => {
 	let json_data = d3.json("php/getdividenddata.php?&stock_name=" + String(this.stock_name)).then( (d) => {
     // Wyciąga z bazy kolumny z danymi
 		this._data = d;
@@ -51,15 +50,15 @@ class DividendTable{
     // Usunięcie starego wykresu
     d3.select(this.container)
       .html("");
-    this.#update();
-    this.#init_table();
+    this.update();
+    this.init_table();
     this.refresh();
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight);
   }
-  #init_table = () => {
+  init_table = () => {
     const table = d3.select(this.container)
       .append("div")
         .classed("dividend-table", true)
@@ -91,6 +90,6 @@ class DividendTable{
 			.html(table_string);
   }
   refresh = () => {
-    this.#update();
+    this.update();
   }
 }

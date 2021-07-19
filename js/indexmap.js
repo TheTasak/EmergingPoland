@@ -6,9 +6,9 @@ class IndexMap{
 		this.container = container;
 		this.index_name = index_name;
 		this.language = language;
-		this.#load_data();
+		this.load_data();
 	}
-	#split_value = (value) => {
+	split_value = (value) => {
     let new_value = [];
     let split_value = String(value).split(".")[0];
 		let rev_value = split_value.length % 3;
@@ -25,7 +25,7 @@ class IndexMap{
 		string = string.slice(0, -1);
     return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
   }
-	#load_data = () => {
+	load_data = () => {
 		d3.json("php/getstockscountries.php?index=" + this.index_name + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
 			this._country_arr = d;
@@ -39,17 +39,17 @@ class IndexMap{
 			});
 		});
 	}
-	#earlier_year = () => {
+	earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
 		this.year--;
-		this.#load_data();
+		this.load_data();
 	}
-	#later_year = () => {
+	later_year = () => {
 		if(this.year >= 2020)
 			return;
 		this.year++;
-		this.#load_data();
+		this.load_data();
 	}
 	init = () => {
 		d3.select(this.container)
@@ -70,16 +70,16 @@ class IndexMap{
 							.select(".svg-div")
 						  .append("svg");
 		}
-		this.#update();
-		this.#init_inputs();
+		this.update();
+		this.init_inputs();
 		if(this._show_map){
-			this.#draw_map();
+			this.draw_map();
 		} else {
-			this.#init_table();
+			this.init_table();
 		}
 		this.refresh();
 	}
-	#update = () => {
+	update = () => {
 		this.width = parseInt(this.container.clientWidth)*0.9;
 		this.height = parseInt(this.container.clientHeight);
 
@@ -98,7 +98,7 @@ class IndexMap{
 							.attr("height", this.svg_height);
 		}
 	}
-	#init_inputs = () => {
+	init_inputs = () => {
 		// Tytuł wykresu
 		d3.select(this.container)
 			.select(".button-div")
@@ -108,7 +108,7 @@ class IndexMap{
 				.text("Podział indeksu ze względu na źródło przychodów")
 				.classed("map-button", true);
 	}
-	#draw_map = () => {
+	draw_map = () => {
 		this.svg.html("");
 		// Typ projekcji mapy
 		this.mapProjection = d3.geoNaturalEarth()
@@ -182,7 +182,7 @@ class IndexMap{
 				let name = this._country_arr[arr_index].translate;
 				let value = this._country_arr[arr_index].value;
 
-				let tooltipsize = [String(name + " " + this.#split_value(value) + " PLN").length*10+10, 40];
+				let tooltipsize = [String(name + " " + this.split_value(value) + " PLN").length*10+10, 40];
         let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
         tooltip
           .attr("x", tooltippos[0])
@@ -195,7 +195,7 @@ class IndexMap{
 				.attr("x", tooltippos[0] + tooltipsize[0]/2)
 				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
 				.attr("display", "inherit")
-				.text(name + " " + this.#split_value(value) + " PLN");
+				.text(name + " " + this.split_value(value) + " PLN");
 			})
 			.on("mouseout", (ev, d) => {
 				let arr_index = this._country_arr.findIndex(search_index, d.properties["name"]);
@@ -216,23 +216,23 @@ class IndexMap{
 			this.svg.select("g").transition().ease(d3.easeCubicOut).duration(150).attr("transform", ev.transform)
 		}));
 	}
-	#init_table = () => {
+	init_table = () => {
 		let country_string = '<table class="map-country-table">';
 		console.log(this._country_arr);
 		for(let i = 0; i < this._country_arr.length; i++){
 			if(!isNaN(this._country_arr[i].value)) {
-				country_string += "<tr><td align='center' width='50%'>" + this._country_arr[i].translate + "</td><td align='right'>" + this.#split_value(parseFloat(this._country_arr[i].value).toFixed(0)) + " PLN" + "</td><td width='5%'></td></tr>";
+				country_string += "<tr><td align='center' width='50%'>" + this._country_arr[i].translate + "</td><td align='right'>" + this.split_value(parseFloat(this._country_arr[i].value).toFixed(0)) + " PLN" + "</td><td width='5%'></td></tr>";
 			}
 		}
-		country_string += "<tr><td align='center' width='50%'>" + "Suma przychodów:" + "</td><td align='right'>" + this.#split_value(parseFloat(d3.sum(this._country_arr, d => d.value)).toFixed(0)) + " PLN" + "</td><td width='5%'></td></tr>";
+		country_string += "<tr><td align='center' width='50%'>" + "Suma przychodów:" + "</td><td align='right'>" + this.split_value(parseFloat(d3.sum(this._country_arr, d => d.value)).toFixed(0)) + " PLN" + "</td><td width='5%'></td></tr>";
 		country_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(country_string);
 	}
 
 	refresh = () => {
-		this.#update();
+		this.update();
 		clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(this.#draw_map, 10);
+    this.resizeTimer = setTimeout(this.draw_map, 10);
 	}
 }
 function search_index(element) {

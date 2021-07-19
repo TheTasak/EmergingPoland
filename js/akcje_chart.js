@@ -5,21 +5,20 @@ class AkcjeChart{
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
-    this.#load_data();
   }
-  #earlier_year = () => {
+  earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
 		this.year--;
-		this.#load_data();
+		this.load_data();
 	}
-	#later_year = () => {
+	later_year = () => {
 		if(this.year >= 2020)
 			return;
 		this.year++;
-		this.#load_data();
+		this.load_data();
 	}
-  #split_value = (value) => {
+  split_value = (value) => {
     let new_value = [];
     let rev_value = value.length % 3;
     let string = "";
@@ -34,41 +33,12 @@ class AkcjeChart{
     }
     return string;
   }
-  #reset = () => {
-    this.width = parseInt(this.container.clientWidth);
-		this.height = parseInt(this.container.clientHeight);
-    d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-      d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
-    this.svg_height = this.height*0.8;
-		this.button_height = this.width*0.2;
-    d3.select(this.container)
-      .append("div")
-        .attr("height", this.button_height)
-        .attr("width", this.width)
-        .classed("button-div", true);
-    d3.select(this.container)
-      .append("div")
-        .attr("height", this.svg_height)
-        .attr("width", this.width)
-        .classed("svg-div", true);
-    if(!this.show_table) {
-      this.svg = d3.select(this.container)
-                   .select(".svg-div")
-                   .append("svg")
-                    .attr("height", this.svg_height)
-                    .attr("width", this.width);
-    }
-  }
-  #load_data = () => {
+  load_data = () => {
     d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
       this._data = d;
       if(this._data.length <= 0){
 				this.year--;
-				this.#load_data();
+				this.load_data();
 				return;
 			}
       this._data.forEach((item, i) => {
@@ -76,12 +46,52 @@ class AkcjeChart{
       });
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
       this._data = {"name": "chart", "translate": "", "children": this._data};
-      this.refresh();
+      this.init();
     }).catch(error => {
         console.error(error);
     });
   }
-  #draw_inputs = () => {
+  init = () => {
+    d3.select(this.container)
+      .html("");
+    d3.select(this.container)
+      .append("div")
+        .classed("button-div", true);
+    d3.select(this.container)
+      .append("div")
+        .classed("svg-div", true);
+    if(!this.show_table) {
+      this.svg = d3.select(this.container)
+                   .select(".svg-div")
+                   .append("svg");
+    }
+    this.update();
+    this.draw_inputs();
+    if(this.show_table) {
+      this.draw_table();
+    } else {
+      this.draw_chart();
+    }
+  }
+  update = () => {
+    this.width = parseInt(this.container.clientWidth);
+    this.height = parseInt(this.container.clientHeight);
+    this.svg_height = this.height*0.8;
+		this.button_height = this.width*0.2;
+    d3.select(this.container)
+      .select(".button-div")
+      .attr("height", this.button_height)
+      .attr("width", this.width);
+    d3.select(this.container)
+      .select(".svg-div")
+      .attr("height", this.svg_height)
+      .attr("width", this.width);
+    if(!this.show_table) {
+      this.svg.attr("height", this.svg_height)
+              .attr("width", this.width);
+    }
+  }
+  draw_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -96,7 +106,7 @@ class AkcjeChart{
 			.append("button")
   			.attr("type", "button")
   			.text("🠔")
-  			.on("click", this.#earlier_year)
+  			.on("click", this.earlier_year)
   			.classed("piechart-button", true);
 		d3.select(this.container)
 			.select(".pie-button-div")
@@ -110,10 +120,10 @@ class AkcjeChart{
 			.append("button")
   			.attr("type", "button")
   			.text("🠖")
-  			.on("click", this.#later_year)
+  			.on("click", this.later_year)
   			.classed("piechart-button", true);
   }
-  #draw_chart = () => {
+  draw_chart = () => {
     let root = d3.hierarchy(this._data);
     root.sum(d => d.value);
 
@@ -186,7 +196,7 @@ class AkcjeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-          let value = this.#split_value(String(d.value));
+          let value = this.split_value(String(d.value));
   				let tooltipsize = [String(d.data.name + value).length*10, 40];
           let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
 
@@ -220,24 +230,23 @@ class AkcjeChart{
                   .style("opacity", "1");
   			});
   }
-  #draw_table = () => {
+  draw_table = () => {
     let stock_string = '<table class="stock-table">';
 		for(let i = 0; i < this._data.children.length; i++){
       let value = String(this._data.children[i].value);
-			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this.#split_value(value) + "</td></tr>";
+			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this.split_value(value) + "</td></tr>";
 		}
-    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + this.#split_value(String(parseInt(d3.sum(this._data.children, d => d.value)))) + "</td></tr>";
+    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + this.split_value(String(parseInt(d3.sum(this._data.children, d => d.value)))) + "</td></tr>";
 		stock_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(stock_string);
   }
   refresh = () => {
-    this.#reset();
-    this.#draw_inputs();
+    this.init();
+    this.update();
     if(this.show_table) {
-      this.#draw_table();
+      this.draw_table();
     } else {
-      this.#draw_chart();
+      this.draw_chart();
     }
-
   }
 }

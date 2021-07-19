@@ -8,34 +8,33 @@ class TreeChart{
     this.start_year = start_year;
     this.currency = currency;
     this.language = language;
-    this.#load_data();
   }
-  #earlier_year = () => {
+  earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
 		this.year--;
-		this.#load_data();
+		this.load_data();
 	}
-	#later_year = () => {
+	later_year = () => {
 		if(this.year >= 2020)
 			return;
 		this.year++;
-		this.#load_data();
+		this.load_data();
 	}
-  #load_data = () => {
+  load_data = () => {
     d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
       if(this._data.length <= 0){
 				this.year--;
-				this.#load_data();
+				this.load_data();
 				return;
 			}
-      this.#change_chart();
-      this.#get_suffix();
-      this.#init();
+      this.change_chart();
+      this.get_suffix();
+      this.init();
     });
   }
-  #change_chart = () => {
+  change_chart = () => {
     let temp_array = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
 		this.array_interval = [];
 		temp_array.forEach((item, i) => {
@@ -55,7 +54,7 @@ class TreeChart{
     this.current_data.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
     this.current_data = {"name": "chart", "translate": "", "children": this.current_data};
   }
-  #get_suffix = () => {
+  get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let max = d3.max(this.current_data.children, d => d[this.current_chart_interval]);
 	  if(max >= 1000000){
@@ -68,7 +67,7 @@ class TreeChart{
 		  this.suffix = "tys";
 	  }
   }
-  #init = () => {
+  init = () => {
     // Robi reset div'a wykresu, rysuje go od nowa
     d3.select(this.container)
       .selectAll(".button-div")
@@ -87,15 +86,15 @@ class TreeChart{
                     .select(".svg-div")
                     .append("svg");
     }
-    this.#update();
-    this.#init_inputs();
+    this.update();
+    this.init_inputs();
     if(this._show_chart) {
-      this.#init_chart();
+      this.init_chart();
     } else {
-      this.#init_table();
+      this.init_table();
     }
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
     this.svg_height = this.height*0.75;
@@ -114,7 +113,7 @@ class TreeChart{
         .attr("width", this.width);
     }
   }
-  #init_inputs = () => {
+  init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -129,26 +128,26 @@ class TreeChart{
 			.append("button")
 			.attr("type", "button")
 			.text("🠔")
-			.on("click", this.#earlier_year)
+			.on("click", this.earlier_year)
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.year)
-      .on("click", () => {this._show_chart = !this._show_chart; this.#init();})
+      .on("click", () => {this._show_chart = !this._show_chart; this.init();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("button")
 			.attr("type", "button")
 			.text("🠖")
-			.on("click", this.#later_year)
+			.on("click", this.later_year)
 			.classed("treechart-button", true);
     const field_interval = d3.select(this.container)
                              .select(".button-div")
 				                        .append("select")
-          				                .on("change", this.#load_data)
+          				                .on("change", this.load_data)
           				                .classed("chart-input", true);
     for(let i = 0; i < this.array_interval.length; i++){
   		field_interval.append("option")
@@ -160,7 +159,7 @@ class TreeChart{
   		select_list_interval.value = this.current_chart_interval;
   	}
   }
-  #init_chart = () => {
+  init_chart = () => {
     this.svg.html("");
     if(this.current_data.children.length == 0) {
       this.svg.append("text")
@@ -279,7 +278,7 @@ class TreeChart{
                   .style("opacity", "1");
   			});
   }
-  #init_table = () => {
+  init_table = () => {
     d3.select(this.container).select(".svg-div")
       .append("div")
         .classed("earnings-table", true);
@@ -292,9 +291,9 @@ class TreeChart{
 		d3.select(this.container).select(".earnings-table").html(earnings_string);
   }
   refresh = () => {
-    this.#update();
+    this.update();
     if(this._show_chart) {
-        this.#init_chart();
+        this.init_chart();
     }
   }
 }

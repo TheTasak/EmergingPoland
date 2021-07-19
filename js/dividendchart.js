@@ -11,9 +11,8 @@ class DividendChart{
     this.language = language;
     this.chart_types = [{"name":"Dywidenda na akcję", "variable": "value"}, {"name":"Stopa dywidendy", "variable": "yield"}, {"name":"Stopień wypłaty", "variable": "ratio"}];
     this.show_table = false;
-    this.#load_data();
   }
-  #load_data = () => {
+  load_data = () => {
 	let json_data = d3.json("php/getdividenddata.php?&stock_name=" + String(this.stock_name)).then( (d) => {
     // Wyciąga z bazy kolumny z danymi
 		this._data = d;
@@ -39,7 +38,7 @@ class DividendChart{
       }
       this.keys[i] = {"year": this.keys[i], "children" : objects, "yield" : dividend_yield, "value": dividend_value, "ratio" : dividend_ratio};
     }
-		this.init();
+    this.init();
 	  });
   }
   init = () => {
@@ -57,12 +56,12 @@ class DividendChart{
   	this.svg = d3.select(this.container)
   					.append("svg")
   					.classed("chart",true);
-    this.#update();
-    this.#init_inputs();
-    this.#init_chart();
-    this.refresh();
+    this.update();
+    this.init_inputs();
+    this.init_chart();
+    this.update_chart();
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight);
     this.button_height = this.height*0.2;
@@ -76,7 +75,7 @@ class DividendChart{
     this.svg.attr("width", this.width)
             .attr("height", this.svg_height)
   }
-  #init_inputs = () => {
+  init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -101,7 +100,7 @@ class DividendChart{
       select_list_type.value = this.chart_index;
     }
   }
-  #init_chart = () => {
+  init_chart = () => {
     // Ustawienie skali i domeny osi x
     let chart_type = this.chart_types[this.chart_index].variable;
     const min = 0;
@@ -217,7 +216,7 @@ class DividendChart{
     					.attr("display", "none");
     			});
   }
-  #update_chart = () => {
+  update_chart = () => {
     if(this._data.length == 0) {
       this.svg.select(".nodata-text")
               .attr("x", this.width/2)
@@ -243,7 +242,7 @@ class DividendChart{
               });
   }
   refresh = () => {
-    this.#update();
-    this.#update_chart();
+    this.update();
+    this.update_chart();
   }
 }

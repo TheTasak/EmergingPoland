@@ -10,21 +10,30 @@ class TreeChartUdzial{
     this.end_year = end_year.split("_")[0];
     this.currency = currency;
     this.language = language;
-    this.#load_data();
   }
-  #earlier_year = () => {
+  earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
 		this.year--;
-		this.#load_data();
+		this.load_data();
 	}
-	#later_year = () => {
+	later_year = () => {
 		if(this.year >= this.end_year)
 			return;
 		this.year++;
-		this.#load_data();
+		this.load_data();
 	}
-  #change_chart = () => {
+  load_data = () => {
+    d3.json("php/getudzialdane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
+      this._data = d;
+      if(this._data.length == 0) {
+        this._data = [{"name" : "no data", "children" : []}];
+      }
+      this.change_chart();
+      this.init();
+    });
+  }
+  change_chart = () => {
     const select_list_type = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_type != undefined) {
       let valueNotInRange = select_list_type.value >= this._data.length;
@@ -39,14 +48,10 @@ class TreeChartUdzial{
     this.current_data.children = this.current_data.children.filter( (d) => { return !isNaN(d.year);});
     this.current_data.children.sort((a,b) => (a.year < b.year) ? 1 : -1);
   }
-  #init = () => {
+  init = () => {
     // Robi reset div'a wykresu, rysuje go od nowa
     d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-      d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
+      .html("");
     d3.select(this.container)
       .append("div")
         .classed("button-div", true);
@@ -58,15 +63,15 @@ class TreeChartUdzial{
                     .select(".svg-div")
                     .append("svg");
     }
-    this.#update();
-    this.#init_inputs();
+    this.update();
+    this.init_inputs();
     if(this._show_chart) {
-      this.#init_chart();
+      this.init_chart();
     } else {
-      this.#init_table();
+      this.init_table();
     }
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight);
     this.svg_height = this.height*0.75;
@@ -85,17 +90,7 @@ class TreeChartUdzial{
         .attr("width", this.width);
     }
   }
-  #load_data = () => {
-    d3.json("php/getudzialdane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
-      this._data = d;
-      if(this._data.length == 0) {
-        this._data = [{"name" : "no data", "children" : []}];
-      }
-      this.#change_chart();
-      this.#init();
-    });
-  }
-  #init_inputs = () => {
+  init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -110,28 +105,28 @@ class TreeChartUdzial{
 			.append("button")
 			.attr("type", "button")
 			.text("🠔")
-			.on("click", this.#earlier_year)
+			.on("click", this.earlier_year)
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.year)
-      .on("click", () => {this._show_chart = !this._show_chart; this.#init();})
+      .on("click", () => {this._show_chart = !this._show_chart; this.init();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("button")
 			.attr("type", "button")
 			.text("🠖")
-			.on("click", this.#later_year)
+			.on("click", this.later_year)
 			.classed("treechart-button", true);
     const field_type = d3.select(this.container)
                     .select(".tree-button-div")
                     .append("div")
 					             .classed("chart-input-div", true)
 					             .append("select")
-				                 .on("change", this.#load_data)
+				                 .on("change", this.load_data)
 				                 .classed("chart-input", true);
     //Załadowanie opcji do pola
   	for(let i = 0; i < this._data.length; i++){
@@ -145,7 +140,7 @@ class TreeChartUdzial{
       select_list_type.value = this.current_chart_index;
   	}
   }
-  #init_chart = () => {
+  init_chart = () => {
     this.svg.html("");
 
     let root = d3.hierarchy(this.current_data);
@@ -199,7 +194,7 @@ class TreeChartUdzial{
             .style("user-select", "none")
             .style("text-anchor", "middle")
             .attr("fill", "white");
-            
+
     const tooltip = this.svg.append("rect")
               .attr("width", "0px")
               .attr("height", "0px")
@@ -253,7 +248,7 @@ class TreeChartUdzial{
                   .style("opacity", "1");
   			});
   }
-  #init_table = () => {
+  init_table = () => {
     let font_size = parseInt(this.width / d3.max(this.current_data.children, d => String(d.translate).length));
     font_size = (font_size > this.max_font_size ?  this.max_font_size : font_size);
 
@@ -273,7 +268,7 @@ class TreeChartUdzial{
         .style("text-align", "right")
         .html(d => parseFloat(d.year*100).toFixed(2) + "%");
   }
-  #update_table = () => {
+  update_table = () => {
     let font_size = parseInt(this.width / d3.max(this.current_data.children, d => String(d.translate).length));
     font_size = (font_size > this.max_font_size ?  this.max_font_size : font_size);
 
@@ -282,11 +277,11 @@ class TreeChartUdzial{
       .style("font-size", font_size + "px");
   }
   refresh = () => {
-    this.#update();
+    this.update();
     if(this._show_chart) {
-      this.#init_chart();
+      this.init_chart();
     } else {
-      this.#update_table();
+      this.update_table();
     }
   }
 }

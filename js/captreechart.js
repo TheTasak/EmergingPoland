@@ -6,16 +6,16 @@ class CapTreeChart{
     this.language = language;
     this.data_file = data_file;
     this.chart_title = chart_title;
-    this.#load_data();
+    this.load_data();
   }
-  #get_suffix = () => {
+  get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  this.suffix = "mln";
     this._data.forEach((item, i) => {
       item.value /= 1000000.0;
     });
   }
-  #split_value = (value) => {
+  split_value = (value) => {
     let new_value = [];
     let split_value = String(value).split(".")[0];
 		let rev_value = split_value.length % 3;
@@ -32,7 +32,7 @@ class CapTreeChart{
 		string = string.slice(0, -1);
     return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
   }
-  #load_data = () => {
+  load_data = () => {
     d3.json("php/" + this.data_file + "?index=" + this.index_name).then((d) => {
       this._data = d;
       this._data.forEach((item, i) => {
@@ -41,18 +41,14 @@ class CapTreeChart{
       this._data.sort((a,b) => (a.value < b.value) ? 1 : -1);
       this.current_data = d3.filter(this._data, d => d.value > 0);
       this.current_data = {"name": "chart", "children": this.current_data};
-      this.#get_suffix();
-      this.#init();
+      this.get_suffix();
+      this.init();
     });
   }
-  #init = () => {
+  init = () => {
     // Robi reset div'a wykresu, rysuje go od nowa
     d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-    d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
+      .html("");
     d3.select(this.container)
       .append("div")
         .classed("button-div", true);
@@ -64,15 +60,15 @@ class CapTreeChart{
                     .select(".svg-div")
                     .append("svg");
     }
-    this.#update();
-    this.#init_inputs();
+    this.update();
+    this.init_inputs();
     if(this._show_chart) {
-      this.#init_chart();
+      this.init_chart();
     } else {
-      this.#init_table();
+      this.init_table();
     }
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
     this.svg_height = this.height*0.8;
@@ -91,7 +87,7 @@ class CapTreeChart{
         .attr("width", this.width);
     }
   }
-  #init_inputs = () => {
+  init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -105,12 +101,12 @@ class CapTreeChart{
       .select(".tree-button-div")
       .append("button")
 				.attr("type", "button")
-				.on("click", () => {this._show_chart = !this._show_chart; this.#init();})
+				.on("click", () => {this._show_chart = !this._show_chart; this.init();})
 				.classed("chart-input", true)
         .append("img")
           .attr("src", "table_icon.png");
   }
-  #init_chart = () => {
+  init_chart = () => {
     this.svg.html("");
     if(this.current_data.children.length == 0) {
       this.svg.append("text")
@@ -228,21 +224,21 @@ class CapTreeChart{
                   .style("opacity", "1");
   			});
   }
-  #init_table = () => {
+  init_table = () => {
     d3.select(this.container).select(".svg-div")
       .append("div")
         .classed("earnings-table", true);
     let sum = d3.sum(this._data, d => d.value);
     let earnings_string = '<table>';
 		for(let i = 0; i < this._data.length; i++){
-			earnings_string += "<tr><td align='center'>" + this._data[i].name + "</td><td align='right'>" + this.#split_value(parseFloat(String(this._data[i].value)).toFixed(2)) + this.suffix + " " + "PLN" + "</td><td align='right'>" + parseFloat(this._data[i].value / sum*100).toFixed(2) + "%" + "</td></tr>";
+			earnings_string += "<tr><td align='center'>" + this._data[i].name + "</td><td align='right'>" + this.split_value(parseFloat(String(this._data[i].value)).toFixed(2)) + this.suffix + " " + "PLN" + "</td><td align='right'>" + parseFloat(this._data[i].value / sum*100).toFixed(2) + "%" + "</td></tr>";
 		}
-    earnings_string += "<tr><td align='center'>" + "Suma:" + "</td><td align='right'>" + this.#split_value(parseFloat(String(d3.sum(this._data, d => d.value))).toFixed(2)) + this.suffix + " " + "PLN" + "</td></tr>";
+    earnings_string += "<tr><td align='center'>" + "Suma:" + "</td><td align='right'>" + this.split_value(parseFloat(String(d3.sum(this._data, d => d.value))).toFixed(2)) + this.suffix + " " + "PLN" + "</td></tr>";
 		earnings_string += "</table>";
 		d3.select(this.container).select(".earnings-table").html(earnings_string);
   }
   refresh = () => {
-    this.#update();
-    this.#init_chart();
+    this.update();
+    this.init_chart();
   }
 }

@@ -7,9 +7,8 @@ class BasicInfo{
 		this.stock_name = stock_name;
 		this.language = language;
 		this.year = end_year.split("_")[0];
-		this.#load_data();
 	}
-	#get_suffix = () => {
+	get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let val = parseInt(this._data["capitalization"]);
 	  if(val >= 1000000000){
@@ -25,10 +24,10 @@ class BasicInfo{
 			this.suffix = "";
 		}
   }
-	#load_data = () => {
+	load_data = () => {
 		d3.json("php/getbasicinfo.php?" + "stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then( d => {
 			  this._data = d;
-				this.#get_suffix();
+				this.get_suffix();
         this._table = [
     			{"name":"Nazwa spółki", "data": this._data["name"], "suffix": ""},
     			{"name":"Data debiutu", "data": this._data["debut_date"], "suffix": ""},
@@ -39,19 +38,22 @@ class BasicInfo{
 					{"name":"Cena akcji", "data": parseFloat(this._data["price"]).toFixed(2), "suffix": "PLN"},
           {"name":"Kapitalizacja", "data": parseFloat(this._data["capitalization"]).toFixed(2), "suffix": this.suffix}
     		];
-        this.refresh();
+				this.init();
 		});
 	}
-	reset = () => {
+	init = () => {
 		d3.select(this.container)
-			.selectAll(".info-table")
-			.remove();
-		this.width = parseInt(this.container.clientWidth);
-		this.height = parseInt(this.container.clientHeight);
+			.html("");
 
 		d3.select(this.container)
 			.append("div")
 			.classed("info-table", true);
+		this.update();
+		this.draw_table();
+	}
+	update = () => {
+		this.width = parseInt(this.container.clientWidth);
+		this.height = parseInt(this.container.clientHeight);
 	}
   draw_table = () => {
     const rows = d3.select(this.container)
@@ -87,7 +89,5 @@ class BasicInfo{
     }
   }
 	refresh = () => {
-		this.reset();
-    this.draw_table();
   }
 }

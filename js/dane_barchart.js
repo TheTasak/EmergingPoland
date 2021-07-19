@@ -23,9 +23,8 @@ class Chart{
     this._date_end = this.end_year;
     this.currency = currency;
     this.language = language;
-    this.#load_data();
   }
-  #get_suffix = () => {
+  get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let max = d3.max(this._data, d => d.value);
 	  if(max >= 1000000){
@@ -40,7 +39,7 @@ class Chart{
 		  this.suffix = "tys";
 	  }
   }
-  #load_data = () => {
+  load_data = () => {
 	let input_value = d3.select(this.container).select(".chart-input");
   // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
 	if(input_value.size() > 0 && input_value.property("value") != "")
@@ -62,7 +61,7 @@ class Chart{
       temp.push(push_object_data);
     }
 		this._data = temp;
-		this.#get_suffix();
+		this.get_suffix();
 		temp = [];
 		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
       // A potem ich tłumaczenie na bazie języka
@@ -94,18 +93,18 @@ class Chart{
   					.append("svg")
   					.classed("chart",true);
   	}
-    this.#update();
+    this.update();
     if(this._show_chart) {
-      this.#init_inputs();
-      this.#init_chart();
-      this.#init_title();
+      this.init_inputs();
+      this.init_chart();
+      this.init_title();
     } else {
-      this.#init_table();
-      this.#init_inputs();
+      this.init_table();
+      this.init_inputs();
     }
     this.refresh();
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
     this.height = parseInt(this.container.clientHeight)*0.75;
 
@@ -116,7 +115,7 @@ class Chart{
               .attr("height", this.height)
     }
   }
-  #init_inputs = () => {
+  init_inputs = () => {
     //Pojemnik na inputy
     const fieldset = d3.select(this.container)
                       .append("fieldset")
@@ -125,7 +124,7 @@ class Chart{
     const field = fieldset.append("div")
 					.classed("chart-input-div", true)
 					.append("select")
-						.on("change", this.#load_data)
+						.on("change", this.load_data)
 						.classed("chart-input", true);
     //Załadowanie opcji do pola
   	for(let i = 0; i < this._columns.length; i++){
@@ -182,7 +181,7 @@ class Chart{
         }
       });
     }
-	  drag_slider.noUiSlider.on("change", this.#load_data);
+	  drag_slider.noUiSlider.on("change", this.load_data);
 
     //Przyciski do zmiany typu wykresu i zamiany na tabelę
 	  buttons.append("div")
@@ -196,12 +195,12 @@ class Chart{
 				   .append("button")
   				    .attr("type", "button")
               .attr("font-size", "16px")
-      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.#load_data();})
+      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.load_data();})
       				.classed("chart-input", true)
               .append("img")
                 .attr("src", "chart_type.png");
   }
-  #init_title = () => {
+  init_title = () => {
     //Wczytanie tłumaczenia tytułu wykresu
     let index = this._columns.findIndex( (data) => {
       return data.dane_ksiegowe == this._current_data_index;
@@ -214,12 +213,12 @@ class Chart{
          .text(this.chart_title)
          .classed("title", true);
   }
-  #update_title = () => {
+  update_title = () => {
     this.svg.select(".title")
             .attr("x", (this.width / 2))
             .attr("y", this.padding_vertical/2 + this.padding_vertical);
   }
-  #init_chart = () => {
+  init_chart = () => {
     // Ustawienie skali i domeny osi x
     const min = d3.min(this._data, d => d.value) < 0 ? d3.min(this._data, d => d.value) : 0;
     const max = d3.max(this._data, d => d.value) > 0 ? d3.max(this._data, d => d.value) : 1;
@@ -273,9 +272,11 @@ class Chart{
           .style("fill", "#993535")
           .attr('y', data => this.yScale(min))
           .on("mouseover", (ev) => {
+            console.log("mouseover bar < 0");
             ev.target.style.fill = "#997777";
           })
           .on("mouseleave", (ev) => {
+            console.log(ev);
             ev.target.style.fill = "#993535";
           });
      // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
@@ -337,7 +338,7 @@ class Chart{
     					.attr("display", "none");
     			});
   }
-  #update_chart = () => {
+  update_chart = () => {
     this.xScale.range([0, this.width-this.padding_horizontal]);
     this.g.select(".axis_bottom")
           .html("")
@@ -350,7 +351,7 @@ class Chart{
     this.bars.attr('width', this.xScale.bandwidth())
              .attr('x', data => this.xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3);
   }
-  #init_table = () => {
+  init_table = () => {
 	  let data_string = '<table class="data_table">';
 	  for(let i = this._data.length-1; i >= 0; i--){
       let percent = "";
@@ -366,19 +367,19 @@ class Chart{
   		.html(data_string)
   		.classed("table-div", true);
   }
-  #update_table = () => {
+  update_table = () => {
     d3.select(".table-div")
       .attr("width", this.width)
       .attr("height", this.height);
   }
   refresh = () => {
-    this.#update();
+    this.update();
     clearTimeout(this.resizeTimer);
   	if(this._show_chart){
-  		this.resizeTimer = setTimeout(this.#update_chart, 10);
-      this.#update_title();
+  		this.resizeTimer = setTimeout(this.update_chart, 10);
+      this.update_title();
   	} else {
-  		this.#update_table();
+  		this.update_table();
 	  }
   }
 }

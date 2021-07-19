@@ -16,35 +16,34 @@ class CircleChart{
     this.end_year = end_year.split("_")[0];
     this.currency = currency;
     this.language = language;
-    this.#load_data();
   }
-  #earlier_year = () => {
+  earlier_year = () => {
 		if(this.year <= this.start_year)
 			return;
 		this.year--;
-		this.#change_chart();
+		this.change_chart();
 	}
-	#later_year = () => {
+	later_year = () => {
 		if(this.year >= this.end_year)
 			return;
 		this.year++;
-		this.#change_chart();
+		this.change_chart();
 	}
-  #load_data = () => {
+  load_data = () => {
     d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language).then((d) => {
       this._data = d;
-      this.#change_chart();
+      this.change_chart();
     });
   }
-  #change_chart = () => {
+  change_chart = () => {
     this.array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
     if(this._show_bar_chart)
-      this.#change_barchart();
+      this.change_barchart();
     else
-      this.#change_circlechart();
-    this.#init();
+      this.change_circlechart();
+    this.init();
   }
-  #change_barchart = () => {
+  change_barchart = () => {
     this.indexes = [];
     for(let i = this.start_year; i <= this.end_year; i++) {
       this._data[i].forEach((item) => {
@@ -63,7 +62,7 @@ class CircleChart{
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
   }
-  #change_circlechart = () => {
+  change_circlechart = () => {
     this.indexes = [];
     this._data[this.year].forEach((item) => {
       this.indexes.push(item.translate);
@@ -75,7 +74,7 @@ class CircleChart{
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
 
-    let index = this.#search_index(this._data[this.year]);
+    let index = this.search_index(this._data[this.year]);
     if(index == -1)
       index = 0;
     this.current_chart_index = this.indexes[index];
@@ -91,7 +90,7 @@ class CircleChart{
     this.current_data.children = this.current_data.children.filter( (d) => { return !isNaN(d[this.current_chart_interval]);});
     this.current_data.children.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
   }
-  #init = () => {
+  init = () => {
     d3.select(this.container)
       .selectAll(".button-div")
       .remove();
@@ -109,21 +108,21 @@ class CircleChart{
                     .select(".svg-div")
                     .append("svg");
     }
-    this.#update();
-    this.#init_inputs();
+    this.update();
+    this.init_inputs();
     if(!this._show_table) {
       if(this._show_bar_chart) {
-        this.#init_barchart();
-        this.#update_barchart();
+        this.init_barchart();
+        this.update_barchart();
       } else {
-        this.#init_circlechart();
-        this.#update_circlechart();
+        this.init_circlechart();
+        this.update_circlechart();
       }
     } else {
-      this.#init_table();
+      this.init_table();
     }
   }
-  #update = () => {
+  update = () => {
     this.width = parseInt(this.container.clientWidth);
 		this.height = parseInt(this.container.clientHeight);
     this.svg_height = this.height*0.75;
@@ -140,7 +139,7 @@ class CircleChart{
         .attr("width", this.width);
     }
   }
-  #init_inputs = () => {
+  init_inputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -155,28 +154,28 @@ class CircleChart{
 			.append("button")
 			.attr("type", "button")
 			.text("🠔")
-			.on("click", this.#earlier_year)
+			.on("click", this.earlier_year)
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("span")
 			.style("padding", "0 10px")
 			.text(this.year)
-      .on("click", () => {this._show_table = !this._show_table; this.#init();})
+      .on("click", () => {this._show_table = !this._show_table; this.init();})
 			.classed("treechart-button", true);
 		d3.select(this.container)
 			.select(".tree-button-div")
 			.append("button")
 			.attr("type", "button")
 			.text("🠖")
-			.on("click", this.#later_year)
+			.on("click", this.later_year)
 			.classed("treechart-button", true);
     d3.select(this.container)
       .select(".tree-button-div")
       .append("button")
   	    .attr("type", "button")
         .attr("font-size", "16px")
-  			.on("click", () => {this._show_bar_chart = !this._show_bar_chart; this.#change_chart();})
+  			.on("click", () => {this._show_bar_chart = !this._show_bar_chart; this.change_chart();})
   			.classed("chart-input", true)
         .append("img")
           .attr("src", "chart_type.png");
@@ -185,7 +184,7 @@ class CircleChart{
                     .append("div")
 					             .classed("chart-input-div", true)
 					             .append("select")
-				                 .on("change", this.#load_data)
+				                 .on("change", this.load_data)
 				                 .classed("chart-input", true);
     //Załadowanie opcji do pola
   	for(let i = 0; i < this.indexes.length; i++){
@@ -201,7 +200,7 @@ class CircleChart{
     const field_interval = d3.select(this.container)
                              .select(".chart-input-div")
 				                        .append("select")
-          				                .on("change", this.#load_data)
+          				                .on("change", this.load_data)
           				                .classed("chart-input", true);
     //Załadowanie opcji do pola
     for(let i = 0; i < this.array_interval.length; i++){
@@ -214,7 +213,7 @@ class CircleChart{
   		select_list_interval.value = this.current_chart_interval;
   	}
   }
-  #init_circlechart = () => {
+  init_circlechart = () => {
     const scale = d3.scaleLinear()
                     .domain([d3.min(this.current_data.children, d => d[this.current_chart_interval]),d3.max(this.current_data.children, d => d[this.current_chart_interval])])
                     .range([20, 120]);
@@ -323,21 +322,21 @@ class CircleChart{
   					.attr("display", "none");
   			});
   }
-  #update_circlechart = () => {
+  update_circlechart = () => {
     this.simulation.force("center", d3.forceCenter().strength(1).x(this.width / 2).y(this.svg_height / 2))
                    .alpha(0.3)
                    .restart();
     this.node.attr("cx", this.width / 2)
              .attr("cy", this.svg_height / 2);
   }
-  #search_index = (array) => {
+  search_index = (array) => {
     for(let i = 0; i < array.length; i++) {
       if(array[i].translate == this.current_chart_index)
         return i;
     }
     return -1;
   }
-  #init_barchart = () => {
+  init_barchart = () => {
     this.empty_data = false;
     this.heightpadding = this.svg_height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
@@ -345,7 +344,7 @@ class CircleChart{
     let name_array = [];
     for(let i = this.start_year; i <= this.end_year; i++) {
       if(this._data[i].length > 0) {
-        let index = this.#search_index(this._data[i]);
+        let index = this.search_index(this._data[i]);
         if(index == -1)
           continue;
         let temp_data = this._data[i][index].children;
@@ -473,7 +472,7 @@ class CircleChart{
          .on("click", (ev, d) => {
            this._show_bar_chart = false;
            this.year = d.year;
-           this.#change_chart();
+           this.change_chart();
          });
     const tooltip = this.svg.append("rect")
   						.attr("width", "0px")
@@ -497,6 +496,12 @@ class CircleChart{
                   .style("opacity", "0");
           let className = ev.target.classList[0];
           this.svg.selectAll("." + className)
+                  .filter(".bar")
+                  .style("fill", "#f03030")
+                  .style("opacity", "1");
+          this.svg.selectAll("." + className)
+                  .filter(".bar_text")
+                  .style("fill", "black")
                   .style("opacity", "1");
         })
   			.on("mousemove", (ev, d) => {
@@ -516,8 +521,9 @@ class CircleChart{
     				.attr("display", "inherit")
     				.text(d.translate + " " + parseFloat(d[this.current_chart_interval]));
   			})
-  			.on("mouseout", (ev) => {
+  			.on("mouseout", (ev, d) => {
           this.svg.selectAll(".bar")
+                  .style("fill", data => colorScale(data.id))
                   .style("opacity", "1");
           this.svg.selectAll(".bar_text")
                   .style("opacity", "0");
@@ -528,7 +534,7 @@ class CircleChart{
   					.attr("display", "none");
   			});
   }
-  #update_barchart = () => {
+  update_barchart = () => {
     if(this.empty_data) {
       this.svg.select("text")
               .attr("x", this.width/2)
@@ -556,8 +562,8 @@ class CircleChart{
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
               });
   }
-  #init_table = () => {
-    this.#change_circlechart();
+  init_table = () => {
+    this.change_circlechart();
     let data_string = '<table class="earnings-table">';
     let data_children = this.current_data.children;
     for(let i = 0; i < data_children.length; i++){
@@ -567,12 +573,12 @@ class CircleChart{
     d3.select(this.container).select(".svg-div").html(data_string);
   }
   refresh = () => {
-    this.#update();
+    this.update();
     if(!this._show_table) {
       if(this._show_bar_chart) {
-        this.#update_barchart();
+        this.update_barchart();
       } else {
-        this.#update_circlechart();
+        this.update_circlechart();
       }
     }
   }
