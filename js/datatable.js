@@ -4,6 +4,7 @@ class DataTable{
     this.stock_name = stock_name;
     this.start_year = start_year;
     this.end_year = end_year.split("_")[0];
+    this.end_quarter = end_year.split("_")[1];
 
     this._table_end = parseInt(this.end_year);
     this._table_start = (this.start_year > this.end_year - 4 ? this.start_year : this.end_year - 4);
@@ -180,17 +181,23 @@ class DataTable{
           .html("Brak danych");
       }
       let percent = rows.append("td")
-            .style("text-align", "right")
-            .filter(d => d[this._table_end-1] != this._table_end-1)
+            .style("text-align", "right");
+      percent.filter(d => d[this._table_end-1] != this._table_end-1)
             .html(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) + " %");
-      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) > 0)
+      percent.filter(d => d[this._table_end-1] == this._table_end-1)
+            .style("font-weight", "bold")
+            .html(String(this._table_end-1) + "/" + (String(this._table_end-2)));
+
+      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) > 0 && d[this._table_end-1] != this._table_end-1)
             .style("color", "green");
-      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) < 0)
+      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) < 0 && d[this._table_end-1] != this._table_end-1)
             .style("color", "red");
     } else {
       for(let i = 0; i < 2; i++) {
         for(let j = 0; j < 4; j++) {
           let quarter = this._table_end-1+i + "_" + (j+1);
+          if(this._table_end-1+i > this.end_year || (this._table_end-1+i == this.end_year && j+1 > this.end_quarter))
+            continue;
           rows.filter(d => d[quarter] == quarter && d[quarter] != undefined)
             .append("td")
               .style("text-align", "center")

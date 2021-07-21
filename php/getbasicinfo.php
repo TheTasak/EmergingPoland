@@ -19,7 +19,8 @@
     $data->{"ticket"} = $stock["ticket"];
     $data->{"index"} = $stock["indeks"];
     $data->{"ISIN"} = $stock["ISIN"];
-    $data->{"debut_date"} = $stock["data_debiutu"];
+    $data->{"debut_date"} = new DateTime($stock["data_debiutu"]);
+    $data->{"debut_date"} = $data->{"debut_date"}->format('d/m/Y');
 
     $myquery = "SELECT * FROM `branże` WHERE baza='{$stock["branza"]}';";
     $translate = sql_getdatarecord($sqli, $myquery);
@@ -27,7 +28,6 @@
       $data->{"industry"} = $translate[$lang];
     else
       $data->{"industry"} = $stock["branza"];
-
   	$stock_value = $stock["idspolki"];
     $stocks_count = null;
     $stocks_price = null;
@@ -39,8 +39,10 @@
     }
     $myquery = "SELECT * FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
     $stocks_price = sql_getdatarecord($sqli, $myquery);
-    $data->{"price"} = $stocks_price["cena"];
-    $data->{"capitalization"} = $stocks_count[$year_akcje+1 . "_akcje"] * $stocks_price["cena"];
+    if(null !== $stocks_price) {
+      $data->{"price"} = $stocks_price["cena"];
+      $data->{"capitalization"} = $stocks_count[$year_akcje+1 . "_akcje"] * $stocks_price["cena"];
+    }
     echo json_encode($data);
     mysqli_close($sqli);
 ?>

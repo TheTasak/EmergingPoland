@@ -40,6 +40,7 @@ class WorldMap{
 	  }
   }
 	load_data = () => {
+		console.log("php/"+ this.map +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language);
 		d3.json("php/"+ this.map +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
 			this._country_arr = d;

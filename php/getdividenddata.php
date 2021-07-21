@@ -30,7 +30,9 @@
       $year = $object->{"year"};
       $myquery = "SELECT * FROM `{$year}_akcje` WHERE spolka='{$stock_value}' AND osoba='lacznie';";
       $stocks_count = sql_getdatarecord($sqli, $myquery);
-      $object->{"stocks"} = $stocks_count[$year . "_akcje"];
+      if(null !== $stocks_count) {
+        $object->{"stocks"} = $stocks_count[$year . "_akcje"];
+      }
       $myquery = "SELECT * FROM `{$year}_dane` WHERE idspolki='{$stock_value}' AND dane_ksiegowe='zysk_netto';";
       $stocks_count = sql_getdatarecord($sqli, $myquery);
       $object->{"earnings"} = $stocks_count[$year]*1000;
