@@ -1,14 +1,29 @@
-
 html{
   height: 100%;
 }
 body{
+  background-color: #f9fefe;
   min-height: 100%;
   position: relative;
   margin: 0;
   padding: 0;
-  font-family: Arial;
+  font-family: Helvetica, sans-serif;
   font-size: 16px;
+}
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+#bodynolimit{
+  min-height: 1%;
 }
 .sidenav{
   height: 100vh;
@@ -17,7 +32,7 @@ body{
   z-index: 2;
   top: 0;
   left: 0;
-  background-color: rgba(0,0,0,0.9);
+  background-color: rgba(4,23,2,0.9);
   overflow-x: hidden;
   transition: 0.5s;
   display: flex;
@@ -64,7 +79,7 @@ button{
   outline: none;
   cursor: pointer;
   text-align: center;
-  font-family: sans-serif;
+  font-family: Helvetica, sans-serif;
   text-decoration: none;
   font-size: 40px;
 }
@@ -86,7 +101,7 @@ button{
   outline: none;
   cursor: pointer;
   text-align: center;
-  font-family: sans-serif;
+  font-family: Helvetica, sans-serif;
   text-decoration: none;
   font-size: 40px;
   margin-left: 10px;
@@ -97,7 +112,7 @@ button{
 }
 header{
   width: 100%;
-  background-color: red;
+  background-image: linear-gradient(90deg, rgb(66, 133, 244), rgb(52, 168, 83));
   color: white;
   padding: 5px 0px;
   border-bottom: 1px solid black;
@@ -107,23 +122,34 @@ header{
 }
 nav{
   margin: 0 auto;
-  width: 50%;
-  margin-top: 5px;
+  width: 60%;
   float: left;
+  display: flex;
+  height: 100%;
+  flex-wrap: nowrap;
+  align-content: center;
+  color: white;
+}
+.navbtn{
+  font-size: min(4vw,32px);
+  font-family: Georgia,serif;
+  color: white;
 }
 header #jezyki{
-  margin-top: 10px;
-  overflow: hidden;
-  right: 0;
-  text-align: right;
-  padding-right: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2%;
+  margin-right: 20px;
+  margin-top: 5px;
 }
 header #jezyki img{
-  height: 30px;
-  width: 50px;
+  width: min(10vw, 60px);
 }
 main{
-  background-color: white;
+  background-color: inherit;
   color: black;
   padding: 0px 10px;
   margin-top: 100px;
@@ -202,12 +228,12 @@ main h1{
   }
 }
 .axis_left{
-  font-family: sans-serif;
+  font-family: Helvetica, sans-serif;
   font-size: 14px;
 }
 .axis_bottom{
   font-size: min(2vw, 14px);
-  font-family: sans-serif;
+  font-family: Helvetica, sans-serif;
 }
 .bar{
   transition: fill 0.5s ease-out;
@@ -484,7 +510,8 @@ footer{
   position: absolute;
   bottom: 0;
   padding: 5px 0 5px 0;
-  background-color: red;
+  color: white;
+  background-color: #379683;
   width: 100%;
   text-align: center;
 }
@@ -506,4 +533,19 @@ footer{
 }
 .stockbtn:hover{
   background-color: #f0f0f0;
+}
+#titleimg{
+  background-image: url("../img/homepageimg.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: white;
+  overflow: hidden;
+  text-align: center;
+  height: calc(100vh - 120px);
+  font-size: min(2vw, 36px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }

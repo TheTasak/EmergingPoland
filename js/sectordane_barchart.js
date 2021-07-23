@@ -180,7 +180,7 @@ class SectorChart{
   			.on("click", () => {this._show_bar_chart = !this._show_bar_chart; this.change_chart();})
   			.classed("chart-input", true)
         .append("img")
-          .attr("src", "chart_type.png");
+          .attr("src", "img/chart_type.png");
     const field_type = d3.select(this.container)
                     .select(".tree-button-div")
                     .append("div")

@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title><?php echo $_GET['stock'] ?> - EmergingPoland</title>
     <script src="libs/wNumb.js" defer></script>
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>
@@ -27,25 +28,10 @@
     <script src="js/script.js?v=1" defer></script>
   </head>
   <body id="body">
-    <div id="sidenav" class="sidenav">
-      <button class="closebtn" type="button" onclick="closeNav()">&times;</button>
-      <div id="links-main">
-        </div>
-      <div id="links-secondary">
-        </div>
-    </div>
-    <header>
-      <nav>
-        <button class="openbtn" href="#" onclick="openNav()">&#8801;</button>
-      </nav>
-      <div id="jezyki">język
-        <a id="lang-pl"><img src="https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg"></a>
-        <a id="lang-en"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flag_of_Great_Britain_%281707%E2%80%931800%29.svg/255px-Flag_of_Great_Britain_%281707%E2%80%931800%29.svg.png"></a>
-      </div>
-    </header>
+    <?php include "./header.html" ?>
     <main>
       <h1 id="name"><?php echo $_GET['stock'] ?> </h1>
-      <input type="hidden" id="language" value='<?php echo $_GET['lang'] ?>'>
+      <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
               <p id="description"></p>
@@ -79,8 +65,6 @@
       </div>
     </br>
     </main>
-    <footer>
-      Copyright strona
-    </footer>
+    <?php include "./footer.html" ?>
   </body>
 </html>

@@ -190,7 +190,7 @@ class Chart{
       				.on("click", () => {this._show_chart = !this._show_chart; this.init();})
       				.classed("chart-input", true)
               .append("img")
-                .attr("src", "table_icon.png");
+                .attr("src", "img/table_icon.png");
     buttons.append("div")
 				   .append("button")
   				    .attr("type", "button")
@@ -198,7 +198,7 @@ class Chart{
       				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.load_data();})
       				.classed("chart-input", true)
               .append("img")
-                .attr("src", "chart_type.png");
+                .attr("src", "img/chart_type.png");
   }
   init_title = () => {
     //Wczytanie tłumaczenia tytułu wykresu

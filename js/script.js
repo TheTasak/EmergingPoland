@@ -6,7 +6,7 @@ function load_page(){
   const stock_name = document.getElementById("name");
   const index_name = document.getElementById("indeks");
   language = document.getElementById("language").value;
-  if(language == undefined)
+  if(language == undefined || language == "")
     language = "pl";
 
   if(stock_name != undefined) {
@@ -23,8 +23,8 @@ function load_page(){
 
       let container_table = [container1, container2, container3, container4, container5, container6, container7, container8];
       page_object = new Stock(name, container_table, language);
-      document.getElementById("lang-pl").href = "index.php?stock=" + name.trim() + "&lang=pl";
-      document.getElementById("lang-en").href = "index.php?stock=" + name.trim() + "&lang=en";
+      document.getElementById("lang-pl").href = "stockpage.php?stock=" + name.trim() + "&lang=pl";
+      document.getElementById("lang-en").href = "stockpage.php?stock=" + name.trim() + "&lang=en";
     }
   } else if(index_name != undefined) {
     let name = index_name.innerHTML;
@@ -54,15 +54,16 @@ function getStocks(){
   });
 }
 function draw() {
-  page_object.refresh();
+  if(page_object != undefined)
+    page_object.refresh();
 }
 function openNav() {
   document.getElementById("sidenav").style.width = "100%";
-  document.getElementById("body").style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 function closeNav() {
   document.getElementById("sidenav").style.width = "0px";
-  document.getElementById("body").style.overflow = "auto";
+  document.body.style.overflow = "auto";
 
   let linksmain = document.getElementById("links-main");
   let linkssecond = document.getElementById("links-secondary");
@@ -78,7 +79,7 @@ function navCategoryClick(object) {
   let obj = d3.filter(menu_stock_data, d => d.index == object.text)[0];
   string += '<a href="indekspage.php?indeks=' + obj.index + "&lang=" + language +'">' + obj.index + '</a>';
   obj.stocks.forEach((item, i) => {
-    string += '<a href="index.php?stock=' + item.spolki + "&lang=" + language +'">' + item.spolki + '</a>';
+    string += '<a href="stockpage.php?stock=' + item.spolki + "&lang=" + language +'">' + item.spolki + '</a>';
   });
   linkssecond.innerHTML = string;
 

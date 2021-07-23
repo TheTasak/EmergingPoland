@@ -16,8 +16,12 @@ class DataTable{
   }
   split_value = (value) => {
     let new_value = [];
-    let rev_value = value.length % 3;
     let string = "";
+    if(value.substr(0,1) == "-") {
+      string += "-";
+      value = value.substr(1,value.length-1);
+    }
+    let rev_value = value.length % 3;
     if(rev_value != 0) {
       new_value.push(value.substr(0, rev_value));
     }

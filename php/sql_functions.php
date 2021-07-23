@@ -1,10 +1,10 @@
 <?php
   function sql_open()
   {
+    $host = "localhost";
     $username = "homeuser";
     $password = "Admin123";
-    $host = "localhost";
-    $database="stronka";
+    $database = "stronka";
     $mysqli = new mysqli($host, $username, $password, $database);
 
     if (mysqli_connect_errno()) {

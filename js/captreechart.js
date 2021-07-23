@@ -104,7 +104,7 @@ class CapTreeChart{
 				.on("click", () => {this._show_chart = !this._show_chart; this.init();})
 				.classed("chart-input", true)
         .append("img")
-          .attr("src", "table_icon.png");
+          .attr("src", "img/table_icon.png");
   }
   init_chart = () => {
     this.svg.html("");
