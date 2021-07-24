@@ -16,6 +16,7 @@
 </head>
 <body>
     <?php include "./header.html" ?>
+    <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
     <div class="form">
         <h2>Logowanie</h2>
         <p>Wypełnij formularz aby się zalogować.</p>

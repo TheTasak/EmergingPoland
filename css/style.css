@@ -445,14 +445,18 @@ fieldset{
   color: #c5c5c5;
 	cursor: pointer;
 }
-.indicator-button{
-  color: black;
-	transition: 0.5s;
-  font-size: min(5vw, 32px);
+.indicatorbtn{
+  font-size: 14px;
+  background-color: #fefefe;
+  outline: black;
+  border: 1px solid black;
+  padding: 2px 12px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  user-select: none;
 }
-.indicator-button:hover{
-  color: #c5c5c5;
-	cursor: pointer;
+.indicatorbtn:hover{
+  background-color: #f0f0f0;
 }
 .indicator-table-nosliders{
 	display: flex;

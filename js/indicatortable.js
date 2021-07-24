@@ -1,7 +1,6 @@
 class Indicators{
 	stock_name = "";
 	_table = "";
-	show_table = false;
 	constructor(container, stock_name, start_year, end_report, language){
 		this.container = container;
 		this.stock_name = stock_name;
@@ -10,22 +9,32 @@ class Indicators{
 		this.end_quarter = end_report.split("_")[1];
 		this.language = language;
 		this._table = [
-			{"name":"Zysk na akcję", "function": this.earnings_per_share, "suffix": "PLN"},
-			{"name":"Cena/Zysk", "function": this.price_earnings, "suffix": ""},
-			{"name":"Cena/Wartość księgowa", "function": this.price_book_value, "suffix": ""},
-			{"name":"Cena/Wartość księgowa Grahama", "function": this.price_graham_book_value, "suffix": ""},
-			{"name":"Cena/Przychody", "function": this.price_revenue, "suffix": ""},
-			{"name":"Cena/Zysk operacyjny", "function": this.price_operating_profit, "suffix": ""},
-			{"name":"ROE", "function": this.roe, "suffix": "%"},
-			{"name":"ROA", "function": this.roa, "suffix": "%"},
-			{"name":"Jakość zysku", "function": this.earnings_quality, "suffix": ""},
-			{"name":"Marża operacyjna", "function": this.operating_margin, "suffix": "%"},
-			{"name":"Marża zysku brutto ze sprzedaży", "function": this.gross_margin_ratio, "suffix": "%"},
-			{"name":"Produktywność aktywów", "function": this.asset_turnover_ratio, "suffix": "%"},
-			{"name":"Płynność bieżąca", "function": this.current_ratio, "suffix": ""},
-			{"name":"Zadłużenie ogólne", "function": this.debt_ratio, "suffix": ""},
-			{"name":"Zadłużenie długoterminowe", "function": this.longtermdebt_ratio, "suffix": ""},
-			{"name":"Piotrkowski F-Score", "function": this.piotrkowski_fscore, "suffix": ""}
+			{"name": "Wartość rynkowa", "table": [
+				{"name":"Zysk na akcję", "function": this.earnings_per_share, "suffix": "PLN"},
+				{"name":"Cena/Zysk", "function": this.price_earnings, "suffix": ""},
+				{"name":"Cena/Wartość księgowa", "function": this.price_book_value, "suffix": ""},
+				{"name":"Cena/Wartość księgowa Grahama", "function": this.price_graham_book_value, "suffix": ""},
+				{"name":"Cena/Przychody", "function": this.price_revenue, "suffix": ""},
+				{"name":"Cena/Zysk operacyjny", "function": this.price_operating_profit, "suffix": ""}
+			]},
+			{"name": "Rentowność", "table": [
+				{"name":"ROE", "function": this.roe, "suffix": "%"},
+				{"name":"ROA", "function": this.roa, "suffix": "%"},
+				{"name":"Marża operacyjna", "function": this.operating_margin, "suffix": "%"},
+				{"name":"Marża zysku brutto ze sprzedaży", "function": this.gross_margin_ratio, "suffix": "%"},
+				{"name":"Produktywność aktywów", "function": this.asset_turnover_ratio, "suffix": "%"}
+			]},
+			{"name": "Zadłużenie", "table": [
+				{"name":"Zadłużenie ogólne", "function": this.debt_ratio, "suffix": ""},
+				{"name":"Zadłużenie długoterminowe", "function": this.longtermdebt_ratio, "suffix": ""},
+				{"name":"Jakość zysku", "function": this.earnings_quality, "suffix": ""}
+			]},
+			{"name": "Płynność", "table": [
+				{"name":"Płynność bieżąca", "function": this.current_ratio, "suffix": ""}
+			]},
+			{"name": "Rating", "table": [
+				{"name":"Piotrkowski F-Score", "function": this.piotrkowski_fscore, "suffix": ""}
+			]}
 		];
 	}
 	sum_data = (year, data) => {
@@ -226,11 +235,7 @@ class Indicators{
 
 		this.update();
 		this.init_inputs();
-		if(this.show_table) {
-			this.init_table();
-		} else {
-    	this.init_table();
-		}
+		this.init_table();
 	}
 	update = () => {
 		this.width = parseInt(this.container.clientWidth);
@@ -248,13 +253,17 @@ class Indicators{
 			.attr("height", this.button_height);
 	}
   init_inputs = () => {
-		d3.select(this.container)
-			.select(".button-div")
-			.append("span")
-			.style("padding", "0 10px")
-			.text(this.end_year + " " + this.end_quarter)
-			.on("click", () => {this.show_table = !this.show_table; this.init();})
-			.classed("indicator-button", true);
+		for(let i = 0; i < this._table.length; i++) {
+			d3.select(this.container)
+				.select(".button-div")
+				.append("button")
+					.classed("indicatorbtn", true)
+					.html(this._table[i].name)
+					.on("click", (ev) => {
+						this.activebtn = ev.target.innerHTML;
+						this.init();
+					});
+		}
   }
 	init_table = () => {
 		const table = d3.select(this.container)
@@ -273,9 +282,18 @@ class Indicators{
 		first_row.append("td")
 							.style("text-align", "center")
 							.html("Slider");
-
+		let data_index = 0;
+		if(this.activebtn != undefined) {
+			for(let i = 0; i < this._table.length; i++) {
+				if(this._table[i].name == this.activebtn) {
+					data_index = i;
+					break;
+				}
+			}
+		}
+		const data_table = this._table[data_index].table;
 		const rows = table.selectAll(".table-row")
-										 .data(this._table)
+										 .data(data_table)
 										 .enter()
 										 .append("tr")
 										 	.classed("table-row", true);
@@ -290,12 +308,12 @@ class Indicators{
 															.classed("row-slider-div", true);
 		let slider_el = slider_divs.nodes();
 		slider_el.forEach((item, i) => {
-			let max = parseFloat(this.historical_max(this._table[i]["function"]));
-			let min = parseFloat(this.historical_min(this._table[i]["function"]));
-			let median = parseFloat(this.historical_median(this._table[i]["function"]));
+			let max = parseFloat(this.historical_max(data_table[i]["function"]));
+			let min = parseFloat(this.historical_min(data_table[i]["function"]));
+			let median = parseFloat(this.historical_median(data_table[i]["function"]));
 			if(min != max && !isNaN(max) && !isNaN(min) && !isNaN(median)) {
 				noUiSlider.create(item, {
-		      start: [median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))],
+		      start: [median, parseFloat(data_table[i]["function"](this.end_year + "_" + this.end_quarter))],
 		      behaviour: 'unconstrained-tap',
 					tooltips: [false, true],
 					connect: [false, true, false],
@@ -305,7 +323,7 @@ class Indicators{
 		          density: 10,
 							format: wNumb({
 		            decimals: 2,
-								suffix: this._table[i]["suffix"]
+								suffix: data_table[i]["suffix"]
 	        		}),
 							stepped: true
 		      },
@@ -319,7 +337,7 @@ class Indicators{
 				d3.select(handles[0])
 					.classed("handle-invisible", true);
 				item.noUiSlider.on("change", () => {
-					item.noUiSlider.set([median, parseFloat(this._table[i]["function"](this.end_year + "_" + this.end_quarter))]);
+					item.noUiSlider.set([median, parseFloat(data_table[i]["function"](this.end_year + "_" + this.end_quarter))]);
 				});
 			}
 		});

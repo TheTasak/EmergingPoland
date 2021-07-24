@@ -21,7 +21,7 @@
 
   $data = new stdClass();
   for($year = $start_year; $year <= $end_year; $year++) {
-    $myquery = "SELECT DISTINCT sektor  FROM `{$year}_podzial_sektorow` WHERE idspolki='{$stock_value}';";
+    $myquery = "SELECT DISTINCT sektor  FROM `{$year}_podzial_segmentow` WHERE idspolki='{$stock_value}';";
     $tables = sql_getdataarray($sqli, $myquery);
     $data_year = array();
     for($i = 0; $i < count($tables); $i++) {
@@ -36,7 +36,7 @@
       } else {
         $tabela_object->{"translate"} = $tables[$i]["sektor"];
       }
-      $myquery = "SELECT * FROM `{$year}_podzial_sektorow` WHERE idspolki='{$stock_value}' AND sektor='{$tables[$i]["sektor"]}';";
+      $myquery = "SELECT * FROM `{$year}_podzial_segmentow` WHERE idspolki='{$stock_value}' AND sektor='{$tables[$i]["sektor"]}';";
       $podzial = sql_getdataarray($sqli, $myquery);
       for($j = 0; $j < count($podzial); $j++) {
         $podzial_object = new stdClass();
