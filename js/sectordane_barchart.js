@@ -44,6 +44,7 @@ class SectorChart{
       this.change_barchart();
     else
       this.change_lolipopchart();
+    this.init();
   }
   change_barchart = () => {
     this.indexes = [];

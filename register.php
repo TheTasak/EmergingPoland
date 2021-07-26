@@ -12,11 +12,11 @@ $username_err = $email_err = $password_err = $confirm_password_err = "";
     <link rel="stylesheet" href="css/forms.css?v=1">
 
     <script src="https://d3js.org/d3.v6.js" defer></script>
-    <script src="js/script.js?v=1" defer></script>
+    <script src="js/navbar.js?v=1" defer></script>
 </head>
 <body>
     <?php include "./header.html" ?>
-    <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
+    <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
     <div class="form">
         <h2>Rejestracja</h2>
         <p>Wypełnij formularz, aby utworzyć konto.</p>

@@ -44,7 +44,7 @@ class WorldMap{
 			// Wczytanie danych przychodów w krajach w danym roku
 			this._country_arr = d;
 			// Jeżeli brak danych, to spróbuj w poprzednim roku rekurencyjnie
-			if(this._country_arr.length <= 0){
+			if(this._country_arr.length <= 0 && this.year > this.start_year){
 				this.year--;
 				this.load_data();
 				return;

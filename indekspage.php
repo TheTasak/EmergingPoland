@@ -14,13 +14,14 @@
     <script src="js/captreechart.js" defer></script>
     <script src="js/indexmap.js" defer></script>
     <script src="js/indeks.js" defer></script>
+    <script src="js/navbar.js" defer></script>
     <script src="js/script.js" defer></script>
   </head>
   <body id="body">
     <?php include "./header.html" ?>
     <main>
       <h1 id="indeks"><?php echo $_GET['indeks'] ?> </h1>
-      <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
+      <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
               <p id="description"></p>

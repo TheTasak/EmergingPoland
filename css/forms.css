@@ -14,6 +14,9 @@ body{
   text-decoration: none;
   transition: 0.2s;
 }
+.form a:visited{
+  color: blue;
+}
 .form a:hover{
   color: red;
 }

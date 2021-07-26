@@ -12,11 +12,11 @@
     <link rel="stylesheet" href="css/forms.css?v=1">
 
     <script src="https://d3js.org/d3.v6.js" defer></script>
-    <script src="js/script.js?v=1" defer></script>
+    <script src="js/navbar.js?v=1" defer></script>
 </head>
 <body>
     <?php include "./header.html" ?>
-    <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
+    <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
     <div class="form">
         <h2>Logowanie</h2>
         <p>Wypełnij formularz aby się zalogować.</p>
@@ -57,8 +57,7 @@ if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
 }
 
 // Include config file
-require_once "php/configlogin.php";
-
+require_once("php/configlogin.php");
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
@@ -79,24 +78,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Validate credentials
     if(empty($username_err) && empty($password_err)){
         // Prepare a select statement
-        $sql = "SELECT id, username, password FROM users WHERE username = ?";
-
+        $sql = "SELECT id, username, password, role FROM users WHERE username = ?";
         if($stmt = mysqli_prepare($link, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
-
-            // Set parameters
             $param_username = $username;
 
-            // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                // Store result
                 mysqli_stmt_store_result($stmt);
 
                 // Check if username exists, if yes then verify password
                 if(mysqli_stmt_num_rows($stmt) == 1){
                     // Bind result variables
-                    mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password);
+                    mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $role);
                     if(mysqli_stmt_fetch($stmt)){
                         if(password_verify($password, $hashed_password)){
                             // Password is correct, so start a new session
@@ -106,6 +100,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             $_SESSION["loggedin"] = true;
                             $_SESSION["id"] = $id;
                             $_SESSION["username"] = $username;
+                            $_SESSION["role"] = $role;
 
                             // Redirect user to welcome page
                             header("location: welcome.php");

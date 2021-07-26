@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title><?php echo $_GET['stock'] ?> - EmergingPoland</title>
+    <title><?php echo $_GET['stock'] ?> | EmergingPoland</title>
     <script src="libs/wNumb.js" defer></script>
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>
@@ -13,6 +13,7 @@
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
 
     <script src="js/datatable.js?v=1" defer></script>
+    <script src="js/innebarchart.js?v=1" defer></script>
     <script src="js/dane_barchart.js?v=1" defer></script>
     <script src="js/dividendtable.js?v=1" defer></script>
     <script src="js/dividendchart.js?v=1" defer></script>
@@ -25,13 +26,14 @@
     <script src="js/indicatortable.js?v=1" defer></script>
     <script src="js/basicinfotable.js?v=1" defer></script>
     <script src="js/stock.js?v=1" defer></script>
+    <script src="js/navbar.js?v=1" defer></script>
     <script src="js/script.js?v=1" defer></script>
   </head>
   <body id="body">
     <?php include "./header.html" ?>
     <main>
       <h1 id="name"><?php echo $_GET['stock'] ?> </h1>
-      <input type="hidden" id="language" value='<?php if(isset($_GET['lang'])) echo $_GET['lang'] ?>'>
+      <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
       <div id="opis" class="text-div">
           <div class="text-div-content">
               <p id="description"></p>

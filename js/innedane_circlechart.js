@@ -420,6 +420,7 @@ class CircleChart{
       keys[i].children.sort((a,b) => {
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
       });
+
       for(let index = 0; index < keys[i].children.length; index++) {
           if(keys[i].children[index][this.current_chart_interval] != null) {
             accumulated_height += this.yScale(0) - this.yScale(keys[i].children[index][this.current_chart_interval]);
