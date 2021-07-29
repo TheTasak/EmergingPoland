@@ -6,6 +6,7 @@
     $password = "Admin123";
     $database = "stronka";
     $mysqli = new mysqli($host, $username, $password, $database);
+    $mysqli->set_charset('utf8mb4');
 
     if (mysqli_connect_errno()) {
       printf("Connect failed: %s\n", mysqli_connect_error());

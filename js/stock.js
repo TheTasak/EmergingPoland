@@ -89,7 +89,7 @@ class Stock{
                           .append("div")
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new InneChart(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+        this.modules.push(new InneChart(con1_node, this.stock_name, this.start_year, this.end_report, this.language));
       }
       if(d.inne_dane != null) {
         let container1 = d3.select(this.containers[7])

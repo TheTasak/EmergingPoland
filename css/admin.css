@@ -6,3 +6,20 @@ main{
   overflow-y: auto;
   padding-bottom: 50px;
 }
+.data-table{
+  width: 100%;
+}
+.data-table td{
+  font-size: min(2vw, 16px);
+}
+.data-table input[type="text"]{
+  width: 95%;
+  font-size: min(2vw, 16px);
+}
+#panel button{
+  border: 1px solid black;
+  font-size: min(3vw, 16px);
+  font-family: Helvetica, sans-serif;
+  padding: 8px 12px;
+  margin-left: 20px;
+}

@@ -57,8 +57,14 @@ class InneChart{
             .attr("height", this.height);
   }
   init_inputs = () => {
+    d3.select(this.container)
+      .select(".button-div")
+      .append("span")
+      .text(this._data[Object.getOwnPropertyNames(this._data)[this.current_chart_index]][0].name)
+			.classed("chart-title", true);
     const field_type = d3.select(this.container)
                     .select(".button-div")
+                    .append("div")
 			              .append("select")
   		                 .on("change", this.init)
   		                 .classed("chart-input", true);
@@ -67,7 +73,7 @@ class InneChart{
   	for(let i = 0; i < field_options.length; i++){
   		field_type.append("option")
   			         .attr("value", i)
-  			         .text(field_options[i]);
+  			         .text(this._data[Object.getOwnPropertyNames(this._data)[i]][0].name);
   	}
     //Ustawienie opcji pola na ostatnio wybraną
   	const select_list_type = this.container.getElementsByClassName("chart-input")[0];

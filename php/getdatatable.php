@@ -24,8 +24,13 @@
 
     $data = [];
     if($type == "rachunek") {
-      $myquery = "SELECT DISTINCT dane_ksiegowe FROM `{$start_year}_dane` WHERE idspolki='{$stock_value}';";
-      $temp = sql_getdataarray($sqli, $myquery);
+      $temp_year = $start_year;
+      $temp = [];
+      while(count($temp) == 0) {
+        $myquery = "SELECT DISTINCT dane_ksiegowe FROM `{$temp_year}_dane` WHERE idspolki='{$stock_value}';";
+        $temp = sql_getdataarray($sqli, $myquery);
+        $temp_year++;
+      }
     } else if($type == "bilans") {
       $myquery = "SELECT DISTINCT dane_ksiegowe FROM `{$start_year}_dane_bilans` WHERE idspolki='{$stock_value}';";
       $temp = sql_getdataarray($sqli, $myquery);
@@ -65,6 +70,8 @@
           $data_row = $row;
         } else if(null !== $bilans_row) {
           $data_row = $bilans_row;
+        } else {
+          continue;
         }
         if(null !== $data_row[$year]) {
           $object->{$year} = $data_row[$year];
