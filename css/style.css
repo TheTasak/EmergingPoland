@@ -163,6 +163,9 @@ main h1{
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
+  box-shadow: -2px -2px 4px #e0e0e0, 2px 2px 4px #e0e0e0;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 .content > .chart-div{
   width: 50%;
@@ -447,13 +450,17 @@ fieldset{
 }
 .indicatorbtn{
   font-size: 14px;
+  margin-top: 20px;
   background-color: #fefefe;
-  outline: black;
-  border: 1px solid black;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
+  border-radius: 8px;
   padding: 2px 12px;
   margin-right: 10px;
   margin-bottom: 10px;
   user-select: none;
+  box-shadow: 3px 2px 4px #a0a0a0;
 }
 .indicatorbtn:hover{
   background-color: #f0f0f0;
@@ -528,14 +535,20 @@ footer{
 .stockbtn{
   font-size: 14px;
   background-color: #fefefe;
-  outline: black;
-  border: 1px solid black;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
+  border-radius: 8px;
   padding: 2px 12px;
   margin-right: 10px;
   margin-bottom: 10px;
   user-select: none;
+  box-shadow: 3px 2px 4px #a0a0a0;
 }
 .stockbtn:hover{
+  background-color: #f0f0f0;
+}
+.active-btn{
   background-color: #f0f0f0;
 }
 #titleimg{
@@ -552,4 +565,15 @@ footer{
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+}
+.loginbtn{
+  font-size: min(4vw,20px);
+  font-family: Helvetica,serif;
+  padding: 10px 5px;
+  color: white;
+  border-radius: 25px;
+  transition: 0.2s color ease-out;
+}
+.loginbtn:hover{
+  color: #e0e0e0;
 }

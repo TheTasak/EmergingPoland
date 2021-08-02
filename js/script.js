@@ -53,9 +53,11 @@ function draw() {
 function setActive(object) {
   let buttons = document.getElementsByClassName("stockbtn");
   for(let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove("active-btn");
     let temp = document.getElementById(buttons[i].value);
     temp.classList.add("hidden-div");
   }
+  object.classList.add("active-btn");
   let temp = document.getElementById(object.value);
   temp.classList.remove("hidden-div");
   page_object.load_layout();
