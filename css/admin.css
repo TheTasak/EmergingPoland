@@ -23,3 +23,7 @@ main{
   padding: 8px 12px;
   margin-left: 20px;
 }
+#calendar{
+  height: 600px;
+  padding-bottom: 80px;
+}

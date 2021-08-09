@@ -11,6 +11,7 @@
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js" defer></script>
 
     <script src="js/datatable.js?v=1" defer></script>
     <script src="js/innebarchart.js?v=1" defer></script>

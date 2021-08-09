@@ -1,4 +1,5 @@
 var panel;
+var calendar;
 var language;
 window.onload = load_page;
 window.onresize = refresh;
@@ -8,6 +9,9 @@ function load_page() {
   if(language == undefined || language == "")
     language = "pl";
   panel = new AdminPanel(container, language);
+
+  let container2 = document.getElementById("calendar");
+  calendar = new Calendar(container2);
 }
 function refresh() {
   panel.refresh();

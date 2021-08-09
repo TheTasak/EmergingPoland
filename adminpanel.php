@@ -16,8 +16,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION[
     <title>Welcome</title>
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/admin.css?v=1">
+    <link rel='stylesheet' href='libs/fullcalendar/main.css'>
 
     <script src="https://d3js.org/d3.v6.js" defer></script>
+    <script src='libs/fullcalendar/main.js' defer></script>
+    <script src='libs/fullcalendar/locales/pl.js' defer></script>
+    <script src='js/calendar.js?v=1' defer></script>
     <script src="js/navbar.js?v=1" defer></script>
     <script src="js/adminpanel.js?v=1" defer></script>
 </head>
@@ -28,6 +32,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION[
       <p>Admin panel</p>
       <p><a href="logout.php">Wyloguj się</a></p>
       <div id="panel">
+      </div>
+      <div id="calendar">
       </div>
     </main>
     <?php include "./footer.html" ?>

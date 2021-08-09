@@ -16,6 +16,7 @@ class Stock{
       this.start_year = d.rok;
       this.end_report = d.ostatnie_sprawozdanie;
       this.description = d.opis;
+      this.ticket = d.ticket;
       document.getElementById("description").innerHTML = this.description;
       this.currency = d.waluta;
 
@@ -55,6 +56,25 @@ class Stock{
                           .classed("chart-div", true);
         let con7_node = d3.select(container7.nodes()[0]).nodes()[0];
         this.modules.push(new DividendTable(con7_node, this.stock_name, this.currency, this.language));
+        let container8 = d3.select(this.containers[0])
+                          .append("div")
+                          .classed("chart-div", true)
+                          .attr("id", "tradingview_5a404");
+        let widget = new TradingView.widget(
+        {
+          "autosize": true,
+          "symbol": "GPW:" + this.ticket,
+          "timezone": "Etc/UTC",
+          "theme": "light",
+          "style": "1",
+          "locale": "pl",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "withdateranges": true,
+          "range": "12M",
+          "save_image": false,
+          "container_id": "tradingview_5a404"
+        });
       }
       if(d.podzial_przychodow != null) {
         let container1 = d3.select(this.containers[5])
