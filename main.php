@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Strona główna | EmergingPoland</title>
+    <meta name="description" content="Skaner spółek GPW przedstawiający dane w sposób graficzny">
+    <meta name="keywords" content="GPW, inwestowanie, investing, WSE, stock, stock market, giełda, emerging, poland, emerging markets">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="js/navbar.js" defer></script>

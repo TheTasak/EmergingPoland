@@ -18,7 +18,8 @@
   	$stock_value = $stock["idspolki"];
     $currency = $stock["waluta"];
     $last_year = $stock["ostatnie_sprawozdanie"];
-    $myquery = "SELECT * FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
+
+    $myquery = "SELECT cena FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
     $price = sql_getdatarecord($sqli, $myquery);
     $price = $price["cena"];
     $data = new stdClass();

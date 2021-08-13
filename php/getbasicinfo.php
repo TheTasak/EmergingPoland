@@ -9,6 +9,8 @@
     }
     if(isset($_GET['lang'])){
       $lang = $_GET['lang'];
+    } else {
+      $lang = "pl";
     }
   	$sqli = sql_open();
 

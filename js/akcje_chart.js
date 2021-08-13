@@ -1,46 +1,19 @@
 class AkcjeChart{
-  year = 2020;
   show_table = false;
-  constructor(container, stock_name, start_year){
+  constructor(container, stock_name, start_year, end_year){
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
+    this.end_year = end_year.split("_")[0];
+    this.year = this.end_year;
   }
-  earlier_year = () => {
-		if(this.year <= this.start_year)
-			return;
-		this.year--;
-		this.load_data();
-	}
-	later_year = () => {
-		if(this.year >= 2020)
-			return;
-		this.year++;
-		this.load_data();
-	}
-  split_value = (value) => {
-    let new_value = [];
-    let rev_value = value.length % 3;
-    let string = "";
-    if(rev_value != 0) {
-      new_value.push(value.substr(0, rev_value));
-    }
-    for(let i = 0 + rev_value; i < value.length; i += 3) {
-      new_value.push(value.substr(i, 3));
-    }
-    for(let i = 0; i < new_value.length; i++) {
-      string += new_value[i] + " ";
-    }
-    return string;
+  set_year = (year) => {
+    this.year = year;
+    this.load_data();
   }
   load_data = () => {
     d3.json("php/getgroupstocks.php?stock_name=" + this.stock_name + "&date=" + this.year).then((d) => {
       this._data = d;
-      if(this._data.length <= 0){
-				this.year--;
-				this.load_data();
-				return;
-			}
       this._data.forEach((item, i) => {
         item.value = parseInt(item.value);
       });
@@ -99,31 +72,42 @@ class AkcjeChart{
   			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")
-      .append("div")
-        .classed("pie-button-div", true);
+      .append("div");
     d3.select(this.container)
-			.select(".pie-button-div")
-			.append("button")
-  			.attr("type", "button")
-  			.text("🠔")
-  			.on("click", this.earlier_year)
-  			.classed("piechart-button", true);
-		d3.select(this.container)
-			.select(".pie-button-div")
-			.append("span")
-  			.style("padding", "0 10px")
-  			.text(this.year)
-        .on("click", () => {this.show_table = !this.show_table; this.refresh();})
-  			.classed("piechart-button", true);
-		d3.select(this.container)
-			.select(".pie-button-div")
-			.append("button")
-  			.attr("type", "button")
-  			.text("🠖")
-  			.on("click", this.later_year)
-  			.classed("piechart-button", true);
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.start_year);
+    for(let i = this.start_year; i <= this.end_year; i++) {
+      let dot = d3.select(this.container)
+                  .select(".button-div")
+                  .append("span")
+                    .classed("dot", true)
+                    .on("click", (ev) => this.set_year(i));
+      if(this.year == i) {
+        dot.classed("clicked-dot", true);
+      }
+    }
+    d3.select(this.container)
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.end_year);
+    d3.select(this.container)
+      .select(".button-div")
+      .append("div");
   }
   draw_chart = () => {
+    if(this._data.children.length == 0) {
+      this.svg.append("text")
+              .attr("text-anchor", "middle")
+              .attr("x", this.width/2)
+              .attr("y", this.svg_height/2)
+              .text("Brak danych")
+              .attr("fill", "black")
+              .attr("font-size", "26px");
+      return;
+    }
     let root = d3.hierarchy(this._data);
     root.sum(d => d.value);
 
@@ -196,9 +180,9 @@ class AkcjeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-          let value = this.split_value(String(d.value));
-  				let tooltipsize = [String(d.data.name + value).length*10, 40];
-          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
+          let value = d.data.name + " " + splitValue(String(d.value));
+  				let tooltipsize = [String(value).length*10+10, 40];
+          let tooltippos = [ev.offsetX, ev.offsetY];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
             tooltippos[0] = this.width - tooltipsize[0];
@@ -216,7 +200,8 @@ class AkcjeChart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.name + " " + value);
+          .classed("tooltip-text", true)
+  				.text(value);
 
   			})
   			.on("mouseout", (ev, d) => {
@@ -234,9 +219,9 @@ class AkcjeChart{
     let stock_string = '<table class="stock-table">';
 		for(let i = 0; i < this._data.children.length; i++){
       let value = String(this._data.children[i].value);
-			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + this.split_value(value) + "</td></tr>";
+			stock_string += "<tr><td align='center'>" + this._data.children[i].name + "</td><td align='right'>" + splitValue(value) + "</td></tr>";
 		}
-    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + this.split_value(String(parseInt(d3.sum(this._data.children, d => d.value)))) + "</td></tr>";
+    stock_string += "<tr><td align='center'>" + "Suma akcji:" + "</td><td align='right'>" + splitValue(String(parseInt(d3.sum(this._data.children, d => d.value)))) + "</td></tr>";
 		stock_string += "</table>";
 		d3.select(this.container).select(".svg-div").html(stock_string);
   }

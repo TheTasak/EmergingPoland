@@ -180,6 +180,9 @@ main h1{
 }
 .content > .map-div{
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 @media (max-width: 1200px){
   .content > .chart-div{
@@ -671,4 +674,18 @@ footer{
 }
 .active, .dot:hover {
   background-color: #717171;
+}
+.clicked-dot {
+  background-color: #777;
+}
+.year-small{
+  display: inline-block;
+  font-size: 14px;
+  font-family: Helvetica, sans-serif;
+  color: #777777;
+  user-select: none;
+  padding-top: 10px;
+}
+.tooltip-text{
+  font-size: min(2.5vw, 16px);
 }

@@ -81,7 +81,12 @@ class Stock{
                           .append("div")
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new TreeChart(con1_node, this.stock_name, this.start_year, this.currency, this.language));
+        this.modules.push(new TreeChart(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+        let container2 = d3.select(this.containers[5])
+                          .append("div")
+                          .classed("chart-div", true);
+        let con2_node = d3.select(container2.nodes()[0]).nodes()[0];
+        this.modules.push(new EarningsChart(con2_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
       }
       if(d.podzial_sektorow != null) {
         let container1 = d3.select(this.containers[5])
@@ -95,7 +100,7 @@ class Stock{
                           .append("div")
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new AkcjeChart(con1_node, this.stock_name, this.start_year));
+        this.modules.push(new AkcjeChart(con1_node, this.stock_name, this.start_year, this.end_report));
       }
       if(d.udzial != null) {
         let container1 = d3.select(this.containers[7])
@@ -123,14 +128,14 @@ class Stock{
                           .append("div")
                           .classed("map-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new WorldMap(con1_node, this.stock_name, this.start_year, this.currency, this.language, "getcountries"));
+        this.modules.push(new WorldMap(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language, "getcountries"));
       }
       if(d.regiony != null) {
         let container1 = d3.select(this.containers[4])
                           .append("div")
                           .classed("map-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new WorldMap(con1_node, this.stock_name, this.start_year, this.currency, this.language, "getregions"));
+        this.modules.push(new WorldMap(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language, "getregions"));
       }
       let buttons = document.getElementsByClassName("stockbtn");
       for(let i = 1; i < buttons.length; i++) {

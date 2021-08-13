@@ -16,6 +16,7 @@
     <script src="js/datatable.js?v=1" defer></script>
     <script src="js/innebarchart.js?v=1" defer></script>
     <script src="js/dane_barchart.js?v=1" defer></script>
+    <script src="js/earnings_barchart.js?v=1" defer></script>
     <script src="js/dividendtable.js?v=1" defer></script>
     <script src="js/dividendchart.js?v=1" defer></script>
   	<script src="js/treechart.js?v=1" defer></script>

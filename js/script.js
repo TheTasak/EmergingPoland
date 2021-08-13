@@ -2,7 +2,7 @@ var page_object;
 var menu_stock_data;
 var language;
 
-function load_page(){
+function loadPage(){
   const stock_name = document.getElementById("name");
   const index_name = document.getElementById("indeks");
   language = document.getElementById("language").value;
@@ -62,5 +62,22 @@ function setActive(object) {
   temp.classList.remove("hidden-div");
   page_object.load_layout();
 }
-window.onload = load_page;
+function splitValue(value) {
+  let new_value = [];
+  let split_value = String(value).split(".")[0];
+  let rev_value = split_value.length % 3;
+  let string = "";
+  if(rev_value != 0) {
+    new_value.push(split_value.substr(0, rev_value));
+  }
+  for(let i = 0 + rev_value; i < split_value.length; i += 3) {
+    new_value.push(split_value.substr(i, 3));
+  }
+  for(let i = 0; i < new_value.length; i++) {
+    string += new_value[i] + " ";
+  }
+  string = string.slice(0, -1);
+  return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
+}
+window.onload = loadPage;
 window.onresize = draw;

@@ -1,22 +1,22 @@
 <?php
   require_once("sql_functions.php");
-	if(isset($_GET['stock_name']))
-	{
+
+	if(isset($_GET['stock_name'])){
 		$stock_name = $_GET['stock_name'];
 	}
-  if(isset($_GET['year']))
-	{
+  if(isset($_GET['year'])){
 		$year = $_GET['year'];
 	}
-  if(isset($_GET['lang']))
-	{
+  if(isset($_GET['lang'])){
 		$lang = $_GET['lang'];
-	}
+	} else {
+    $lang = "pl";
+  }
   $sqli = sql_open();
 
 	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
   $stock = sql_getdatarecord($sqli, $myquery);
-	$stock_value = reset($stock);
+	$stock_value = $stock["idspolki"];
 
 	$myquery = "SELECT dane_ksiegowe FROM `{$year}_dane` WHERE idspolki='{$stock_value}';";
   $data = sql_getdataarray($sqli, $myquery);

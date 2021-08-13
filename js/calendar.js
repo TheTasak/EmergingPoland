@@ -11,7 +11,43 @@ class Calendar{
   }
   init = () => {
     this.height = parseInt(this.container.clientHeight);
-    this.calendar = new FullCalendar.Calendar(this.container, {
+    const calendar_container = d3.select(this.container)
+                                  .append("div")
+                                  .attr("height", "600px")
+                                  .classed("calendar", true);
+    d3.select(this.container)
+      .append("div")
+      .classed("input-div", true)
+      .append("input")
+      .attr("type", "color")
+      .attr("value", "#ffaaff")
+      .on("blur", (ev) => {
+        this.color = ev.target.value;
+      });
+    d3.select(this.container)
+      .select(".input-div")
+      .append("input")
+      .attr("type", "date")
+      .attr("value", new Date().toLocaleDateString())
+      .on("blur", (ev) => {
+        this.new_date = ev.target.value;
+      });
+    d3.select(this.container)
+      .select(".input-div")
+      .append("input")
+      .attr("type", "text")
+      .on("blur", (ev) => {
+        this.title = ev.target.value;
+      });
+    d3.select(this.container)
+      .select(".input-div")
+      .append("button")
+      .html("Wyślij do bazy")
+      .classed("stockbtn", true)
+      .on("click", (ev) => {
+        this.addDateByButton(this.title);
+      });
+    this.calendar = new FullCalendar.Calendar(calendar_container.nodes()[0], {
         initialView: 'dayGridMonth',
         contentHeight: this.height,
         weekNumberCalculation: "ISO",
@@ -48,14 +84,25 @@ class Calendar{
     obj.forEach((item, i) => {
       arr.push({name: item.title, date: item.startStr});
     });
-    console.log(JSON.stringify(arr));
     d3.json("php/updatecalendardates.php?data=" + JSON.stringify(arr));
   }
   addDate = (title, date) => {
     if(title != undefined && date != undefined) {
       this.calendar.addEvent({
         title: title,
-        start: date
+        start: date,
+        color: this.color,
+        textColor: 'white'
+      });
+    }
+  }
+  addDateByButton = (title) => {
+    if(this.new_date != undefined) {
+      this.calendar.addEvent({
+        title: title,
+        start: this.new_date,
+        color: this.color,
+        textColor: 'white'
       });
     }
   }

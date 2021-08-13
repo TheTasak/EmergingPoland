@@ -1,38 +1,22 @@
 class TreeChart{
-  year = 2020;
   _show_chart = true;
   current_chart_interval = -1;
-  constructor(container, stock_name, start_year, currency, language){
+  constructor(container, stock_name, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
+    this.end_year = end_year.split("_")[0];
+    this.year = this.end_year;
     this.currency = currency;
     this.language = language;
   }
-  earlier_year = () => {
-		if(this.year <= this.start_year)
-			return;
-		this.year--;
-		this.load_data();
-	}
-	later_year = () => {
-		if(this.year >= 2020)
-			return;
-		this.year++;
-		this.load_data();
-	}
+  set_year = (year) => {
+    this.year = year;
+    this.load_data();
+  }
   load_data = () => {
     d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
       this._data = d;
-      if(this._data.length <= 0){
-        if(this.year-1 >= this.start_year){
-          this.year--;
-          this.load_data();
-        } else {
-          this.year++;
-        }
-				return;
-			}
       this.change_chart();
       this.get_suffix();
       this.init();
@@ -47,7 +31,7 @@ class TreeChart{
 				this.array_interval.push(item);
 		});
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
-    if(select_list_interval != undefined)
+    if(select_list_interval != undefined && this.array_interval.includes(select_list_interval.value))
       this.current_chart_interval = select_list_interval.value;
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
@@ -61,10 +45,7 @@ class TreeChart{
   get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
 	  let max = d3.max(this.current_data.children, d => d[this.current_chart_interval]);
-	  if(max >= 1000000){
-		  this.current_data.children.forEach((item) => item[this.current_chart_interval] /= 1000000.0);
-		  this.suffix = "mld";
-	  } else if(max >= 1000){
+	  if(max >= 1000){
 		  this.current_data.children.forEach((item) => item[this.current_chart_interval] /= 1000.0);
 		  this.suffix = "mln";
     } else {
@@ -121,33 +102,34 @@ class TreeChart{
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-			.text("Podział przychodów")
+			.text("Podział przychodów " + this.year)
 			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")
-        .append("div")
-        .classed("tree-button-div", true);
+      .append("div");
     d3.select(this.container)
-			.select(".tree-button-div")
-			.append("button")
-			.attr("type", "button")
-			.text("🠔")
-			.on("click", this.earlier_year)
-			.classed("treechart-button", true);
-		d3.select(this.container)
-			.select(".tree-button-div")
-			.append("span")
-			.style("padding", "0 10px")
-			.text(this.year)
-      .on("click", () => {this._show_chart = !this._show_chart; this.init();})
-			.classed("treechart-button", true);
-		d3.select(this.container)
-			.select(".tree-button-div")
-			.append("button")
-			.attr("type", "button")
-			.text("🠖")
-			.on("click", this.later_year)
-			.classed("treechart-button", true);
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.start_year);
+    for(let i = this.start_year; i <= this.end_year; i++) {
+      let dot = d3.select(this.container)
+                  .select(".button-div")
+                  .append("span")
+                    .classed("dot", true)
+                    .on("click", (ev) => this.set_year(i));
+      if(this.year == i) {
+        dot.classed("clicked-dot", true);
+      }
+    }
+    d3.select(this.container)
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.end_year);
+    d3.select(this.container)
+      .select(".button-div")
+      .append("div");
     const field_interval = d3.select(this.container)
                              .select(".button-div")
 				                        .append("select")
@@ -250,13 +232,11 @@ class TreeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [String(d.data.translate + d.data[this.current_chart_interval] + this.suffix + this.currency).length*10+10, 40];
-          let tooltippos = [d3.pointer(ev)[0] - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
+  				let tooltipsize = [String(d.data.translate + splitValue(d.data[this.current_chart_interval]) + this.suffix + this.currency).length*10+10, 40];
+          let tooltippos = [ev.offsetX, ev.offsetY];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
             tooltippos[0] = this.width - tooltipsize[0];
-          if(tooltippos[0] < 0)
-            tooltippos[0] = 0;
 
           tooltip
             .attr("x", tooltippos[0])
@@ -269,7 +249,7 @@ class TreeChart{
   				.attr("x", tooltippos[0] + tooltipsize[0]/2)
   				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
   				.attr("display", "inherit")
-  				.text(d.data.translate + " " + d.data[this.current_chart_interval] + this.suffix + " " + this.currency);
+  				.text(d.data.translate + " " + splitValue(d.data[this.current_chart_interval]) + this.suffix + " " + this.currency);
 
   			})
   			.on("mouseout", (ev, d) => {
