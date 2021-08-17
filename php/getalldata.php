@@ -25,8 +25,6 @@
     $data = new stdClass();
     for($i = 0; $i < $end_year - $start_year + 1; $i++) {
       $year = $start_year + $i;
-      $myquery = "SELECT * FROM `{$year}_dane` WHERE idspolki='{$stock_value}';";
-      $row = sql_getdataarray($sqli, $myquery);
 
       $yearly_object = new stdClass();
       $first_quarter_object = new stdClass();
@@ -39,40 +37,27 @@
       $third_quarter = "{$year}" . "_3";
       $forth_quarter = "{$year}" . "_4";
 
-      for($j = 0; $j < count($row); $j++) {
-        if(null !== $row[$j][$year]) {
-          $yearly_object->{$row[$j]["dane_ksiegowe"]} = $row[$j]["{$year}"];
-        }
-        if(null !== $row[$j][$first_quarter]) {
-          $first_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$first_quarter];
-        }
-        if(null !== $row[$j][$second_quarter]) {
-          $second_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$second_quarter];
-        }
-        if(null !== $row[$j][$third_quarter]) {
-          $third_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$third_quarter];
-        }
-        if(null !== $row[$j][$forth_quarter]) {
-          $forth_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$forth_quarter];
-        }
-      }
+      $myquery = "SELECT * FROM `{$year}_dane` WHERE idspolki='{$stock_value}';";
+      $row_rachunek = sql_getdataarray($sqli, $myquery);
+
       $myquery = "SELECT * FROM `{$year}_dane_bilans` WHERE idspolki='{$stock_value}';";
-      $row = sql_getdataarray($sqli, $myquery);
+      $row_bilans = sql_getdataarray($sqli, $myquery);
+      $row = array_merge($row_rachunek, $row_bilans);
 
       for($j = 0; $j < count($row); $j++) {
-        if(null !== $row[$j][$year]) {
+        if(isset($row[$j][$year])) {
           $yearly_object->{$row[$j]["dane_ksiegowe"]} = $row[$j]["{$year}"];
         }
-        if(null !== $row[$j][$first_quarter]) {
+        if(isset($row[$j][$first_quarter])) {
           $first_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$first_quarter];
         }
-        if(null !== $row[$j][$second_quarter]) {
+        if(isset($row[$j][$second_quarter])) {
           $second_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$second_quarter];
         }
-        if(null !== $row[$j][$third_quarter]) {
+        if(isset($row[$j][$third_quarter])) {
           $third_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$third_quarter];
         }
-        if(null !== $row[$j][$forth_quarter]) {
+        if(isset($row[$j][$forth_quarter])) {
           $forth_quarter_object->{$row[$j]["dane_ksiegowe"]} = $row[$j][$forth_quarter];
         }
       }
@@ -84,13 +69,13 @@
 
       $myquery = "SELECT `{$year}_akcje` FROM `{$year}_akcje` WHERE spolka='{$stock_value}' AND osoba = 'lacznie';";
       $akcje = sql_getdatarecord($sqli, $myquery);
-      if(null !== $akcje) {
+      if(isset($akcje)) {
         $akcje_value = reset($akcje);
       } else {
         $try_year = $year - 1;
         $myquery = "SELECT `{$try_year}_akcje` FROM `{$try_year}_akcje` WHERE spolka='{$stock_value}' AND osoba = 'lacznie';";
         $akcje = sql_getdatarecord($sqli, $myquery);
-        if(null !== $akcje) {
+        if(isset($akcje)) {
           $akcje_value = reset($akcje);
         } else {
           $akcje_value = null;
@@ -104,7 +89,7 @@
 
       $myquery = "SELECT * FROM `{$year}_kurs_akcji` WHERE spolka='{$stock_value}';";
       $ceny = sql_getdatarecord($sqli, $myquery);
-      if(null !== $ceny) {
+      if(isset($ceny)) {
         if($year == $last_year) {
           $data->{$year}->{"cena_akcji"} = $price;
         } else {

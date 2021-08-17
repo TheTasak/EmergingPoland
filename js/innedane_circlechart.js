@@ -17,33 +17,27 @@ class CircleChart{
     this.currency = currency;
     this.language = language;
   }
-  earlier_year = () => {
-		if(this.year <= this.start_year)
-			return;
-		this.year--;
-		this.change_chart();
-	}
-	later_year = () => {
-		if(this.year >= this.end_year)
-			return;
-		this.year++;
-		this.change_chart();
-	}
+  setYear = (year) => {
+    this.year = year;
+    this.load_data();
+  }
   load_data = () => {
     d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language).then((d) => {
       this._data = d;
-      this.change_chart();
+      this.changeChart();
     });
   }
-  change_chart = () => {
+  changeChart = () => {
     this.array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
+    this.currentChartName = undefined;
+    this.currentMarkName = undefined;
     if(this._show_bar_chart)
-      this.change_barchart();
+      this.changeBarchart();
     else
-      this.change_circlechart();
+      this.changeCirclechart();
     this.init();
   }
-  change_barchart = () => {
+  changeBarchart = () => {
     this.indexes = [];
     for(let i = this.start_year; i <= this.end_year; i++) {
       this._data[i].forEach((item) => {
@@ -62,7 +56,7 @@ class CircleChart{
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
   }
-  change_circlechart = () => {
+  changeCirclechart = () => {
     this.indexes = [];
     this._data[this.year].forEach((item) => {
       this.indexes.push(item.translate);
@@ -74,7 +68,7 @@ class CircleChart{
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
 
-    let index = this.search_index(this._data[this.year]);
+    let index = this.searchIndex(this._data[this.year]);
     if(index == -1)
       index = 0;
     this.current_chart_index = this.indexes[index];
@@ -92,16 +86,13 @@ class CircleChart{
   }
   init = () => {
     d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-      d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
+      .html("");
     d3.select(this.container)
       .append("div")
         .classed("button-div", true);
     d3.select(this.container)
       .append("div")
+        .style("position", "relative")
         .classed("svg-div", true);
     if(!this._show_table) {
       this.svg = d3.select(this.container)
@@ -109,17 +100,17 @@ class CircleChart{
                     .append("svg");
     }
     this.update();
-    this.init_inputs();
+    this.initInputs();
     if(!this._show_table) {
       if(this._show_bar_chart) {
-        this.init_barchart();
-        this.update_barchart();
+        this.initBarchart();
+        this.updateBarchart();
       } else {
-        this.init_circlechart();
-        this.update_circlechart();
+        this.initCirclechart();
+        this.updateCirclechart();
       }
     } else {
-      this.init_table();
+      this.initTable();
     }
   }
   update = () => {
@@ -139,7 +130,7 @@ class CircleChart{
         .attr("width", this.width);
     }
   }
-  init_inputs = () => {
+  initInputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -147,45 +138,52 @@ class CircleChart{
 			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")
-        .append("div")
-        .classed("tree-button-div", true);
+      .append("div");
     d3.select(this.container)
-			.select(".tree-button-div")
-			.append("button")
-			.attr("type", "button")
-			.text("🠔")
-			.on("click", this.earlier_year)
-			.classed("treechart-button", true);
-		d3.select(this.container)
-			.select(".tree-button-div")
-			.append("span")
-			.style("padding", "0 10px")
-			.text(this.year)
-      .on("click", () => {this._show_table = !this._show_table; this.init();})
-			.classed("treechart-button", true);
-		d3.select(this.container)
-			.select(".tree-button-div")
-			.append("button")
-			.attr("type", "button")
-			.text("🠖")
-			.on("click", this.later_year)
-			.classed("treechart-button", true);
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.start_year);
+    for(let i = this.start_year; i <= this.end_year; i++) {
+      let dot = d3.select(this.container)
+                  .select(".button-div")
+                  .append("span")
+                    .classed("dot", true)
+                    .on("click", (ev) => this.setYear(i));
+      if(this.year == i) {
+        dot.classed("clicked-dot", true);
+      }
+    }
     d3.select(this.container)
-      .select(".tree-button-div")
+      .select(".button-div")
+      .append("span")
+        .classed("year-small", true)
+        .html(this.end_year);
+    d3.select(this.container)
+      .select(".button-div")
       .append("button")
   	    .attr("type", "button")
         .attr("font-size", "16px")
-  			.on("click", () => {this._show_bar_chart = !this._show_bar_chart; this.change_chart();})
+  			.on("click", () => {this._show_bar_chart = !this._show_bar_chart; this.changeChart();})
   			.classed("chart-input", true)
         .append("img")
           .attr("src", "img/chart_type.png");
+    d3.select(this.container)
+      .select(".button-div")
+      .append("button")
+  	    .attr("type", "button")
+        .attr("font-size", "16px")
+        .classed("chart-button", true)
+  			.on("click", () => this.showLegendCaption())
+        .html("Filtruj");
+    d3.select(this.container)
+      .select(".button-div")
+      .append("div");
     const field_type = d3.select(this.container)
-                    .select(".tree-button-div")
-                    .append("div")
-					             .classed("chart-input-div", true)
-					             .append("select")
-				                 .on("change", this.load_data)
-				                 .classed("chart-input", true);
+                    .select(".button-div")
+					          .append("select")
+			                 .on("change", this.load_data)
+			                 .classed("chart-input", true);
     //Załadowanie opcji do pola
   	for(let i = 0; i < this.indexes.length; i++){
   		field_type.append("option")
@@ -198,7 +196,7 @@ class CircleChart{
   		select_list_type.value = this.current_chart_index;
   	}
     const field_interval = d3.select(this.container)
-                             .select(".chart-input-div")
+                             .select(".button-div")
 				                        .append("select")
           				                .on("change", this.load_data)
           				                .classed("chart-input", true);
@@ -213,7 +211,7 @@ class CircleChart{
   		select_list_interval.value = this.current_chart_interval;
   	}
   }
-  init_circlechart = () => {
+  initCirclechart = () => {
     const scale = d3.scaleLinear()
                     .domain([d3.min(this.current_data.children, d => d[this.current_chart_interval]),d3.max(this.current_data.children, d => d[this.current_chart_interval])])
                     .range([20, 120]);
@@ -322,47 +320,142 @@ class CircleChart{
   					.attr("display", "none");
   			});
   }
-  update_circlechart = () => {
+  updateCirclechart = () => {
     this.simulation.force("center", d3.forceCenter().strength(1).x(this.width / 2).y(this.svg_height / 2))
                    .alpha(0.3)
                    .restart();
     this.node.attr("cx", this.width / 2)
              .attr("cy", this.svg_height / 2);
   }
-  search_index = (array) => {
+  showLegendCaption = () => {
+    if(this.legend.style("display") != "none") {
+      this.removeLegendCaption();
+      return;
+    }
+    this.legend.style("display", "initial").html("");
+    let keys = this.getAllBarArray();
+    let names = this.getBarNameArray(keys);
+    this.legend.append("h2")
+               .html("Usuń filtry")
+               .on("click", (ev, d) => {
+                 this.currentChartName = undefined;
+                 this.currentMarkName = undefined;
+                 this.init();
+               })
+    const rows = this.legend
+                      .append("table")
+                      .selectAll("p")
+                      .data(names)
+                      .enter()
+                      .append("tr");
+    rows.append("td")
+        .append("span")
+        .html(d => d.translate)
+        .filter(d => d.name == this.currentChartName || d.name == this.currentMarkName)
+        .style("font-style", "italic");
+    rows.append("td")
+        .append("span")
+        .classed("hover", true)
+        .on("click", (ev, d) => {
+          this.currentChartName = d.name;
+          this.init();
+        })
+        .html("Wykres");
+    rows.append("td")
+        .append("span")
+        .classed("hover", true)
+        .on("click", (ev, d) => {
+          this.currentMarkName = d.name;
+          this.init();
+        })
+        .html("Zaznacz");
+  }
+  removeLegendCaption = () => {
+    this.legend.style("display", "none");
+  }
+  searchIndex = (array) => {
     for(let i = 0; i < array.length; i++) {
       if(array[i].translate == this.current_chart_index)
         return i;
     }
     return -1;
   }
-  init_barchart = () => {
-    this.empty_data = false;
-    this.heightpadding = this.svg_height - this.padding_vertical;
-    this.widthpadding = this.width - this.padding_horizontal;
-    const keys = [];
-    let name_array = [];
+  getAllBarArray = () => {
+    let keys = [];
     for(let i = this.start_year; i <= this.end_year; i++) {
       if(this._data[i].length > 0) {
-        let index = this.search_index(this._data[i]);
+        let index = this.searchIndex(this._data[i]);
         if(index == -1)
           continue;
         let temp_data = this._data[i][index].children;
+        temp_data.sort((a,b) => {
+          return a.translate > b.translate ? 1 : -1;
+        });
+        if(this.currentChartName != undefined) {
+          temp_data = temp_data.filter(d => d.name == this.currentChartName);
+        }
         for(let j = 0; j < temp_data.length; j++) {
-          temp_data.sort((a,b) => {
-            return a.translate > b.translate ? 1 : -1;
-          });
           if(temp_data[j][this.current_chart_interval] != null) {
-            let temp_obj = {
-              "year" : String(i),
-              "children" : temp_data
-            };
-            keys.push(temp_obj);
-            break;
-          }
+           let temp_obj = {
+             "year" : String(i),
+             "children" : temp_data
+           };
+           keys.push(temp_obj);
+           break;
+         }
         }
       }
     }
+    keys = this.getAllBarIdArray(keys);
+    return keys;
+  }
+  getAllBarIdArray = (keys) => {
+    let name_array = [];
+    for(let i = 0; i < keys.length; i++) {
+      for(let index = 0; index < keys[i].children.length; index++) {
+        if(keys[i].children[index][this.current_chart_interval] != null) {
+          if(!name_array.includes(keys[i].children[index].name)) {
+            name_array.push(keys[i].children[index].name);
+          }
+          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].name);
+        }
+      }
+    }
+    return keys;
+  }
+  getBarNameArray = (keys) => {
+    let name_array = [];
+    for(let i = 0; i < keys.length; i++) {
+      for(let index = 0; index < keys[i].children.length; index++) {
+        if(keys[i].children[index][this.current_chart_interval] != null) {
+          let found_value = false;
+          for(let j = 0; j < name_array.length; j++) {
+            if(name_array[j].name == keys[i].children[index].name) {
+              found_value = true;
+              break;
+            }
+          }
+          if(!found_value) {
+            name_array.push({
+              "name" : keys[i].children[index].name,
+              "translate" : keys[i].children[index].translate
+            });
+          }
+          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].translate);
+        }
+      }
+    }
+    return name_array;
+  }
+  initBarchart = () => {
+    this.empty_data = false;
+    this.heightpadding = this.svg_height - this.padding_vertical;
+    this.widthpadding = this.width - this.padding_horizontal;
+    const keys = this.getAllBarArray();
+    this.legend = d3.select(this.container).select(".svg-div")
+                           .append("div")
+                           .style("display", "none")
+                           .classed("legend-div", true);
     if(keys.length == 0) {
       this.svg.html("");
       this.svg.append("text")
@@ -406,16 +499,6 @@ class CircleChart{
                          .domain([0, 20])
                          .range(["#4c1511","#661c16","#80231c","#992922","#b33027","#cc372d","#e63e32", "#ff4538", "#ff584c", "#ff6a60", "#ff7d74", "#ff8f88", "#ffa29c", "#ffb5af", "#ffc7c3"]);
     for(let i = 0; i < keys.length; i++) {
-      for(let index = 0; index < keys[i].children.length; index++) {
-        if(keys[i].children[index][this.current_chart_interval] != null) {
-          if(!name_array.includes(keys[i].children[index].translate)) {
-            name_array.push(keys[i].children[index].translate);
-          }
-          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].translate);
-        }
-      }
-    }
-    for(let i = 0; i < keys.length; i++) {
       let accumulated_height = 0;
       keys[i].children.sort((a,b) => {
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
@@ -433,47 +516,61 @@ class CircleChart{
 		      .classed("grid", true);
 
     let current_interval = this.current_chart_interval;
+    let mark_name = this.currentMarkName;
     this.g.selectAll(".bar-group")
           .data(keys)
           .enter()
           .append("g")
             .classed("bar-group", true)
             .each( function(d, i) {
-              d3.select(this)
-                .selectAll(".bar")
-                .data(d.children)
-                .enter()
-                .filter(data => data[current_interval] != undefined)
-                .append("rect")
-                  .attr('stroke', "#f7f7f7")
-                  .attr('height', data => data["height"])
-                  .attr('fill', data => colorScale(data.id))
-                  .attr("y", data => data["y"])
-                  .attr("class", data => data.name)
-                  .classed("bar", true);
-              d3.select(this)
-                .selectAll(".bar_text")
-                .data(d.children)
-                .enter()
-                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
-                .append("text")
-                  .style('font-size', "10px")
-                  .attr("y", data => data["y"] + data["height"] / 2)
-                  .attr("class", data => data.name)
-                  .attr("fill", "black")
-                  .attr("letter-spacing", 1.2)
-                  .attr("pointer-events", "none")
-                  .attr("text-anchor", "middle")
-                  .style("user-select", "none")
-                  .style("opacity", "0")
-                  .text(data => parseInt(data[current_interval]))
-                  .classed("bar_text", true);
+              let bars = d3.select(this)
+                          .selectAll(".bar")
+                          .data(d.children)
+                          .enter()
+                            .filter(data => data[current_interval] != undefined)
+                            .append("rect")
+                              .attr('height', data => data["height"])
+                              .attr('stroke', "#f7f7f7")
+                              .attr("y", data => data["y"])
+                              .attr("class", data => data.name)
+                              .attr('fill', data => colorScale(data.id))
+                              .classed("bar", true);
+              let text = d3.select(this)
+                          .selectAll(".bar_text")
+                          .data(d.children)
+                          .enter()
+                          .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
+                          .append("text")
+                            .style('font-size', "10px")
+                            .attr("y", data => data["y"] + data["height"] / 2)
+                            .attr("class", data => data.name)
+                            .attr("fill", "black")
+                            .attr("letter-spacing", 1.2)
+                            .attr("pointer-events", "none")
+                            .attr("text-anchor", "middle")
+                            .style("user-select", "none")
+                            .text(data => splitValue(parseInt(data[current_interval])))
+                            .classed("bar_text", true);
+              if(mark_name != undefined) {
+                console.log(mark_name);
+                bars.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                bars.filter(d => d.name != mark_name)
+                    .style("opacity", "0.4");
+                text.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                text.filter(d => d.name != mark_name)
+                    .style("opacity", "0");
+              } else {
+                bars.style("opacity", "1");
+                text.style("opacity", "0");
+              }
             });
     this.g.selectAll(".bar-group")
          .on("click", (ev, d) => {
            this._show_bar_chart = false;
            this.year = d.year;
-           this.change_chart();
+           this.changeChart();
          });
     const tooltip = this.svg.append("rect")
   						.attr("width", "0px")
@@ -491,23 +588,26 @@ class CircleChart{
     //Obsługa eventów tooltipa
   	this.svg.selectAll('.bar')
         .on("mouseover", (ev, d) => {
-          this.svg.selectAll(".bar")
-                  .style("opacity", "0.4");
-          this.svg.selectAll(".bar_text")
-                  .style("opacity", "0");
-          let className = ev.target.classList[0];
-          this.svg.selectAll("." + className)
-                  .filter(".bar")
-                  .style("fill", "#f03030")
-                  .style("opacity", "1");
-          this.svg.selectAll("." + className)
-                  .filter(".bar_text")
-                  .style("fill", "black")
-                  .style("opacity", "1");
+          if(this.currentMarkName == undefined) {
+            this.svg.selectAll(".bar")
+                    .style("opacity", "0.4");
+            this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+            let className = ev.target.classList[0];
+            this.svg.selectAll("." + className)
+                    .filter(".bar")
+                    .style("fill", "#f03030")
+                    .style("opacity", "1");
+            this.svg.selectAll("." + className)
+                    .filter(".bar_text")
+                    .style("fill", "black")
+                    .style("opacity", "1");
+          }
         })
   			.on("mousemove", (ev, d) => {
-          let tooltipsize = [String(d.translate + parseFloat(d[this.current_chart_interval])).length*10 + 5, 40];
-  				let tooltippos = [d3.pointer(ev)[0] + this.padding_horizontal*(2/3) - tooltipsize[0]/2, d3.pointer(ev)[1]-tooltipsize[1]-10];
+          let value = d.translate + " " + splitValue(parseFloat(d[this.current_chart_interval]));
+          let tooltipsize = [String(value).length*10 + 10, 40];
+  				let tooltippos = [ev.offsetX, ev.offsetY];
 
           tooltip
             .attr("x", tooltippos[0])
@@ -520,22 +620,24 @@ class CircleChart{
     				.attr("x", tooltippos[0] + tooltipsize[0]/2)
     				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
     				.attr("display", "inherit")
-    				.text(d.translate + " " + parseFloat(d[this.current_chart_interval]));
+    				.text(value);
   			})
   			.on("mouseout", (ev, d) => {
-          this.svg.selectAll(".bar")
-                  .style("fill", data => colorScale(data.id))
-                  .style("opacity", "1");
-          this.svg.selectAll(".bar_text")
-                  .style("opacity", "0");
-  				tooltip
-  					.style("opacity", "0")
+          if(this.currentMarkName == undefined) {
+            this.svg.selectAll(".bar")
+                    .style("fill", data => colorScale(data.id))
+                    .style("opacity", "1");
+            this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+          }
+          tooltip
+            .style("opacity", "0")
             .attr("width", 0);
-  				tooltiptext
-  					.attr("display", "none");
+          tooltiptext
+            .attr("display", "none");
   			});
   }
-  update_barchart = () => {
+  updateBarchart = () => {
     if(this.empty_data) {
       this.svg.select("text")
               .attr("x", this.width/2)
@@ -563,7 +665,7 @@ class CircleChart{
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
               });
   }
-  init_table = () => {
+  initTable = () => {
     this.change_circlechart();
     let data_string = '<table class="earnings-table">';
     let data_children = this.current_data.children;
@@ -577,9 +679,9 @@ class CircleChart{
     this.update();
     if(!this._show_table) {
       if(this._show_bar_chart) {
-        this.update_barchart();
+        this.updateBarchart();
       } else {
-        this.update_circlechart();
+        this.updateCirclechart();
       }
     }
   }

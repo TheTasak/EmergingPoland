@@ -10,6 +10,7 @@ body{
   font-family: Helvetica, sans-serif;
   font-size: 16px;
 }
+/* scrollbar */
 ::-webkit-scrollbar {
   width: 12px;
 }
@@ -25,6 +26,7 @@ body{
 #bodynolimit{
   min-height: 1%;
 }
+/* side nav */
 .sidenav{
   height: 100vh;
   width: 0;
@@ -51,6 +53,19 @@ body{
 .sidenav a:hover{
   color: gray;
 }
+.closebtn{
+  position: absolute;
+  top: 1vh;
+  color: white;
+  right: 25px;
+  margin-left: 50px;
+  transition: 0.5s;
+  z-index: 9;
+}
+.closebtn:hover{
+  color: gray;
+}
+/* side nav links */
 #links-main{
   width: 50%;
   height: 100%;
@@ -83,18 +98,6 @@ button{
   text-decoration: none;
   font-size: 40px;
 }
-.closebtn{
-  position: absolute;
-  top: 1vh;
-  color: white;
-  right: 25px;
-  margin-left: 50px;
-  transition: 0.5s;
-  z-index: 9;
-}
-.closebtn:hover{
-  color: gray;
-}
 .openbtn{
   background: none;
   border: none;
@@ -110,6 +113,7 @@ button{
 .openbtn:hover{
   color: white;
 }
+/* header */
 header{
   width: 100%;
   background-image: linear-gradient(90deg, rgb(66, 133, 244), rgb(52, 168, 83));
@@ -151,6 +155,7 @@ header #jezyki img{
   border-radius: 6px;
   border: 1px solid rgba(0,0,0,0.2);
 }
+/* content */
 main{
   background-color: inherit;
   color: black;
@@ -246,7 +251,7 @@ main h1{
   font-family: Helvetica, sans-serif;
 }
 .bar{
-  transition: fill 0.5s ease-out;
+  transition: fill 0.5s;
   stroke: black;
 }
 .bar:hover{
@@ -280,14 +285,20 @@ fieldset{
   width: 50px;
 }
 .chart-button{
-  font-size: min(2vw, 16px);
-  background-color: #f0f0f0;
-  border: 1px solid #a0a0a0;
-  padding: 10px 10px;
+  font-size: 14px;
+  margin-left: 10px;
+  background-color: #fefefe;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
+  border-radius: 8px;
+  padding: 6px 14px;
+  user-select: none;
+  box-shadow: 3px 2px 4px #a0a0a0;
+  transition: background-color 0.5s;
 }
 .chart-button:hover{
-  background-color: #eaeaea;
-  transition: 0.5s;
+  background-color: #f0f0f0;
 }
 .chart-input-div{
   margin-bottom: 20px;
@@ -437,24 +448,6 @@ fieldset{
 .treechart-chunk{
   transition: 0.5s;
 }
-.treechart-button{
-  color: black;
-	transition: 0.5s;
-  font-size: min(5vw, 32px);
-}
-.treechart-button:hover{
-  color: #c5c5c5;
-	cursor: pointer;
-}
-.piechart-button{
-  color: black;
-	transition: 0.5s;
-  font-size: min(5vw, 32px);
-}
-.piechart-button:hover{
-  color: #c5c5c5;
-	cursor: pointer;
-}
 .indicatorbtn{
   font-size: 14px;
   margin-top: 20px;
@@ -463,11 +456,12 @@ fieldset{
   border-style: solid;
   border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
   border-radius: 8px;
-  padding: 2px 12px;
+  padding: 4px 14px;
   margin-right: 10px;
   margin-bottom: 10px;
   user-select: none;
   box-shadow: 3px 2px 4px #a0a0a0;
+  transition: background-color 0.5s;
 }
 .indicatorbtn:hover{
   background-color: #f0f0f0;
@@ -546,11 +540,12 @@ footer{
   border-style: solid;
   border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
   border-radius: 8px;
-  padding: 2px 12px;
+  padding: 4px 14px;
   margin-right: 10px;
   margin-bottom: 10px;
   user-select: none;
   box-shadow: 3px 2px 4px #a0a0a0;
+  transition: background-color 0.5s;
 }
 .stockbtn:hover{
   background-color: #f0f0f0;
@@ -558,6 +553,18 @@ footer{
 .active-btn{
   background-color: #f0f0f0;
 }
+.loginbtn{
+  font-size: min(4vw,20px);
+  font-family: Helvetica,serif;
+  padding: 10px 5px;
+  color: white;
+  border-radius: 25px;
+  transition: 0.2s color ease-out;
+}
+.loginbtn:hover{
+  color: #e0e0e0;
+}
+/* main menu sections */
 #titleimg{
   background-image: url("../img/homepageimg.jpg");
   background-size: cover;
@@ -572,17 +579,6 @@ footer{
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-}
-.loginbtn{
-  font-size: min(4vw,20px);
-  font-family: Helvetica,serif;
-  padding: 10px 5px;
-  color: white;
-  border-radius: 25px;
-  transition: 0.2s color ease-out;
-}
-.loginbtn:hover{
-  color: #e0e0e0;
 }
 #o_nas{
   margin: 0 5vw;
@@ -617,6 +613,7 @@ footer{
 #login a:hover{
   color: red;
 }
+/* main menu gallery */
 .slideshow-container {
   position: relative;
 }
@@ -654,7 +651,6 @@ footer{
   right: 0;
   border-radius: 3px 0 0 3px;
 }
-
 .prev:hover, .next:hover {
   color: #223322;
 }
@@ -688,4 +684,46 @@ footer{
 }
 .tooltip-text{
   font-size: min(2.5vw, 16px);
+}
+.legend-div{
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  background-color: rgba(245,245,245,0.9);
+  border-radius: 25px;
+  overflow-y: auto;
+  z-index: 1;
+}
+.legend-div table{
+  width: 100%;
+  font-family: Helvetica;
+  font-size: 18px;
+  letter-spacing: 0.03em;
+  margin: 20px 5px 20px 0;
+  padding-left: 40px;
+}
+.legend-div td{
+  padding-bottom: 10px;
+}
+.legend-div h2{
+  cursor: pointer;
+  transition: color 0.5s;
+  padding-left: 40px;
+}
+.legend-div h2:hover{
+  cursor: pointer;
+  color: #777777;
+}
+.legend-div span{
+  color: black;
+}
+.legend-div span.hover{
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.legend-div span.hover:hover{
+  color: #777777;
 }

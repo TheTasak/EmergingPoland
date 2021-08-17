@@ -102,7 +102,7 @@ class TreeChart{
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
-			.text("Podział przychodów " + this.year)
+			.text("Podział przychodów")
 			.classed("chart-title", true);
     d3.select(this.container)
       .select(".button-div")

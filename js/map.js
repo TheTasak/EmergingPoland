@@ -28,7 +28,7 @@ class WorldMap{
 	  }
   }
 	load_data = () => {
-		d3.json("php/"+ this.map +".php?" + "stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then( d => {
+		d3.json("php/"+ this.map +".php?" + "stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then( d => {
 			// Wczytanie danych przychodów w krajach w danym roku
 			this.country_arr = d;
 			// Jeżeli brak danych, to spróbuj w poprzednim roku rekurencyjnie

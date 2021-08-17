@@ -10,7 +10,7 @@
     $name = mysqli_real_escape_string($sqli, $data[$i]->{"name"});
     $date = mysqli_real_escape_string($sqli, $data[$i]->{"date"});
 
-    $myquery = "SELECT nazwa FROM `daty` WHERE nazwa='{$name}';";
+    $myquery = "SELECT nazwa FROM `daty` WHERE nazwa='{$name}' AND data='{$date}';";
     $record = sql_getdatarecord($sqli, $myquery);
     if(null == $record) {
       $myquery = "INSERT INTO `daty` (nazwa, data) VALUES ('{$name}', '{$date}');";

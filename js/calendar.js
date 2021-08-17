@@ -42,7 +42,7 @@ class Calendar{
     d3.select(this.container)
       .select(".input-div")
       .append("button")
-      .html("Wyślij do bazy")
+      .html("Dodaj wydarzenie")
       .classed("stockbtn", true)
       .on("click", (ev) => {
         this.addDateByButton(this.title);
