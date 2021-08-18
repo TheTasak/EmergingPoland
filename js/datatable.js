@@ -1,4 +1,5 @@
 class DataTable{
+  pixels_per_column = 300;
   constructor(container, stock_name, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
@@ -6,32 +7,13 @@ class DataTable{
     this.end_year = end_year.split("_")[0];
     this.end_quarter = end_year.split("_")[1];
 
-    this._table_end = parseInt(this.end_year);
-    this._table_start = (this.start_year > this.end_year - 4 ? this.start_year : this.end_year - 4);
+    this.table_end = this.end_year;
+    this.table_start = (this.end_year - this.start_year > 4 ? this.end_year-4 : this.start_year);
     this.currency = currency;
     this.language = language;
 
     this.data_year = true;
     this.data_type = "rachunek";
-  }
-  split_value = (value) => {
-    let new_value = [];
-    let string = "";
-    if(value.substr(0,1) == "-") {
-      string += "-";
-      value = value.substr(1,value.length-1);
-    }
-    let rev_value = value.length % 3;
-    if(rev_value != 0) {
-      new_value.push(value.substr(0, rev_value));
-    }
-    for(let i = 0 + rev_value; i < value.length; i += 3) {
-      new_value.push(value.substr(i, 3));
-    }
-    for(let i = 0; i < new_value.length; i++) {
-      string += new_value[i] + " ";
-    }
-    return string;
   }
   get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
@@ -42,8 +24,6 @@ class DataTable{
 	  } else if(max >= 1000){
 		  this._data.forEach((item) => item.value /= 1000.0);
 		  this.suffix = "mln";
-	  } else if(this._current_data_index == "dywidenda") {
-		  this.suffix = "";
 	  } else {
 		  this.suffix = "tys";
 	  }
@@ -58,32 +38,30 @@ class DataTable{
   init = () => {
     // Usunięcie starego wykresu
   	d3.select(this.container)
-  	  .selectAll(".data-div")
-  	  .remove();
-    d3.select(this.container)
-  	  .selectAll(".input-div")
-  	  .remove();
+      .html("");
     d3.select(this.container)
       .append("div")
         .style("overflow-y", "auto")
-        .classed("data-div", "true");
+        .classed("data-div", true);
     d3.select(this.container)
       .append("div")
-        .classed("input-div", "true");
+        .classed("input-div", true);
     this.update();
-    this.init_inputs();
-    this.init_table();
+    this.column_limit = parseInt(this.width / this.pixels_per_column);
+    this.initInputs();
+    this.updateInputs();
+    this.initTable();
     this.refresh();
   }
-  change_year = (amount) => {
-    const slider = d3.select(this.container).select(".slider-div").nodes()[0];
+  changeYear = (amount) => {
+    const slider = this.container.getElementsByClassName("slider-div")[0];
     if(slider == undefined)
       return;
-    this._table_start = parseInt(slider.noUiSlider.get()[0]);
-    this._table_end = parseInt(slider.noUiSlider.get()[1]);
+    this.table_start = parseInt(slider.noUiSlider.get()[0]);
+    this.table_end = parseInt(slider.noUiSlider.get()[1]);
     this.init();
   }
-  init_inputs = () => {
+  initInputs = () => {
     d3.select(this.container)
       .select(".input-div")
       .append("div")
@@ -91,9 +69,9 @@ class DataTable{
     const drag_slider = this.container.getElementsByClassName("slider-div")[0];
     if(this.data_year) {
       noUiSlider.create(drag_slider, {
-        start: [this._table_start, this._table_end],
+        start: [this.table_start, this.table_end],
         step: 1,
-        limit: 4,
+        limit: this.column_limit,
         behaviour: 'drag-fixed',
         pips: {
             mode: 'values',
@@ -109,7 +87,7 @@ class DataTable{
       });
     } else {
       noUiSlider.create(drag_slider, {
-        start: [this._table_end-1, this._table_end],
+        start: [this.table_end-1, this.table_end],
         step: 1,
         limit: 2,
         behaviour: 'drag-fixed',
@@ -126,7 +104,7 @@ class DataTable{
         }
       });
     }
-    drag_slider.noUiSlider.on("change", this.change_year);
+    drag_slider.noUiSlider.on("change", this.changeYear);
     d3.select(this.container)
       .select(".input-div")
       .append("button")
@@ -155,7 +133,29 @@ class DataTable{
       .attr("width", this.width)
       .attr("height", this.input_height);
   }
-  init_table = () => {
+  updateInputs = () => {
+    let slider = this.container.getElementsByClassName("slider-div")[0];
+    let column_limit = parseInt(this.width / this.pixels_per_column);
+    slider.noUiSlider.updateOptions({
+        limit: column_limit
+    });
+    if(this.column_limit != column_limit) {
+      if(column_limit > this.column_limit) {
+        let start = this.table_start;
+        let end = this.table_end;
+        if(end+1 <= this.end_year)
+          end += 1;
+        else if(start-1 >= this.start_year)
+          start -= 1;
+        slider.noUiSlider.updateOptions({
+            start: [start, end]
+        });
+      }
+      this.changeYear();
+      this.column_limit = column_limit;
+    }
+  }
+  initTable = () => {
     let rows = d3.select(this.container)
                   .select(".data-div")
                   .append("table")
@@ -169,7 +169,7 @@ class DataTable{
       .style("font-weight", "bold")
       .html(d => d.translate);
     if(this.data_year) {
-      for(let i = this._table_start; i < this._table_end; i++) {
+      for(let i = this.table_start; i <= this.table_end; i++) {
         rows.filter(d => d[i] == i && !isNaN(d[i]))
           .append("td")
             .style("text-align", "center")
@@ -178,7 +178,7 @@ class DataTable{
         rows.filter(d => d[i] != i && !isNaN(d[i]))
           .append("td")
           .style("text-align", "right")
-          .html(d => this.split_value(String(parseInt(d[i]))));
+          .html(d => splitValue(String(parseInt(d[i]))));
         rows.filter(d => isNaN(d[i]))
           .append("td")
           .style("text-align", "right")
@@ -186,21 +186,21 @@ class DataTable{
       }
       let percent = rows.append("td")
             .style("text-align", "right");
-      percent.filter(d => d[this._table_end-1] != this._table_end-1)
-            .html(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) + " %");
-      percent.filter(d => d[this._table_end-1] == this._table_end-1)
+      percent.filter(d => d[this.table_end] != this.table_end)
+            .html(d => parseFloat(d[this.table_end] / d[this.table_end-1]*100 - 100).toFixed(2) + " %");
+      percent.filter(d => d[this.table_end] == this.table_end)
             .style("font-weight", "bold")
-            .html(String(this._table_end-1) + "/" + (String(this._table_end-2)));
+            .html(String(this.table_end) + "/" + (String(this.table_end-1)));
 
-      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) > 0 && d[this._table_end-1] != this._table_end-1)
+      percent.filter(d => parseFloat(d[this.table_end] / d[this.table_end-1]*100 - 100).toFixed(2) > 0 && d[this.table_end] != this.table_end)
             .style("color", "green");
-      percent.filter(d => parseFloat(d[this._table_end-1] / d[this._table_end-2]*100 - 100).toFixed(2) < 0 && d[this._table_end-1] != this._table_end-1)
+      percent.filter(d => parseFloat(d[this.table_end] / d[this.table_end-1]*100 - 100).toFixed(2) < 0 && d[this.table_end] != this.table_end)
             .style("color", "red");
     } else {
       for(let i = 0; i < 2; i++) {
         for(let j = 0; j < 4; j++) {
-          let quarter = this._table_end-1+i + "_" + (j+1);
-          if(this._table_end-1+i > this.end_year || (this._table_end-1+i == this.end_year && j+1 > this.end_quarter))
+          let quarter = this.table_end-1+i + "_" + (j+1);
+          if(this.table_end-1+i > this.end_year || (this.table_end-1+i == this.end_year && j+1 > this.end_quarter))
             continue;
           rows.filter(d => d[quarter] == quarter && d[quarter] != undefined)
             .append("td")
@@ -210,7 +210,7 @@ class DataTable{
           rows.filter(d => d[quarter] != quarter && !isNaN(d[quarter]))
             .append("td")
             .style("text-align", "right")
-            .html(d => this.split_value(String(parseInt(d[quarter]))));
+            .html(d => splitValue(String(parseInt(d[quarter]))));
           rows.filter(d => d[quarter] != quarter && isNaN(d[quarter]))
             .append("td")
             .style("text-align", "right")
@@ -219,13 +219,14 @@ class DataTable{
       }
     }
   }
-  update_table = () => {
+  updateTable = () => {
     d3.select(".data-div")
       .attr("width", this.width)
       .attr("height", this.height);
   }
   refresh = () => {
     this.update();
-  	this.update_table();
+    this.updateInputs();
+  	this.updateTable();
   }
 }

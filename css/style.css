@@ -273,18 +273,12 @@ main h1{
 .grid path {
 	stroke-width: 0;
 }
-fieldset{
-  border: none;
-}
 .chart-input{
   margin-top: 10px;
   font-size: min(3vw, 14px);
 }
 .chart-input img{
   width: 50px;
-}
-.slider-div{
-  width: 50%;
 }
 .chart-button{
   font-size: min(3vw, 14px);
@@ -301,24 +295,6 @@ fieldset{
 }
 .chart-button:hover{
   background-color: #f0f0f0;
-}
-.chart-input-div{
-  margin-bottom: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.chart-button-div{
-  display: flex;
-  justify-content: center;
-  margin-left: 10px;
-  width: 100%;
-}
-.chart-button-div > *{
-  margin-right: 30px;
-}
-.chart-button-div > .noUi-target{
-  width: 50%;
 }
 .noUi-target{
 	font-size: 12px;

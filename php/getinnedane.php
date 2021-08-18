@@ -19,7 +19,7 @@
 	$stock_value = $stock["idspolki"];
   $data = new stdClass();
   for($year = $start_year; $year <= $end_year; $year++) {
-    $myquery = "SELECT DISTINCT tabela  FROM `{$year}_inne_dane` WHERE idspolki='{$stock_value}';";
+    $myquery = "SELECT DISTINCT tabela FROM `{$year}_inne_dane` WHERE idspolki='{$stock_value}';";
     $tables = sql_getdataarray($sqli, $myquery);
     $data_year = array();
     for($i = 0; $i < count($tables); $i++) {
@@ -29,7 +29,7 @@
 
       $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$tables[$i]["tabela"]}';";
       $tlumaczenie_tabela = sql_getdatarecord($sqli, $myquery);
-      if(null !== $tlumaczenie_tabela) {
+      if(isset($tlumaczenie_tabela)) {
         $tabela_object->{"translate"} = $tlumaczenie_tabela[$lang];
       } else {
         $tabela_object->{"translate"} = $tables[$i]["tabela"];
@@ -42,12 +42,12 @@
 
         $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$podzial[$j]["podzial"]}';";
         $tlumaczenie = sql_getdatarecord($sqli, $myquery);
-        if(null !== $tlumaczenie) {
+        if(isset($tlumaczenie)) {
           $podzial_object->{"translate"} = $tlumaczenie[$lang];
         } else {
           $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$podzial[$j]["podzial"]}';";
           $tlumaczenie = sql_getdatarecord($sqli, $myquery);
-          if(null !== $tlumaczenie) {
+          if(isset($tlumaczenie)) {
             $podzial_object->{"translate"} = $tlumaczenie[$lang];
           } else {
             $podzial_object->{"translate"} = $podzial[$j]["podzial"];

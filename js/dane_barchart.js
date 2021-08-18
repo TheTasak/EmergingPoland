@@ -1,9 +1,6 @@
 class Chart{
   current_data_index = "";
   columns = [];
-  current_chart_start = 2015;
-  current_chart_end = 2020;
-  show_chart = true;
   padding_vertical = 20;
   padding_horizontal = 100;
   constructor(container, stock_name, data_name, chart_type, start_year, end_year, currency, language){
@@ -28,70 +25,56 @@ class Chart{
 	  } else if(max >= 1000){
 		  this.data.forEach((item) => item.value /= 1000.0);
 		  this.suffix = "mln";
-	  } else if(this.current_data_index == "dywidenda") {
-		  this.suffix = "";
 	  } else {
 		  this.suffix = "tys";
 	  }
   }
   load_data = () => {
-	let input_value = d3.select(this.container).select(".chart-input");
-  // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
-	if(input_value.size() > 0 && input_value.property("value") != "")
-		this.current_data_index = input_value.property("value");
-	else
-		this.current_data_index = this.data_name;
-    let slider = this.container.getElementsByClassName("slider-div")[0];
-  if(slider != undefined){
-      this.current_chart_start = parseInt(slider.noUiSlider.get()[0]);
-      this.current_chart_end = parseInt(slider.noUiSlider.get()[1]);
-  }
-	d3.json("php/getdata.php?stock_name=" + String(this.stock_name) + "&data_index=" + String(this.current_data_index) + "&start_year=" + String(this.current_chart_start) + "&end_year=" + String(this.current_chart_end)+ "&type=" + this.chart_type).then( (d) => {
-    // Wyciąga z bazy kolumny z danymi
-    let array = d;
-    let temp = [];
-    for(let i = 0; i < array.length; i++) {
-      let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]["value"]), date: array[i]["date"]};
-      temp.push(push_object_data);
+  	let input_value = d3.select(this.container).select(".chart-input");
+    // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
+  	if(input_value.size() > 0 && input_value.property("value") != "")
+  		this.current_data_index = input_value.property("value");
+  	else
+  		this.current_data_index = this.data_name;
+      let slider = this.container.getElementsByClassName("slider-div")[0];
+    if(slider != undefined){
+        this.current_chart_start = parseInt(slider.noUiSlider.get()[0]);
+        this.current_chart_end = parseInt(slider.noUiSlider.get()[1]);
     }
-		this.data = temp;
-		this.getSuffix();
-		temp = [];
-		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
-      // A potem ich tłumaczenie na bazie języka
-      let col_array = columns;
-			for(let i = 0; i < col_array.length; i++) {
-				let column = col_array[i];
-				temp.push(column);
-			}
-			this.columns = temp;
-      this.init();
-		});
-	});
-
+	  d3.json("php/getdata.php?stock_name=" + String(this.stock_name) + "&data_index=" + String(this.current_data_index) + "&start_year=" + String(this.current_chart_start) + "&end_year=" + String(this.current_chart_end)+ "&type=" + this.chart_type).then( (data) => {
+    // Wyciąga z bazy kolumny z danymi
+      this.data = [];
+      for(let i = 0; i < data.length; i++) {
+        this.data.push({
+          id: "d"+(i+1),
+          value: parseFloat(data[i]["value"]),
+          date: data[i]["date"]
+        });
+      }
+  		this.getSuffix();
+  		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
+        // A potem ich tłumaczenie na bazie języka
+        this.columns = columns;
+        this.init();
+  		});
+	   });
   }
   init = () => {
     // Usunięcie starego wykresu
     d3.select(this.container)
       .html("");
 
-  	if(this.show_chart){
-  		this.svg = d3.select(this.container)
-  					.append("svg")
-  					.classed("chart",true);
-  	}
+		this.svg = d3.select(this.container)
+					.append("svg")
+					.classed("chart",true);
     d3.select(this.container)
       .append("div")
       .classed("button-div", true);
+
     this.update();
-    if(this.show_chart) {
-      this.initInputs();
-      this.initChart();
-      this.initTitle();
-    } else {
-      this.initTable();
-      this.initInputs();
-    }
+    this.initInputs();
+    this.initChart();
+    this.initTitle();
     this.refresh();
   }
   update = () => {
@@ -102,10 +85,9 @@ class Chart{
 
     this.heightpadding = this.svg_height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
-    if(this.show_chart) {
-      this.svg.attr("width", this.width)
-              .attr("height", this.svg_height)
-    }
+    
+    this.svg.attr("width", this.width)
+            .attr("height", this.svg_height);
     d3.select(this.container)
       .select(".button-div")
       .attr("width", this.width)
@@ -367,35 +349,10 @@ class Chart{
     this.svg.selectAll(".percent-change")
             .attr("x", data =>  this.xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3 + this.xScale.bandwidth() / 2);
   }
-  initTable = () => {
-	  let data_string = '<table class="data_table">';
-	  for(let i = this.data.length-1; i >= 0; i--){
-      let percent = "";
-      if(i != 0 && this.data[i-1].value != 0) {
-        percent = parseFloat(this.data[i].value/this.data[i-1].value*100 - 100).toFixed(2);
-        percent = (percent > 0) ? "+" + percent + "%" : percent + "%";
-      }
-		  data_string += "<tr><td>" + this.data[i].date + "</td><td align='right'>" + parseFloat(this.data[i].value).toFixed(3) + this.suffix + " " + this.currency + "</td><td align='right'>" + percent + "</td></tr>";
-	  }
-	  data_string += "</table>";
-	  d3.select(this.container)
-		.append("div")
-  		.html(data_string)
-  		.classed("table-div", true);
-  }
-  updateTable = () => {
-    d3.select(".table-div")
-      .attr("width", this.width)
-      .attr("height", this.height);
-  }
   refresh = () => {
     this.update();
     clearTimeout(this.resizeTimer);
-  	if(this.show_chart){
-  		this.resizeTimer = setTimeout(this.updateChart, 50);
-      this.update_title();
-  	} else {
-  		this.updateTable();
-	  }
+		this.resizeTimer = setTimeout(this.updateChart, 50);
+    this.update_title();
   }
 }
