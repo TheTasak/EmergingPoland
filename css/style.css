@@ -252,7 +252,6 @@ main h1{
 }
 .bar{
   transition: fill 0.5s;
-  stroke: black;
 }
 .bar:hover{
   fill: #ff8080;
@@ -284,8 +283,11 @@ fieldset{
 .chart-input img{
   width: 50px;
 }
+.slider-div{
+  width: 50%;
+}
 .chart-button{
-  font-size: 14px;
+  font-size: min(3vw, 14px);
   margin-left: 10px;
   background-color: #fefefe;
   border-width: 1px;
@@ -699,13 +701,9 @@ footer{
 .legend-div table{
   width: 100%;
   font-family: Helvetica;
-  font-size: 18px;
   letter-spacing: 0.03em;
   margin: 20px 5px 20px 0;
   padding-left: 40px;
-}
-.legend-div td{
-  padding-bottom: 10px;
 }
 .legend-div h2{
   cursor: pointer;
@@ -718,12 +716,22 @@ footer{
 }
 .legend-div span{
   color: black;
+  font-size: min(3vw, 18px);
 }
-.legend-div span.hover{
-  font-weight: bold;
-  cursor: pointer;
-  transition: color 0.3s;
+.legend-button{
+  font-size: min(3vw, 16px);
+  background-color: #fefefe;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
+  border-radius: 8px;
+  padding: 4px 14px;
+  margin-bottom: 8px;
+  margin-right: 10px;
+  user-select: none;
+  box-shadow: 3px 2px 4px #a0a0a0;
+  transition: background-color 0.5s;
 }
-.legend-div span.hover:hover{
-  color: #777777;
+.legend-button:hover{
+  background-color: #f0f0f0;
 }

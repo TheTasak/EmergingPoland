@@ -6,6 +6,7 @@ class Calendar{
   loadData = () => {
     d3.json("php/getcalendardates.php").then(d => {
       this.data = d;
+      console.log(this.data);
       this.init();
     });
   }
@@ -20,7 +21,7 @@ class Calendar{
       .classed("input-div", true)
       .append("input")
       .attr("type", "color")
-      .attr("value", "#ffaaff")
+      .attr("value", "#aaaaaa")
       .on("blur", (ev) => {
         this.color = ev.target.value;
       });
@@ -71,7 +72,7 @@ class Calendar{
         }
     });
     this.data.forEach((item, i) => {
-      this.addDate(item.name, item.date);
+      this.addDate(item.name, item.date, item.color);
     });
     this.calendar.render();
   }
@@ -82,16 +83,17 @@ class Calendar{
       return;
     }
     obj.forEach((item, i) => {
-      arr.push({name: item.title, date: item.startStr});
+      arr.push({name: item.title, date: item.startStr, color: (item.backgroundColor != undefined ? this.color : "")});
     });
     d3.json("php/updatecalendardates.php?data=" + JSON.stringify(arr));
   }
-  addDate = (title, date) => {
+  addDate = (title, date, color) => {
     if(title != undefined && date != undefined) {
+      console.log(color != "");
       this.calendar.addEvent({
         title: title,
         start: date,
-        color: this.color,
+        color: (color != "" ? color : this.color),
         textColor: 'white'
       });
     }

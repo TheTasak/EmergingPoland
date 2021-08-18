@@ -353,17 +353,16 @@ class CircleChart{
         .html(d => d.translate)
         .filter(d => d.name == this.currentChartName || d.name == this.currentMarkName)
         .style("font-style", "italic");
-    rows.append("td")
-        .append("span")
-        .classed("hover", true)
+    let cells = rows.append("td");
+    cells.append("button")
+        .classed("legend-button", true)
         .on("click", (ev, d) => {
           this.currentChartName = d.name;
           this.init();
         })
         .html("Wykres");
-    rows.append("td")
-        .append("span")
-        .classed("hover", true)
+    cells.append("button")
+        .classed("legend-button", true)
         .on("click", (ev, d) => {
           this.currentMarkName = d.name;
           this.init();
@@ -535,6 +534,21 @@ class CircleChart{
                               .attr("class", data => data.name)
                               .attr('fill', data => colorScale(data.id))
                               .classed("bar", true);
+              let text_rect = d3.select(this)
+                                .selectAll(".bar-text-rect")
+                                .data(d.children)
+                                .enter()
+                                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
+                                .append("rect")
+                                  .attr("y", data => data["y"] + data["height"] / 2 - 14)
+                                  .attr("class", data => data.name)
+                                  .attr('height', "20px")
+                                  .attr("fill", "white")
+                                  .attr("stroke", "black")
+                                  .style("user-select", "none")
+                                  .attr("pointer-events", "none")
+                                  .attr("rx", "10px")
+                                  .classed("bar-text-rect", true);
               let text = d3.select(this)
                           .selectAll(".bar_text")
                           .data(d.children)
@@ -552,7 +566,6 @@ class CircleChart{
                             .text(data => splitValue(parseInt(data[current_interval])))
                             .classed("bar_text", true);
               if(mark_name != undefined) {
-                console.log(mark_name);
                 bars.filter(d => d.name == mark_name)
                     .style("opacity", "1");
                 bars.filter(d => d.name != mark_name)
@@ -561,17 +574,16 @@ class CircleChart{
                     .style("opacity", "1");
                 text.filter(d => d.name != mark_name)
                     .style("opacity", "0");
+                text_rect.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                text_rect.filter(d => d.name != mark_name)
+                    .style("opacity", "0");
               } else {
                 bars.style("opacity", "1");
                 text.style("opacity", "0");
+                text_rect.style("opacity", "0");
               }
             });
-    this.g.selectAll(".bar-group")
-         .on("click", (ev, d) => {
-           this._show_bar_chart = false;
-           this.year = d.year;
-           this.changeChart();
-         });
     const tooltip = this.svg.append("rect")
   						.attr("width", "0px")
   						.attr("height", "0px")
@@ -585,6 +597,35 @@ class CircleChart{
               .attr("pointer-events", "none")
               .style("user-select", "none")
   						.classed("tooltip-text", true);
+    this.svg.selectAll(".bar-group")
+            .filter( (d,i) => i > 0)
+            .append("text")
+            .style("user-select", "none")
+            .attr("text-anchor", "middle")
+            .attr("font-size", "14px")
+            .html( (d,i) => {
+              let previous_sum = d3.sum(keys[i].children, data => data[this.current_chart_interval]);
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              let percent = parseFloat(current_sum / previous_sum * 100 - 100).toFixed(2);
+              if(percent >= 0)
+                return "+" + percent + "%";
+              else
+                return percent + "%";
+            })
+            .attr("y", (d,i) => {
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              return this.yScale(current_sum*1.01);
+            })
+            .attr("fill", (d,i) => {
+              let previous_sum = d3.sum(keys[i].children, data => data[this.current_chart_interval]);
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              let percent = parseFloat(current_sum / previous_sum * 100 - 100).toFixed(2);
+              if(percent >= 0)
+                return "green";
+              else
+                return "red";
+            })
+            .classed("percent-change", true);
     //Obsługa eventów tooltipa
   	this.svg.selectAll('.bar')
         .on("mouseover", (ev, d) => {
@@ -592,6 +633,8 @@ class CircleChart{
             this.svg.selectAll(".bar")
                     .style("opacity", "0.4");
             this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+            this.svg.selectAll(".bar-text-rect")
                     .style("opacity", "0");
             let className = ev.target.classList[0];
             this.svg.selectAll("." + className)
@@ -601,6 +644,10 @@ class CircleChart{
             this.svg.selectAll("." + className)
                     .filter(".bar_text")
                     .style("fill", "black")
+                    .style("opacity", "1");
+            this.svg.selectAll("." + className)
+                    .filter(".bar-text-rect")
+                    .style("fill", "white")
                     .style("opacity", "1");
           }
         })
@@ -628,6 +675,8 @@ class CircleChart{
                     .style("fill", data => colorScale(data.id))
                     .style("opacity", "1");
             this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+            this.svg.selectAll(".bar-text-rect")
                     .style("opacity", "0");
           }
           tooltip
@@ -663,7 +712,13 @@ class CircleChart{
                 d3.select(this)
                   .selectAll(".bar_text")
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
-              });
+                d3.select(this)
+                  .selectAll(".bar-text-rect")
+                  .attr("x", scale(d.year))
+                  .attr('width', scale.bandwidth());
+              })
+              .select(".percent-change")
+              .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);
   }
   initTable = () => {
     this.change_circlechart();

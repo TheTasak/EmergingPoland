@@ -1,39 +1,34 @@
 class Chart{
-  _width = 0;
-  _height = 0;
-  _current_data_index = "";
-  _data = [];
-  _columns = [];
-  _date_start = 2015;
-  _date_end = 2020;
-  _show_chart = true;
-  stock_name = "";
-  data_name = "";
+  current_data_index = "";
+  columns = [];
+  current_chart_start = 2015;
+  current_chart_end = 2020;
+  show_chart = true;
   padding_vertical = 20;
   padding_horizontal = 100;
-  chart_title = "";
   constructor(container, stock_name, data_name, chart_type, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.data_name = data_name;
     this.chart_type = chart_type;
     this.start_year = start_year;
-    this._date_start = this.start_year > 2015 ? this.start_year : 2015;
     this.end_year = end_year.split("_")[0];
-    this._date_end = this.end_year;
+    this.end_quarter = end_year.split("_")[1];
+    this.current_chart_end = this.end_year;
+    this.current_chart_start = (this.end_year - this.start_year > 5 ? this.end_year-5 : this.start_year);
     this.currency = currency;
     this.language = language;
   }
-  get_suffix = () => {
+  getSuffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let max = d3.max(this._data, d => d.value);
+	  let max = d3.max(this.data, d => d.value);
 	  if(max >= 1000000){
-		  this._data.forEach((item) => item.value /= 1000000.0);
+		  this.data.forEach((item) => item.value /= 1000000.0);
 		  this.suffix = "mld";
 	  } else if(max >= 1000){
-		  this._data.forEach((item) => item.value /= 1000.0);
+		  this.data.forEach((item) => item.value /= 1000.0);
 		  this.suffix = "mln";
-	  } else if(this._current_data_index == "dywidenda") {
+	  } else if(this.current_data_index == "dywidenda") {
 		  this.suffix = "";
 	  } else {
 		  this.suffix = "tys";
@@ -43,25 +38,24 @@ class Chart{
 	let input_value = d3.select(this.container).select(".chart-input");
   // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
 	if(input_value.size() > 0 && input_value.property("value") != "")
-		this._current_data_index = input_value.property("value");
+		this.current_data_index = input_value.property("value");
 	else
-		this._current_data_index = this.data_name;
-	let slider = this.container.getElementsByClassName("slider-div")[0];
-	if(slider != undefined){
-      this._date_start = parseInt(slider.noUiSlider.get()[0]);
-  		this._date_end = parseInt(slider.noUiSlider.get()[1]);
-	}
-
-	let temp = [];
-	let json_data = d3.json("php/getdata.php?data_index=" + String(this._current_data_index) + "&stock_name=" + String(this.stock_name) + "&start_year=" + String(this._date_start) + "&end_year=" + String(this._date_end)+ "&type=" + this.chart_type).then( (d) => {
+		this.current_data_index = this.data_name;
+    let slider = this.container.getElementsByClassName("slider-div")[0];
+  if(slider != undefined){
+      this.current_chart_start = parseInt(slider.noUiSlider.get()[0]);
+      this.current_chart_end = parseInt(slider.noUiSlider.get()[1]);
+  }
+	d3.json("php/getdata.php?stock_name=" + String(this.stock_name) + "&data_index=" + String(this.current_data_index) + "&start_year=" + String(this.current_chart_start) + "&end_year=" + String(this.current_chart_end)+ "&type=" + this.chart_type).then( (d) => {
     // Wyciąga z bazy kolumny z danymi
     let array = d;
+    let temp = [];
     for(let i = 0; i < array.length; i++) {
       let push_object_data = {id: "d"+(i+1), value: parseFloat(array[i]["value"]), date: array[i]["date"]};
       temp.push(push_object_data);
     }
-		this._data = temp;
-		this.get_suffix();
+		this.data = temp;
+		this.getSuffix();
 		temp = [];
 		d3.json("php/getcolumnstranslate.php?stock_name=" + String(this.stock_name) + "&year=" + String(this.start_year) + "&lang=" + String(this.language)).then( (columns) => {
       // A potem ich tłumaczenie na bazie języka
@@ -70,7 +64,7 @@ class Chart{
 				let column = col_array[i];
 				temp.push(column);
 			}
-			this._columns = temp;
+			this.columns = temp;
       this.init();
 		});
 	});
@@ -79,75 +73,73 @@ class Chart{
   init = () => {
     // Usunięcie starego wykresu
     d3.select(this.container)
-      .selectAll(".chart")
-      .remove();
-    d3.select(this.container)
-      .selectAll(".chart-input-field")
-      .remove();
-  	d3.select(this.container)
-  	  .selectAll(".table-div")
-  	  .remove();
+      .html("");
 
-  	if(this._show_chart){
+  	if(this.show_chart){
   		this.svg = d3.select(this.container)
   					.append("svg")
   					.classed("chart",true);
   	}
+    d3.select(this.container)
+      .append("div")
+      .classed("button-div", true);
     this.update();
-    if(this._show_chart) {
-      this.init_inputs();
-      this.init_chart();
-      this.init_title();
+    if(this.show_chart) {
+      this.initInputs();
+      this.initChart();
+      this.initTitle();
     } else {
-      this.init_table();
-      this.init_inputs();
+      this.initTable();
+      this.initInputs();
     }
     this.refresh();
   }
   update = () => {
     this.width = parseInt(this.container.clientWidth);
-    this.height = parseInt(this.container.clientHeight)*0.75;
+    this.height = parseInt(this.container.clientHeight);
+    this.button_height = parseInt(this.container.clientHeight)*0.2;
+    this.svg_height = parseInt(this.container.clientHeight)*0.8;
 
-    this.heightpadding = this.height - this.padding_vertical;
+    this.heightpadding = this.svg_height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
-    if(this._show_chart) {
+    if(this.show_chart) {
       this.svg.attr("width", this.width)
-              .attr("height", this.height)
+              .attr("height", this.svg_height)
     }
+    d3.select(this.container)
+      .select(".button-div")
+      .attr("width", this.width)
+      .attr("height", this.button_height);
   }
-  init_inputs = () => {
-    //Pojemnik na inputy
-    const fieldset = d3.select(this.container)
-                      .append("fieldset")
-                      .classed("chart-input-field", true);
+  initInputs = () => {
     //Pole pozwalające wybrać typ danych
-    const field = fieldset.append("div")
-					.classed("chart-input-div", true)
-					.append("select")
-						.on("change", this.load_data)
-						.classed("chart-input", true);
+    const button_div = d3.select(this.container)
+                        .select(".button-div");
+    const field = button_div.append("select")
+                						.on("change", this.load_data)
+                						.classed("chart-input", true);
     //Załadowanie opcji do pola
-  	for(let i = 0; i < this._columns.length; i++){
+  	for(let i = 0; i < this.columns.length; i++){
   		field.append("option")
-  			.attr("value", this._columns[i].dane_ksiegowe)
-  			.text(this._columns[i].tlumaczenie);
+  			.attr("value", this.columns[i].dane_ksiegowe)
+  			.text(this.columns[i].tlumaczenie);
   	}
     //Ustawienie opcji pola na ostatnio wybraną
   	const select_list = this.container.getElementsByClassName("chart-input")[0];
   	if(select_list != undefined){
-  		select_list.value = this._current_data_index;
+  		select_list.value = this.current_data_index;
   	}
     //Pojemnik na suwak dat
-  	const buttons = fieldset.append("div")
-  			.classed("chart-button-div", true);
-
-    buttons.append("div")
-      .classed("slider-div", true);
+    button_div.append("div").classed("button-div", true);
+    const slider_button_div = button_div.append("div")
+                                        .classed("input-div", true);
+    slider_button_div.append("div")
+                    .classed("slider-div", true);
 
   	const drag_slider = this.container.getElementsByClassName("slider-div")[0];
     if(this.chart_type == "year") {
       noUiSlider.create(drag_slider, {
-        start: [this._date_start, this._date_end],
+        start: [this.current_chart_start, this.current_chart_end],
         step: 1,
         behaviour: 'drag',
         pips: {
@@ -164,7 +156,7 @@ class Chart{
       });
     } else if(this.chart_type == "quarter") {
       noUiSlider.create(drag_slider, {
-        start: [this._date_end-1, this._date_end],
+        start: [this.current_chart_end-1, this.current_chart_end],
         step: 1,
         limit: 1,
         behaviour: 'drag-fixed',
@@ -184,28 +176,18 @@ class Chart{
 	  drag_slider.noUiSlider.on("change", this.load_data);
 
     //Przyciski do zmiany typu wykresu i zamiany na tabelę
-	  buttons.append("div")
-            .append("button")
-      				.attr("type", "button")
-      				.on("click", () => {this._show_chart = !this._show_chart; this.init();})
-      				.classed("chart-input", true)
-              .append("img")
-                .attr("src", "img/table_icon.png");
-    buttons.append("div")
-				   .append("button")
-  				    .attr("type", "button")
-              .attr("font-size", "16px")
-      				.on("click", () => {this.chart_type = (this.chart_type == "year") ? "quarter" : "year"; this.load_data();})
-      				.classed("chart-input", true)
-              .append("img")
-                .attr("src", "img/chart_type.png");
+    slider_button_div.append("button")
+        .classed("chart-button", true)
+        .attr("type", "button")
+        .on("click", () => {this.chart_type = (this.chart_type == "year" ? "quarter" : "year"); this.load_data();})
+        .html( this.chart_type == "year" ? "<b>Rok</b>/Kwartał" : "Rok/<b>Kwartał</b>");
   }
-  init_title = () => {
+  initTitle = () => {
     //Wczytanie tłumaczenia tytułu wykresu
-    let index = this._columns.findIndex( (data) => {
-      return data.dane_ksiegowe == this._current_data_index;
+    let index = this.columns.findIndex( (data) => {
+      return data.dane_ksiegowe == this.current_data_index;
     });
-    this.chart_title = this._columns[index].tlumaczenie;
+    this.chart_title = this.columns[index].tlumaczenie;
     // Dodanie tytułu wykresu
     this.svg.append("text")
          .attr("text-anchor", "middle")
@@ -218,13 +200,13 @@ class Chart{
             .attr("x", (this.width / 2))
             .attr("y", this.padding_vertical/2 + this.padding_vertical);
   }
-  init_chart = () => {
+  initChart = () => {
     // Ustawienie skali i domeny osi x
-    const min = d3.min(this._data, d => d.value) < 0 ? d3.min(this._data, d => d.value) : 0;
-    const max = d3.max(this._data, d => d.value) > 0 ? d3.max(this._data, d => d.value) : 1;
+    const min = d3.min(this.data, d => d.value) < 0 ? d3.min(this.data, d => d.value) : 0;
+    const max = d3.max(this.data, d => d.value) > 0 ? d3.max(this.data, d => d.value) : 1;
     this.xScale = d3.scaleBand()
                     .padding(0.4)
-                    .domain(this._data.map(dataPoint => dataPoint.date));
+                    .domain(this.data.map(dataPoint => dataPoint.date));
     // Ustawienie skali i domeny osi y
     this.yScale = d3.scaleLinear()
                     .domain([min, max*1.2]).nice()
@@ -251,8 +233,10 @@ class Chart{
     // Dodanie słupków wartości
     this.bars = this.svg
           .selectAll('.bar')
-          .data(this._data)
+          .data(this.data)
           .enter()
+          .append("g")
+          .classed("bar-group", true)
           .append('rect')
           .classed('bar',true)
           .attr('height', 0);
@@ -272,11 +256,9 @@ class Chart{
           .style("fill", "#993535")
           .attr('y', data => this.yScale(min))
           .on("mouseover", (ev) => {
-            console.log("mouseover bar < 0");
             ev.target.style.fill = "#997777";
           })
           .on("mouseleave", (ev) => {
-            console.log(ev);
             ev.target.style.fill = "#993535";
           });
      // Animacja pojawiania się słupków z opóźnieniem - dla wartości dodatnich
@@ -297,7 +279,38 @@ class Chart{
           .delay(function(d,i){return(i*200)})
           .attr("y", data => this.yScale(0))
           .attr("height", data => this.yScale(data.value) - this.yScale(0));
-     // Dodanie tooltipa pokazującego wartość słupka po najechaniu
+     this.svg.selectAll(".bar-group")
+          .filter( (d,i) => i > 0)
+          .append("text")
+          .style("user-select", "none")
+          .attr("text-anchor", "middle")
+          .attr("font-size", "14px")
+          .html( (d,i) => {
+            let percent = parseFloat(this.data[i+1].value / this.data[i].value * 100 - 100).toFixed(2);
+            if(percent >= 0)
+              return "+" + percent + "%";
+            else if(this.data[i].value < 0)
+              return "+" + String(percent).slice(1) + "%";
+            else
+              return percent + "%";
+          })
+          .attr("y", (d,i) => {
+            if(d.value > 0)
+              return this.yScale(this.data[i+1].value) - 10;
+            else
+              return this.yScale(this.data[i+1].value) + 15;
+          })
+          .attr("fill", (d,i) => {
+            let percent = parseFloat(this.data[i+1].value / this.data[i].value * 100 - 100).toFixed(2);
+            if(percent >= 0)
+              return "green";
+            else if(this.data[i].value < 0)
+              return "green";
+            else
+              return "red";
+          })
+          .classed("percent-change", true);
+ // Dodanie tooltipa pokazującego wartość słupka po najechaniu
      const tooltip = this.svg.append("rect")
     						.attr("width", "0px")
     						.attr("height", "0px")
@@ -314,8 +327,9 @@ class Chart{
       //Obsługa eventów tooltipa
      this.svg.selectAll('.bar')
     			.on("mousemove", (ev, d) => {
-            let tooltipsize = [String(d.value + this.suffix + this.currency).length*12, 40];
-    				let tooltippos = [d3.pointer(ev)[0]- tooltipsize[0]/2, d3.pointer(ev)[1] - tooltipsize[1] - 10];
+            let value = d.value + this.suffix + " " + this.currency;
+            let tooltipsize = [String(value).length*10+10, 40];
+    				let tooltippos = [ev.offsetX, ev.offsetY];
 
             tooltip
               .attr("x", tooltippos[0])
@@ -338,7 +352,7 @@ class Chart{
     					.attr("display", "none");
     			});
   }
-  update_chart = () => {
+  updateChart = () => {
     this.xScale.range([0, this.width-this.padding_horizontal]);
     this.g.select(".axis_bottom")
           .html("")
@@ -350,16 +364,18 @@ class Chart{
           .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     this.bars.attr('width', this.xScale.bandwidth())
              .attr('x', data => this.xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3);
+    this.svg.selectAll(".percent-change")
+            .attr("x", data =>  this.xScale(data.date)+this.padding_horizontal-this.padding_horizontal/3 + this.xScale.bandwidth() / 2);
   }
-  init_table = () => {
+  initTable = () => {
 	  let data_string = '<table class="data_table">';
-	  for(let i = this._data.length-1; i >= 0; i--){
+	  for(let i = this.data.length-1; i >= 0; i--){
       let percent = "";
-      if(i != 0 && this._data[i-1].value != 0) {
-        percent = parseFloat(this._data[i].value/this._data[i-1].value*100 - 100).toFixed(2);
+      if(i != 0 && this.data[i-1].value != 0) {
+        percent = parseFloat(this.data[i].value/this.data[i-1].value*100 - 100).toFixed(2);
         percent = (percent > 0) ? "+" + percent + "%" : percent + "%";
       }
-		  data_string += "<tr><td>" + this._data[i].date + "</td><td align='right'>" + parseFloat(this._data[i].value).toFixed(3) + this.suffix + " " + this.currency + "</td><td align='right'>" + percent + "</td></tr>";
+		  data_string += "<tr><td>" + this.data[i].date + "</td><td align='right'>" + parseFloat(this.data[i].value).toFixed(3) + this.suffix + " " + this.currency + "</td><td align='right'>" + percent + "</td></tr>";
 	  }
 	  data_string += "</table>";
 	  d3.select(this.container)
@@ -367,7 +383,7 @@ class Chart{
   		.html(data_string)
   		.classed("table-div", true);
   }
-  update_table = () => {
+  updateTable = () => {
     d3.select(".table-div")
       .attr("width", this.width)
       .attr("height", this.height);
@@ -375,11 +391,11 @@ class Chart{
   refresh = () => {
     this.update();
     clearTimeout(this.resizeTimer);
-  	if(this._show_chart){
-  		this.resizeTimer = setTimeout(this.update_chart, 10);
+  	if(this.show_chart){
+  		this.resizeTimer = setTimeout(this.updateChart, 50);
       this.update_title();
   	} else {
-  		this.update_table();
+  		this.updateTable();
 	  }
   }
 }
