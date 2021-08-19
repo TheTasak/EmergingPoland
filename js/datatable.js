@@ -7,26 +7,14 @@ class DataTable{
     this.end_year = end_year.split("_")[0];
     this.end_quarter = end_year.split("_")[1];
 
-    this.table_end = this.end_year;
+    this.table_end = this.end_quarter == 4 ? this.end_year : this.end_year-1;
     this.table_start = (this.end_year - this.start_year > 4 ? this.end_year-4 : this.start_year);
     this.currency = currency;
     this.language = language;
+    this.column_limit = -1;
 
     this.data_year = true;
     this.data_type = "rachunek";
-  }
-  get_suffix = () => {
-    //Zwraca końcówkę danych na podstawie ilości zer na końcu
-	  let max = d3.max(this._data, d => d.value);
-	  if(max >= 1000000){
-		  this._data.forEach((item) => item.value /= 1000000.0);
-		  this.suffix = "mld";
-	  } else if(max >= 1000){
-		  this._data.forEach((item) => item.value /= 1000.0);
-		  this.suffix = "mln";
-	  } else {
-		  this.suffix = "tys";
-	  }
   }
   load_data = () => {
   	d3.json("php/getdatatable.php?stock_name=" + this.stock_name + "&start_year=" + String(this.start_year) + "&end_year=" + String(this.end_year) + "&lang=" + this.language + "&type=" + this.data_type).then( (d) => {
@@ -47,9 +35,7 @@ class DataTable{
       .append("div")
         .classed("input-div", true);
     this.update();
-    this.column_limit = parseInt(this.width / this.pixels_per_column);
     this.initInputs();
-    this.updateInputs();
     this.initTable();
     this.refresh();
   }
@@ -71,7 +57,7 @@ class DataTable{
       noUiSlider.create(drag_slider, {
         start: [this.table_start, this.table_end],
         step: 1,
-        limit: this.column_limit,
+        limit: 1,
         behaviour: 'drag-fixed',
         pips: {
             mode: 'values',
@@ -82,7 +68,7 @@ class DataTable{
         connect: true,
         range: {
             'min': parseInt(this.start_year),
-            'max': parseInt(this.end_year)
+            'max': (this.end_quarter == 4) ? this.end_year : this.end_year-1
         }
       });
     } else {
@@ -139,20 +125,21 @@ class DataTable{
     slider.noUiSlider.updateOptions({
         limit: column_limit
     });
+    console.log(this.column_limit + " " + column_limit);
     if(this.column_limit != column_limit) {
       if(column_limit > this.column_limit) {
         let start = this.table_start;
         let end = this.table_end;
-        if(end+1 <= this.end_year)
-          end += 1;
-        else if(start-1 >= this.start_year)
+        if(start-1 >= this.start_year)
           start -= 1;
+        else if(end+1 <= this.end_year)
+          end += 1;
         slider.noUiSlider.updateOptions({
             start: [start, end]
         });
       }
-      this.changeYear();
       this.column_limit = column_limit;
+      this.changeYear();
     }
   }
   initTable = () => {

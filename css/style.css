@@ -467,15 +467,26 @@ main h1{
 .info-table{
   overflow: auto;
   height: 100%;
-  margin-left: 20px;
 	display: flex;
-  border: none;
 	justify-content: center;
   align-items: center;
   font-size: min(4vw, 18px);
 }
+.info-table table{
+  border-collapse: collapse;
+  border-radius: 10px;
+  box-shadow: 4px 4px 16px 4px #e0e0e0;
+}
 .info-table td{
-  padding-bottom: 20px;
+  padding: 20px 0 20px 10px;
+}
+.info-table tr:not(:last-child){
+  border-bottom: 1px solid #aeaeae;
+}
+.info-table .table-title{
+  font-weight: bold;
+  font-size: min(5vw, 24px);
+  text-align: center;
 }
 .dividend-table{
   overflow: auto;

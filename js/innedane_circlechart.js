@@ -22,7 +22,6 @@ class CircleChart{
     this.load_data();
   }
   load_data = () => {
-    console.log("php/getinnedane.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language);
     d3.json("php/getinnedane.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year+ "&lang=" + this.language).then((d) => {
       this._data = d;
       this.changeChart();
@@ -541,7 +540,7 @@ class CircleChart{
                                 .enter()
                                 .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
                                 .append("rect")
-                                  .attr("y", data => data["y"] + data["height"] / 2 - 14)
+                                  .attr("y", data => data["y"] + data["height"] / 2 - 12)
                                   .attr("class", data => data.name)
                                   .attr('height', "20px")
                                   .attr("fill", "white")

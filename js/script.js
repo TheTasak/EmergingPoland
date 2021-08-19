@@ -63,21 +63,23 @@ function setActive(object) {
   page_object.load_layout();
 }
 function splitValue(value) {
-  let new_value = [];
-  let split_value = String(value).split(".")[0];
-  let rev_value = split_value.length % 3;
+  let segments = [];
+  let is_negative = (parseInt(value) < 0);
+  let val = Math.abs(value);
+  let whole_number_part = String(val).split(".")[0];
+  let is_div = whole_number_part.length % 3;
+  if(is_div != 0) {
+    segments.push(whole_number_part.substr(0, is_div));
+  }
+  for(let i = 0 + is_div; i < whole_number_part.length; i += 3) {
+    segments.push(whole_number_part.substr(i, 3));
+  }
   let string = "";
-  if(rev_value != 0) {
-    new_value.push(split_value.substr(0, rev_value));
-  }
-  for(let i = 0 + rev_value; i < split_value.length; i += 3) {
-    new_value.push(split_value.substr(i, 3));
-  }
-  for(let i = 0; i < new_value.length; i++) {
-    string += new_value[i] + " ";
-  }
+  segments.forEach((item, i) => {
+    string += item + " ";
+  });
   string = string.slice(0, -1);
-  return string + (String(value).split(".")[1] != undefined ? "." + String(value).split(".")[1] : "");
+  return (is_negative ? "-" : "") + string + (String(val).split(".")[1] != undefined ? "." + String(val).split(".")[1] : "");
 }
 window.onload = loadPage;
 window.onresize = draw;
