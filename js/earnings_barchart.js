@@ -1,70 +1,56 @@
 class EarningsChart{
-  year = 2020;
-  _show_table = false;
   current_chart_interval = -1;
   padding_down = 80;
   padding_left = 100;
   padding_vertical = 20;
   padding_horizontal = 100;
   empty_data = false;
-  indexes = [];
-  data_index = -1;
   constructor(container, stock_name, start_year, end_year, currency, language){
     this.container = container;
     this.stock_name = stock_name;
     this.start_year = start_year;
     this.end_year = end_year.split("_")[0];
+    this.end_quarter = end_year.split("_")[1];
+    this.year = this.end_quarte == 4 ? this.end_year : this.end_year-1;
     this.currency = currency;
     this.language = language;
   }
-  set_year = (year) => {
+  setYear = (year) => {
     this.year = year;
     this.load_data();
   }
   load_data = () => {
     d3.json("php/getearningsrange.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year + "&lang=" + this.language).then((d) => {
-      this._data = d;
-      this.change_chart();
+      this.data = d;
+      this.changeChart();
     });
   }
-  change_chart = () => {
+  changeChart = () => {
     this.array_interval = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
-    this.change_barchart();
-    this.init();
-  }
-  change_barchart = () => {
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_interval != undefined)
       this.current_chart_interval = select_list_interval.value;
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
+    this.init();
   }
   init = () => {
     d3.select(this.container)
-      .selectAll(".button-div")
-      .remove();
-      d3.select(this.container)
-        .selectAll(".svg-div")
-        .remove();
+      .html("");
     d3.select(this.container)
       .append("div")
         .classed("button-div", true);
     d3.select(this.container)
       .append("div")
+        .style("position", "relative")
         .classed("svg-div", true);
-    if(!this._show_table) {
-      this.svg = d3.select(this.container)
-                    .select(".svg-div")
-                    .append("svg");
-    }
+    this.svg = d3.select(this.container)
+                  .select(".svg-div")
+                  .append("svg");
     this.update();
-    this.init_inputs();
-    if(!this._show_table) {
-      this.init_barchart();
-      this.update_barchart();
-    } else {
-      this.init_table();
-    }
+    this.initInputs();
+    this.initBarchart();
+    this.refresh();
   }
   update = () => {
     this.width = parseInt(this.container.clientWidth);
@@ -84,7 +70,7 @@ class EarningsChart{
         .attr("width", this.width);
     }
   }
-  init_inputs = () => {
+  initInputs = () => {
     d3.select(this.container)
 			.select(".button-div")
 			.append("span")
@@ -103,7 +89,7 @@ class EarningsChart{
                   .select(".button-div")
                   .append("span")
                     .classed("dot", true)
-                    .on("click", (ev) => this.set_year(i));
+                    .on("click", (ev) => this.setYear(i));
       if(this.year == i) {
         dot.classed("clicked-dot", true);
       }
@@ -132,38 +118,136 @@ class EarningsChart{
   	if(select_list_interval != undefined){
   		select_list_interval.value = this.current_chart_interval;
   	}
+    d3.select(this.container)
+      .select(".button-div")
+      .append("button")
+  	    .attr("type", "button")
+        .attr("font-size", "16px")
+        .classed("chart-button", true)
+  			.on("click", () => this.showLegendCaption())
+        .html("Filtruj");
   }
-  search_index = (array) => {
+  searchIndex = (array) => {
     for(let i = 0; i < array.length; i++) {
       if(array[i].translate == this.current_chart_index)
         return i;
     }
     return -1;
   }
-  init_barchart = () => {
-    this.empty_data = false;
-    this.heightpadding = this.svg_height - this.padding_vertical;
-    this.widthpadding = this.width - this.padding_horizontal;
-    const keys = [];
-    let name_array = [];
+  getAllBarArray = () => {
+    let keys = [];
     for(let i = this.start_year; i <= this.end_year; i++) {
-      if(this._data[i].length > 0) {
-        let temp_data = this._data[i];
+      if(this.data[i].length > 0) {
+        let temp_data = this.data[i];
+        temp_data.sort((a,b) => {
+          return a.translate > b.translate ? 1 : -1;
+        });
+        if(this.currentChartName != undefined) {
+          temp_data = temp_data.filter(d => d.name == this.currentChartName);
+        }
         for(let j = 0; j < temp_data.length; j++) {
-          temp_data.sort((a,b) => {
-            return a.translate > b.translate ? 1 : -1;
-          });
           if(temp_data[j][this.current_chart_interval] != null) {
-            let temp_obj = {
-              "year" : String(i),
-              "children" : temp_data
-            };
-            keys.push(temp_obj);
-            break;
-          }
+           let temp_obj = {
+             "year" : String(i),
+             "children" : temp_data
+           };
+           keys.push(temp_obj);
+           break;
+         }
         }
       }
     }
+    keys = this.getAllBarIdArray(keys);
+    return keys;
+  }
+  getAllBarIdArray = (keys) => {
+    let name_array = [];
+    for(let i = 0; i < keys.length; i++) {
+      for(let index = 0; index < keys[i].children.length; index++) {
+        if(keys[i].children[index][this.current_chart_interval] != null) {
+          if(!name_array.includes(keys[i].children[index].name)) {
+            name_array.push(keys[i].children[index].name);
+          }
+          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].name);
+        }
+      }
+    }
+    return keys;
+  }
+  getBarNameArray = (keys) => {
+    let name_array = [];
+    for(let i = 0; i < keys.length; i++) {
+      for(let index = 0; index < keys[i].children.length; index++) {
+        if(keys[i].children[index][this.current_chart_interval] != null) {
+          let found_value = false;
+          for(let j = 0; j < name_array.length; j++) {
+            if(name_array[j].name == keys[i].children[index].name) {
+              found_value = true;
+              break;
+            }
+          }
+          if(!found_value) {
+            name_array.push({
+              "name" : keys[i].children[index].name,
+              "translate" : keys[i].children[index].translate
+            });
+          }
+          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].translate);
+        }
+      }
+    }
+    return name_array;
+  }
+  showLegendCaption = () => {
+    if(this.legend.style("display") != "none") {
+      this.removeLegendCaption();
+      return;
+    }
+    this.legend.style("display", "initial").html("");
+    let keys = this.getAllBarArray();
+    let names = this.getBarNameArray(keys);
+    this.legend.append("h2")
+               .html("Usuń filtry")
+               .on("click", (ev, d) => {
+                 this.currentChartName = undefined;
+                 this.currentMarkName = undefined;
+                 this.init();
+               })
+    const rows = this.legend
+                      .append("table")
+                      .selectAll("p")
+                      .data(names)
+                      .enter()
+                      .append("tr");
+    rows.append("td")
+        .append("span")
+        .html(d => d.translate)
+        .filter(d => d.name == this.currentChartName || d.name == this.currentMarkName)
+        .style("font-style", "italic");
+    let cells = rows.append("td");
+    cells.append("button")
+        .classed("legend-button", true)
+        .on("click", (ev, d) => {
+          this.currentChartName = d.name;
+          this.init();
+        })
+        .html("Wykres");
+    cells.append("button")
+        .classed("legend-button", true)
+        .on("click", (ev, d) => {
+          this.currentMarkName = d.name;
+          this.init();
+        })
+        .html("Zaznacz");
+  }
+  removeLegendCaption = () => {
+    this.legend.style("display", "none");
+  }
+  initBarchart = () => {
+    this.empty_data = false;
+    this.heightpadding = this.svg_height - this.padding_vertical;
+    this.widthpadding = this.width - this.padding_horizontal;
+    const keys = this.getAllBarArray();
     if(keys.length == 0) {
       this.svg.html("");
       this.svg.append("text")
@@ -174,6 +258,10 @@ class EarningsChart{
       this.empty_data = true;
       return;
     }
+    this.legend = d3.select(this.container).select(".svg-div")
+                           .append("div")
+                           .style("display", "none")
+                           .classed("legend-div", true);
     this.g = this.svg.append("g")
                      .attr("transform", "translate(" + this.padding_horizontal*(2/3) + ",0)");
     this.xScale = d3.scaleBand()
@@ -207,16 +295,6 @@ class EarningsChart{
                          .domain([0, 20])
                          .range(["#4c1511","#661c16","#80231c","#992922","#b33027","#cc372d","#e63e32", "#ff4538", "#ff584c", "#ff6a60", "#ff7d74", "#ff8f88", "#ffa29c", "#ffb5af", "#ffc7c3"]);
     for(let i = 0; i < keys.length; i++) {
-      for(let index = 0; index < keys[i].children.length; index++) {
-        if(keys[i].children[index][this.current_chart_interval] != null) {
-          if(!name_array.includes(keys[i].children[index].translate)) {
-            name_array.push(keys[i].children[index].translate);
-          }
-          keys[i].children[index].id = name_array.indexOf(keys[i].children[index].translate);
-        }
-      }
-    }
-    for(let i = 0; i < keys.length; i++) {
       let accumulated_height = 0;
       keys[i].children.sort((a,b) => {
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
@@ -232,110 +310,178 @@ class EarningsChart{
     }
     this.g.append("g")
 		      .classed("grid", true);
-
     let current_interval = this.current_chart_interval;
+    let mark_name = this.currentMarkName;
     this.g.selectAll(".bar-group")
           .data(keys)
           .enter()
           .append("g")
             .classed("bar-group", true)
             .each( function(d, i) {
-              d3.select(this)
-                .selectAll(".bar")
-                .data(d.children)
-                .enter()
-                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
-                .append("rect")
-                  .attr('stroke', "#f7f7f7")
-                  .attr('height', data => data["height"])
-                  .attr('fill', data => colorScale(data.id))
-                  .attr("y", data => data["y"])
-                  .attr("class", data => data.name)
-                  .classed("bar", true);
-              d3.select(this)
-                .selectAll(".bar_text")
-                .data(d.children)
-                .enter()
-                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
-                .append("text")
-                  .style('font-size', "10px")
-                  .attr("y", data => data["y"] + data["height"] / 2)
-                  .attr("class", data => data.name)
-                  .attr("fill", "black")
-                  .attr("letter-spacing", 1.2)
-                  .attr("pointer-events", "none")
-                  .attr("text-anchor", "middle")
-                  .style("user-select", "none")
-                  .style("opacity", "0")
-                  .text(data => parseInt(data[current_interval]))
-                  .classed("bar_text", true);
+              let bars = d3.select(this)
+                          .selectAll(".bar")
+                          .data(d.children)
+                          .enter()
+                            .filter(data => data[current_interval] != undefined)
+                            .append("rect")
+                              .attr('height', data => data["height"])
+                              .attr('stroke', "#f7f7f7")
+                              .attr("y", data => data["y"])
+                              .attr("class", data => data.name)
+                              .attr('fill', data => colorScale(data.id))
+                              .classed("bar", true);
+              let text_rect = d3.select(this)
+                                .selectAll(".bar-text-rect")
+                                .data(d.children)
+                                .enter()
+                                .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
+                                .append("rect")
+                                  .attr("y", data => data["y"] + data["height"] / 2 - 13)
+                                  .attr("class", data => data.name)
+                                  .attr('height', "20px")
+                                  .attr("fill", "white")
+                                  .attr("stroke", "black")
+                                  .style("user-select", "none")
+                                  .attr("pointer-events", "none")
+                                  .attr("rx", "10px")
+                                  .classed("bar-text-rect", true);
+              let text = d3.select(this)
+                          .selectAll(".bar_text")
+                          .data(d.children)
+                          .enter()
+                          .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
+                          .append("text")
+                            .style('font-size', "10px")
+                            .attr("y", data => data["y"] + data["height"] / 2)
+                            .attr("class", data => data.name)
+                            .attr("fill", "black")
+                            .attr("letter-spacing", 1.2)
+                            .attr("pointer-events", "none")
+                            .attr("text-anchor", "middle")
+                            .style("user-select", "none")
+                            .text(data => splitValue(parseInt(data[current_interval])))
+                            .classed("bar_text", true);
+              if(mark_name != undefined) {
+                bars.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                bars.filter(d => d.name != mark_name)
+                    .style("opacity", "0.4");
+                text.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                text.filter(d => d.name != mark_name)
+                    .style("opacity", "0");
+                text_rect.filter(d => d.name == mark_name)
+                    .style("opacity", "1");
+                text_rect.filter(d => d.name != mark_name)
+                    .style("opacity", "0");
+              } else {
+                bars.style("opacity", "1");
+                text.style("opacity", "0");
+                text_rect.style("opacity", "0");
+              }
             });
-    this.g.selectAll(".bar-group")
-         .on("click", (ev, d) => {
-           this._show_bar_chart = false;
-           this.year = d.year;
-           this.change_chart();
-         });
     const tooltip = this.svg.append("rect")
-  						.attr("width", "0px")
-  						.attr("height", "0px")
+              .attr("width", "0px")
+              .attr("height", "0px")
               .attr("rx", "20px")
               .attr("ry", "20px")
               .attr("pointer-events", "none")
-  						.style("fill", "white")
-  						.style("stroke", "black")
-  						.classed("tooltip", true)
-  	const tooltiptext = this.svg.append("text")
+              .style("fill", "white")
+              .style("stroke", "black")
+              .classed("tooltip", true)
+    const tooltiptext = this.svg.append("text")
               .attr("pointer-events", "none")
               .style("user-select", "none")
-  						.classed("tooltip-text", true);
+              .classed("tooltip-text", true);
+    this.svg.selectAll(".bar-group")
+            .filter( (d,i) => i > 0)
+            .append("text")
+            .style("user-select", "none")
+            .attr("text-anchor", "middle")
+            .attr("font-size", "14px")
+            .html( (d,i) => {
+              let previous_sum = d3.sum(keys[i].children, data => data[this.current_chart_interval]);
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              let percent = parseFloat(current_sum / previous_sum * 100 - 100).toFixed(2);
+              if(percent >= 0)
+                return "+" + percent + "%";
+              else
+                return percent + "%";
+            })
+            .attr("y", (d,i) => {
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              return this.yScale(current_sum*1.01);
+            })
+            .attr("fill", (d,i) => {
+              let previous_sum = d3.sum(keys[i].children, data => data[this.current_chart_interval]);
+              let current_sum = d3.sum(keys[i+1].children, data => data[this.current_chart_interval]);
+              let percent = parseFloat(current_sum / previous_sum * 100 - 100).toFixed(2);
+              if(percent >= 0)
+                return "green";
+              else
+                return "red";
+            })
+            .classed("percent-change", true);
     //Obsługa eventów tooltipa
-  	this.svg.selectAll('.bar')
+    this.svg.selectAll('.bar')
         .on("mouseover", (ev, d) => {
-          this.svg.selectAll(".bar")
-                  .style("opacity", "0.4");
-          this.svg.selectAll(".bar_text")
-                  .style("opacity", "0");
-          let className = ev.target.classList[0];
-          this.svg.selectAll("." + className)
-                  .filter(".bar")
-                  .style("fill", "#f03030")
-                  .style("opacity", "1");
-          this.svg.selectAll("." + className)
-                  .filter(".bar_text")
-                  .style("fill", "black")
-                  .style("opacity", "1");
+          if(this.currentMarkName == undefined) {
+            this.svg.selectAll(".bar")
+                    .style("opacity", "0.4");
+            this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+            this.svg.selectAll(".bar-text-rect")
+                    .style("opacity", "0");
+            let className = ev.target.classList[0];
+            this.svg.selectAll("." + className)
+                    .filter(".bar")
+                    .style("fill", "#f03030")
+                    .style("opacity", "1");
+            this.svg.selectAll("." + className)
+                    .filter(".bar_text")
+                    .style("fill", "black")
+                    .style("opacity", "1");
+            this.svg.selectAll("." + className)
+                    .filter(".bar-text-rect")
+                    .style("fill", "white")
+                    .style("opacity", "1");
+          }
         })
-  			.on("mousemove", (ev, d) => {
-          let value = d.translate + " " + parseFloat(d[this.current_chart_interval]);
-          let tooltipsize = [String(value).length*10 + 5, 40];
-  				let tooltippos = [ev.offsetX, ev.offsetY];
+        .on("mousemove", (ev, d) => {
+          let value = d.translate + " " + splitValue(parseFloat(d[this.current_chart_interval]));
+          let tooltipsize = [String(value).length*10 + 10, 40];
+          let tooltippos = [ev.offsetX, ev.offsetY];
 
           tooltip
             .attr("x", tooltippos[0])
-    			  .attr("y", tooltippos[1])
-    			  .attr("width", tooltipsize[0])
-    			  .attr("height", tooltipsize[1])
+            .attr("y", tooltippos[1])
+            .attr("width", tooltipsize[0])
+            .attr("height", tooltipsize[1])
             .style("opacity", "0.8");
 
-  			  tooltiptext
-    				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-    				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-    				.attr("display", "inherit")
-    				.text(value);
-  			})
-  			.on("mouseout", (ev) => {
-          this.svg.selectAll(".bar")
-                  .style("fill", data => colorScale(data.id))
-                  .style("opacity", "1");
-          this.svg.selectAll(".bar_text")
-                  .style("opacity", "0");
-  				tooltip
-  					.style("opacity", "0")
+          tooltiptext
+            .attr("x", tooltippos[0] + tooltipsize[0]/2)
+            .attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
+            .attr("display", "inherit")
+            .text(value);
+        })
+        .on("mouseout", (ev, d) => {
+          if(this.currentMarkName == undefined) {
+            this.svg.selectAll(".bar")
+                    .style("fill", data => colorScale(data.id))
+                    .style("opacity", "1");
+            this.svg.selectAll(".bar_text")
+                    .style("opacity", "0");
+            this.svg.selectAll(".bar-text-rect")
+                    .style("opacity", "0");
+          }
+          tooltip
+            .style("opacity", "0")
             .attr("width", 0);
-  				tooltiptext
-  					.attr("display", "none");
-  			});
+          tooltiptext
+            .attr("display", "none");
+        });
+
   }
   update_barchart = () => {
     if(this.empty_data) {
@@ -344,7 +490,7 @@ class EarningsChart{
               .attr("y", this.svg_height/2);
       return;
     }
-    let max_font_size = this.padding_horizontal / String(d3.sum(this._data["2020"], d => d[this.current_chart_interval]) + ",,").length;
+    let max_font_size = this.padding_horizontal / splitValue(String(d3.sum(this.data[this.year], d => d[this.current_chart_interval]))).length;
     if(max_font_size > 20)
       max_font_size = 20;
     this.g.select(".axis_left")
@@ -369,12 +515,18 @@ class EarningsChart{
                 d3.select(this)
                   .selectAll(".bar_text")
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
-              });
+                d3.select(this)
+                  .selectAll(".bar-text-rect")
+                  .attr("x", scale(d.year) - scale.bandwidth() / 4)
+                  .attr('width', scale.bandwidth() + scale.bandwidth() / 2);
+              })
+              .select(".percent-change")
+              .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);
   }
   init_table = () => {
     let data_string = '<table class="earnings-table">';
-    for(let i = 0; i < this._data[this.year].length; i++){
-      data_string += "<tr><td align='center'>" + this._data[this.year][i].translate + "</td><td align='right'>" + parseFloat(this._data[this.year][i][this.current_chart_interval]).toFixed(0) + "tys" + this.currency + "</td></tr>";
+    for(let i = 0; i < this.data[this.year].length; i++){
+      data_string += "<tr><td align='center'>" + this.data[this.year][i].translate + "</td><td align='right'>" + parseFloat(this.data[this.year][i][this.current_chart_interval]).toFixed(0) + "tys" + this.currency + "</td></tr>";
     }
     data_string += "</table>";
     d3.select(this.container).select(".svg-div").html(data_string);

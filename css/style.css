@@ -485,7 +485,7 @@ main h1{
 }
 .info-table .table-title{
   font-weight: bold;
-  font-size: min(5vw, 24px);
+  font-size: min(5vw, 28px);
   text-align: center;
 }
 .dividend-table{

@@ -62,7 +62,7 @@ class DataTable{
         pips: {
             mode: 'values',
             values: [this.start_year, this.end_year],
-            density: 100/(this.end_year-this.start_year),
+            density: 100/(this.end_year-this.start_year-1),
             stepped: true
         },
         connect: true,

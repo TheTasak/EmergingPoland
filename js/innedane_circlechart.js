@@ -502,12 +502,12 @@ class CircleChart{
       keys[i].children.sort((a,b) => {
         return parseFloat(a[this.current_chart_interval]) < parseFloat(b[this.current_chart_interval]) ? 1 : -1;
       });
-
       for(let index = 0; index < keys[i].children.length; index++) {
-          if(keys[i].children[index][this.current_chart_interval] != null) {
-            accumulated_height += this.yScale(0) - this.yScale(keys[i].children[index][this.current_chart_interval]);
-            keys[i].children[index]["y"] = this.yScale(0) - accumulated_height;
-            keys[i].children[index]["height"] = this.yScale(0) - this.yScale(keys[i].children[index][this.current_chart_interval]);
+          let current_child = keys[i].children[index];
+          if(current_child[this.current_chart_interval] != null && current_child[this.current_chart_interval] > 0) {
+            accumulated_height += this.yScale(0) - this.yScale(current_child[this.current_chart_interval]);
+            current_child["y"] = this.yScale(0) - accumulated_height;
+            current_child["height"] = this.yScale(0) - this.yScale(current_child[this.current_chart_interval]);
         }
       }
     }
@@ -540,7 +540,7 @@ class CircleChart{
                                 .enter()
                                 .filter(data => data[current_interval] != undefined && data[current_interval] > 0)
                                 .append("rect")
-                                  .attr("y", data => data["y"] + data["height"] / 2 - 12)
+                                  .attr("y", data => data["y"] + data["height"] / 2 - 13)
                                   .attr("class", data => data.name)
                                   .attr('height', "20px")
                                   .attr("fill", "white")
@@ -714,8 +714,8 @@ class CircleChart{
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
                 d3.select(this)
                   .selectAll(".bar-text-rect")
-                  .attr("x", scale(d.year))
-                  .attr('width', scale.bandwidth());
+                  .attr("x", scale(d.year) - scale.bandwidth() / 4)
+                  .attr('width', scale.bandwidth() + scale.bandwidth() / 2);
               })
               .select(".percent-change")
               .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);

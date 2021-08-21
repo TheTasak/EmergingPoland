@@ -30,13 +30,13 @@ class Chart{
 	  }
   }
   load_data = () => {
-  	let input_value = d3.select(this.container).select(".chart-input");
     // Jeżeli inputy nie są jeszcze narysowane ustawia pobierane dane na wartość domyślną
+    let input_value = d3.select(this.container).select(".chart-input");
   	if(input_value.size() > 0 && input_value.property("value") != "")
   		this.current_data_index = input_value.property("value");
   	else
   		this.current_data_index = this.data_name;
-      let slider = this.container.getElementsByClassName("slider-div")[0];
+    let slider = this.container.getElementsByClassName("slider-div")[0];
     if(slider != undefined){
         this.current_chart_start = parseInt(slider.noUiSlider.get()[0]);
         this.current_chart_end = parseInt(slider.noUiSlider.get()[1]);
@@ -85,7 +85,7 @@ class Chart{
 
     this.heightpadding = this.svg_height - this.padding_vertical;
     this.widthpadding = this.width - this.padding_horizontal;
-    
+
     this.svg.attr("width", this.width)
             .attr("height", this.svg_height);
     d3.select(this.container)
