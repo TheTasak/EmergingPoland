@@ -11,7 +11,9 @@ class EarningsChart{
     this.start_year = start_year;
     this.end_year = end_year.split("_")[0];
     this.end_quarter = end_year.split("_")[1];
-    this.year = this.end_quarte == 4 ? this.end_year : this.end_year-1;
+    this.year = this.end_quarter == 4 ? this.end_year : this.end_year-1;
+    this.current_chart_start = this.end_year-6 > this.start_year ? this.end_year-6 : this.start_year;
+    this.current_chart_end = this.end_year;
     this.currency = currency;
     this.language = language;
   }
@@ -20,6 +22,11 @@ class EarningsChart{
     this.load_data();
   }
   load_data = () => {
+    let slider = this.container.getElementsByClassName("slider-div")[0];
+    if(slider != undefined){
+        this.current_chart_start = parseInt(slider.noUiSlider.get()[0]);
+        this.current_chart_end = parseInt(slider.noUiSlider.get()[1]);
+    }
     d3.json("php/getearningsrange.php?stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year + "&lang=" + this.language).then((d) => {
       this.data = d;
       this.changeChart();
@@ -47,6 +54,10 @@ class EarningsChart{
     this.svg = d3.select(this.container)
                   .select(".svg-div")
                   .append("svg");
+    d3.select(this.container)
+      .append("div")
+        .style("margin-top", "10px")
+        .classed("input-div", true);
     this.update();
     this.initInputs();
     this.initBarchart();
@@ -64,11 +75,9 @@ class EarningsChart{
     d3.select(".svg-div")
       .attr("height", this.svg_height)
       .attr("width", this.width);
-    if(!this._show_table) {
-      this.svg
-        .attr("height", this.svg_height)
-        .attr("width", this.width);
-    }
+    this.svg
+      .attr("height", this.svg_height)
+      .attr("width", this.width);
   }
   initInputs = () => {
     d3.select(this.container)
@@ -76,29 +85,6 @@ class EarningsChart{
 			.append("span")
 			.text("Podział przychodów")
 			.classed("chart-title", true);
-    d3.select(this.container)
-      .select(".button-div")
-      .append("div");
-    d3.select(this.container)
-      .select(".button-div")
-      .append("span")
-        .classed("year-small", true)
-        .html(this.start_year);
-    for(let i = this.start_year; i <= this.end_year; i++) {
-      let dot = d3.select(this.container)
-                  .select(".button-div")
-                  .append("span")
-                    .classed("dot", true)
-                    .on("click", (ev) => this.setYear(i));
-      if(this.year == i) {
-        dot.classed("clicked-dot", true);
-      }
-    }
-    d3.select(this.container)
-      .select(".button-div")
-      .append("span")
-        .classed("year-small", true)
-        .html(this.end_year);
     d3.select(this.container)
       .select(".button-div")
       .append("div");
@@ -126,6 +112,29 @@ class EarningsChart{
         .classed("chart-button", true)
   			.on("click", () => this.showLegendCaption())
         .html("Filtruj");
+    const slider_div = d3.select(this.container)
+                          .select(".input-div")
+                          .append("div")
+                            .classed("slider-div", true);
+
+  	const drag_slider = slider_div.nodes()[0];
+    noUiSlider.create(drag_slider, {
+      start: [this.current_chart_start, this.current_chart_end],
+      step: 1,
+      behaviour: 'drag',
+      pips: {
+          mode: 'values',
+          values: [this.start_year, this.end_year],
+          density: 100/(this.end_year-this.start_year),
+          stepped: true
+      },
+      connect: true,
+      range: {
+          'min': parseInt(this.start_year),
+          'max': parseInt(this.end_year)
+      }
+    });
+    drag_slider.noUiSlider.on("change", this.load_data);
   }
   searchIndex = (array) => {
     for(let i = 0; i < array.length; i++) {
@@ -136,7 +145,7 @@ class EarningsChart{
   }
   getAllBarArray = () => {
     let keys = [];
-    for(let i = this.start_year; i <= this.end_year; i++) {
+    for(let i = this.current_chart_start; i <= this.current_chart_end; i++) {
       if(this.data[i].length > 0) {
         let temp_data = this.data[i];
         temp_data.sort((a,b) => {
@@ -506,6 +515,7 @@ class EarningsChart{
           .html("")
           .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     let scale = this.xScale;
+    let current_interval = this.current_chart_interval;
     this.svg.selectAll(".bar-group")
             .each( function(d, i) {
                 d3.select(this)
@@ -517,8 +527,8 @@ class EarningsChart{
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
                 d3.select(this)
                   .selectAll(".bar-text-rect")
-                  .attr("x", scale(d.year) - scale.bandwidth() / 4)
-                  .attr('width', scale.bandwidth() + scale.bandwidth() / 2);
+                  .attr("x", data => scale(d.year) + scale.bandwidth() / 2 - String(splitValue(parseInt(data[current_interval]))).length*4)
+                  .attr('width', data => String(splitValue(parseInt(data[current_interval]))).length*8);
               })
               .select(".percent-change")
               .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);

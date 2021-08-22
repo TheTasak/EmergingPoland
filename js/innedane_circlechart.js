@@ -703,6 +703,7 @@ class CircleChart{
           .html("")
           .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     let scale = this.xScale;
+    let current_interval = this.current_chart_interval;
     this.svg.selectAll(".bar-group")
             .each( function(d, i) {
                 d3.select(this)
@@ -714,8 +715,8 @@ class CircleChart{
                   .attr("x", scale(d.year) + scale.bandwidth() / 2);
                 d3.select(this)
                   .selectAll(".bar-text-rect")
-                  .attr("x", scale(d.year) - scale.bandwidth() / 4)
-                  .attr('width', scale.bandwidth() + scale.bandwidth() / 2);
+                  .attr("x", data => scale(d.year) + scale.bandwidth() / 2 - String(splitValue(parseInt(data[current_interval]))).length*4-5)
+                  .attr('width', data => String(splitValue(parseInt(data[current_interval]))).length*8+10);
               })
               .select(".percent-change")
               .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);

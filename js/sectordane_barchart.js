@@ -88,11 +88,9 @@ class SectorChart{
     d3.select(".svg-div")
       .attr("height", this.svg_height)
       .attr("width", this.width);
-    if(!this._show_table) {
-      this.svg
-        .attr("height", this.svg_height)
-        .attr("width", this.width);
-    }
+    this.svg
+      .attr("height", this.svg_height)
+      .attr("width", this.width);
   }
   initInputs = () => {
     d3.select(this.container)
@@ -400,7 +398,7 @@ class SectorChart{
                             .attr("y", data => data["y"] + data["height"] / 2)
                             .attr("class", data => data.name)
                             .attr("fill", "black")
-                            .attr("letter-spacing", 1.2)
+                            .attr("letter-spacing", 1)
                             .attr("pointer-events", "none")
                             .attr("text-anchor", "middle")
                             .style("user-select", "none")
@@ -534,7 +532,6 @@ class SectorChart{
               .attr("y", this.svg_height/2);
       return;
     }
-        console.log(this.year);
     let max_font_size = this.padding_horizontal / splitValue(String(parseInt(this.yScale.domain()[1]))).length;
     if(max_font_size > 20)
       max_font_size = 20;
@@ -550,23 +547,25 @@ class SectorChart{
     this.g.select(".grid")
           .html("")
           .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
-          let scale = this.xScale;
-          this.svg.selectAll(".bar-group")
-                  .each( function(d, i) {
-                      d3.select(this)
-                        .selectAll(".bar")
-                        .attr('width', scale.bandwidth())
-                        .attr('x', scale(d.year));
-                      d3.select(this)
-                        .selectAll(".bar_text")
-                        .attr("x", scale(d.year) + scale.bandwidth() / 2);
-                      d3.select(this)
-                        .selectAll(".bar-text-rect")
-                        .attr("x", scale(d.year) - scale.bandwidth() / 4)
-                        .attr('width', scale.bandwidth() + scale.bandwidth() / 2);
-                    })
-                    .select(".percent-change")
-                    .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);
+    let scale = this.xScale;
+    let current_interval = this.current_chart_interval;
+    console.log(this.current_interval);
+    this.svg.selectAll(".bar-group")
+            .each( function(d, i) {
+                d3.select(this)
+                  .selectAll(".bar")
+                  .attr('width', scale.bandwidth())
+                  .attr('x', scale(d.year));
+                d3.select(this)
+                  .selectAll(".bar_text")
+                  .attr("x", scale(d.year) + scale.bandwidth() / 2);
+                d3.select(this)
+                  .selectAll(".bar-text-rect")
+                  .attr("x", data => scale(d.year) + scale.bandwidth() / 2 - String(splitValue(parseInt(data[current_interval]))).length*4)
+                  .attr('width', data => String(splitValue(parseInt(data[current_interval]))).length*8);
+              })
+              .select(".percent-change")
+              .attr("x", d => this.xScale(d.year) + this.xScale.bandwidth() / 2);
   }
   refresh = () => {
     this.update();
