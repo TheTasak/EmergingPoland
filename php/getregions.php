@@ -21,10 +21,22 @@
     $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["regiony"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
     $country_arr = explode(",", $country["strona"]);
-    
+
     $obj = new stdClass();
-    if(null !== $data[$i][$year]) {
+    if(isset($data[$i][$year])) {
       $obj->{"year"} = $data[$i][$year];
+    }
+    if(isset($data[$i][$year . "_1"])) {
+      $obj->{"quarter1"} = $data[$i][$year . "_1"];
+    }
+    if(isset($data[$i][$year . "_2"])) {
+      $obj->{"quarter2"} = $data[$i][$year . "_2"];
+    }
+    if(isset($data[$i][$year . "_3"])) {
+      $obj->{"quarter3"} = $data[$i][$year . "_3"];
+    }
+    if(isset($data[$i][$year . "_4"])) {
+      $obj->{"quarter4"} = $data[$i][$year . "_4"];
     }
     $obj->{"country"} = $country_arr;
     $obj->{"translate"} = $country[$lang];

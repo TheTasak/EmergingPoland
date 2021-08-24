@@ -70,11 +70,7 @@ class WorldMap{
 
 	init = () => {
 		d3.select(this.container)
-			.selectAll(".svg-div")
-			.remove();
-		d3.select(this.container)
-			.selectAll(".button-div")
-			.remove();
+			.html("");
 		d3.select(this.container)
 			.append("div")
 			.style("text-align", "center")
@@ -94,7 +90,6 @@ class WorldMap{
 		} else {
 			this.init_table();
 		}
-		this.refresh();
 	}
 	update = () => {
 		this.width = parseInt(this.container.clientWidth) * 0.9;
@@ -110,10 +105,12 @@ class WorldMap{
 			.select(".svg-div")
 			.attr("width", this.width)
 			.attr("height", this.svg_height);
-		if(this.show_map) {
-			this.svg.attr("width", this.width)
-							.attr("height", this.svg_height);
-		}
+		this.svg.attr("width", this.width)
+						.attr("height", this.svg_height);
+		d3.select(this.container)
+			.select(".border-rect")
+			.attr("width", this.width)
+			.attr("height", this.svg_height);
 	}
 	init_inputs = () => {
 		// Tytuł wykresu
@@ -176,6 +173,13 @@ class WorldMap{
 		let colors = d3.scaleLinear()
 						.domain([d3.min(this.country_arr, d => d[this.current_chart_interval]), d3.max(this.country_arr, d => d[this.current_chart_interval])])
 						.range(["rgb(150,255,150)", "green"]);
+		this.svg
+				.append("rect")
+				.style("fill", "#f5f5f5")
+				.style("rx", "20px")
+				.attr("width", this.width)
+				.attr("height", this.svg_height)
+				.classed("border-rect", true);
 		// Rysowanie geometrii mapy
 		this.svg.append("g")
 				.selectAll("path")
@@ -296,14 +300,16 @@ class WorldMap{
 	refresh = () => {
 		this.update();
 		clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(this.draw_map, 10);
+    this.resizeTimer = setTimeout(this.draw_map, 50);
 	}
 }
 function searchIndex(element) {
 	let arr = element.country;
-	for(let i = 0; i < arr.length; i++) {
-		if(arr[i] == this)
-			return true;
+	if(arr != undefined) {
+		for(let i = 0; i < arr.length; i++) {
+			if(arr[i] == this)
+				return true;
+		}
 	}
 	return false;
 }

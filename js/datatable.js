@@ -68,7 +68,7 @@ class DataTable{
         connect: true,
         range: {
             'min': parseInt(this.start_year),
-            'max': (this.end_quarter == 4) ? this.end_year : this.end_year-1
+            'max': (this.end_quarter == 4 ? parseInt(this.end_year) : parseInt(this.end_year)-1)
         }
       });
     } else {
@@ -125,15 +125,14 @@ class DataTable{
     slider.noUiSlider.updateOptions({
         limit: column_limit
     });
-    console.log(this.column_limit + " " + column_limit);
     if(this.column_limit != column_limit) {
       if(column_limit > this.column_limit) {
         let start = this.table_start;
         let end = this.table_end;
-        if(start-1 >= this.start_year)
-          start -= 1;
-        else if(end+1 <= this.end_year)
+        if(end+1 < this.end_year || (end+1 == this.end_year && this.end_quarter == 4))
           end += 1;
+        else if(start-1 >= this.start_year)
+            start -= 1;
         slider.noUiSlider.updateOptions({
             start: [start, end]
         });

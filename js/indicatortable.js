@@ -8,14 +8,16 @@ class Indicators{
 		this.end_year = end_report.split("_")[0];
 		this.end_quarter = end_report.split("_")[1];
 		this.language = language;
-		this._table = [
+		this.table = [
 			{"name": "Wartość rynkowa", "table": [
 				{"name":"Zysk na akcję", "function": this.earnings_per_share, "suffix": "PLN"},
 				{"name":"Cena/Zysk", "function": this.price_earnings, "suffix": ""},
 				{"name":"Cena/Wartość księgowa", "function": this.price_book_value, "suffix": ""},
 				{"name":"Cena/Wartość księgowa Grahama", "function": this.price_graham_book_value, "suffix": ""},
 				{"name":"Cena/Przychody", "function": this.price_revenue, "suffix": ""},
-				{"name":"Cena/Zysk operacyjny", "function": this.price_operating_profit, "suffix": ""}
+				{"name":"Cena/Zysk operacyjny", "function": this.price_operating_profit, "suffix": ""},
+				{"name":"EV", "function": this.enterprise_value, "suffix": ""},
+				{"name":"EV/EBITDA", "function": this.enterprise_value_ebitda, "suffix": ""}
 			]},
 			{"name": "Rentowność", "table": [
 				{"name":"ROE", "function": this.roe, "suffix": "%"},
@@ -30,10 +32,12 @@ class Indicators{
 				{"name":"Jakość zysku", "function": this.earnings_quality, "suffix": ""}
 			]},
 			{"name": "Płynność", "table": [
+				{"name":"I stopień pokrycia", "function": this.first_coverage_ratio, "suffix": ""},
 				{"name":"Płynność bieżąca", "function": this.current_ratio, "suffix": ""}
 			]},
 			{"name": "Rating", "table": [
-				{"name":"Piotrkowski F-Score", "function": this.piotrkowski_fscore, "suffix": ""}
+				{"name":"Piotrkowski F-Score", "function": this.piotrkowski_fscore, "suffix": ""},
+				{"name":"Altman EM-Score", "function": this.altman_score, "suffix": ""}
 			]}
 		];
 	}
@@ -49,75 +53,75 @@ class Indicators{
 					ar_year--;
 					ar_quarter = 4;
 				}
-				let temp = parseFloat(this._data[ar_year + "_" + ar_quarter][data]);
+				let temp = parseFloat(this.data[ar_year + "_" + ar_quarter][data]);
 				if(isNaN(temp))
 					break;
 				sum += temp;
 				ar_quarter--;
 			}
 		} else {
-			sum = parseFloat(this._data[year][data]).toFixed(2);
+			sum = parseFloat(this.data[year][data]).toFixed(2);
 		}
 		return sum;
 	}
   earnings_per_share = (year) => {
 		let sum = this.sum_data(year, "zysk_netto");
-    return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / this._data[year]["akcje"]).toFixed(2);
+    return parseFloat((this.data[year]["kurs_waluty"]*sum*1000) / this.data[year]["akcje"]).toFixed(2);
   }
   price_earnings = (year) => {
-    return parseFloat(this._data[year]["cena_akcji"] / this.earnings_per_share(year)).toFixed(2);
+    return parseFloat(this.data[year]["cena_akcji"] / this.earnings_per_share(year)).toFixed(2);
   }
 	book_value_per_share = (year) => {
-		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000) / this._data[year]["akcje"]).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["kapital_wlasny"]*1000) / this.data[year]["akcje"]).toFixed(2);
 	}
 	price_book_value = (year) => {
-		return parseFloat(this._data[year]["cena_akcji"] / this.book_value_per_share(year)).toFixed(2);
+		return parseFloat(this.data[year]["cena_akcji"] / this.book_value_per_share(year)).toFixed(2);
 	}
 	graham_book_value_per_share = (year) => {
-		let temp = parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["aktywa_obrotowe"]*1000) - ((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000) + (this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000))).toFixed(2);
-		return parseFloat(temp/this._data[year]["akcje"]).toFixed(2);
+		let temp = parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["aktywa_obrotowe"]*1000) - ((this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_krotkoterminowe"]*1000) + (this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_dlugoterminowe"]*1000))).toFixed(2);
+		return parseFloat(temp/this.data[year]["akcje"]).toFixed(2);
 	}
 	price_graham_book_value = (year) => {
-		return parseFloat(this._data[year]["cena_akcji"]/ this.graham_book_value_per_share(year)).toFixed(2);
+		return parseFloat(this.data[year]["cena_akcji"]/ this.graham_book_value_per_share(year)).toFixed(2);
 	}
   price_revenue = (year) => {
 		let sum = this.sum_data(year, "przychody");
-    return parseFloat(this._data[year]["cena_akcji"] / (this._data[year]["kurs_waluty"]*sum*1000 /  this._data[year]["akcje"])).toFixed(2);
+    return parseFloat(this.data[year]["cena_akcji"] / (this.data[year]["kurs_waluty"]*sum*1000 / this.data[year]["akcje"])).toFixed(2);
   }
 	price_operating_profit = (year) => {
 		let sum = this.sum_data(year, "zysk_operacyjny");
-		return parseFloat(this._data[year]["cena_akcji"] / (this._data[year]["kurs_waluty"]*sum*1000 / this._data[year]["akcje"])).toFixed(2);
+		return parseFloat(this.data[year]["cena_akcji"] / (this.data[year]["kurs_waluty"]*sum*1000 / this.data[year]["akcje"])).toFixed(2);
 	}
   dividend_yield = (year) => {
-		if(isNaN(this._data[year]["dywidenda"]))
+		if(isNaN(this.data[year]["dywidenda"]))
 			return 0;
-    return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["dywidenda"]) / (this._data[year]["cena_akcji"]) * 100).toFixed(2);
+    return parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["dywidenda"]) / (this.data[year]["cena_akcji"]) * 100).toFixed(2);
   }
 	roa = (year) => {
 		let sum = this.sum_data(year, "zysk_netto");
-		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*sum*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["aktywa"]*1000) * 100).toFixed(2);
 	}
 	roe = (year) => {
 		let sum = this.sum_data(year, "zysk_netto");
-		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000) * 100).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*sum*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["kapital_wlasny"]*1000) * 100).toFixed(2);
 	}
 	debt_ratio = (year) => {
-		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000 + this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000)).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_krotkoterminowe"]*1000 + this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_dlugoterminowe"]*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["aktywa"]*1000)).toFixed(2);
 	}
 	longtermdebt_ratio = (year) => {
-		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_dlugoterminowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["kapital_wlasny"]*1000)).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_dlugoterminowe"]*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["kapital_wlasny"]*1000)).toFixed(2);
 	}
 	current_ratio = (year) => {
-		return parseFloat((this._data[year]["kurs_waluty"]*this._data[year]["aktywa_obrotowe"]*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["zobowiazania_krotkoterminowe"]*1000)).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*this.data[year]["aktywa_obrotowe"]*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["zobowiazania_krotkoterminowe"]*1000)).toFixed(2);
 	}
 	asset_turnover_ratio = (year) => {
 		let sum = this.sum_data(year, "przychody");
-		return parseFloat((this._data[year]["kurs_waluty"]*sum*1000) / (this._data[year]["kurs_waluty"]*this._data[year]["aktywa"]*1000) * 100).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*sum*1000) / (this.data[year]["kurs_waluty"]*this.data[year]["aktywa"]*1000) * 100).toFixed(2);
 	}
 	gross_margin_ratio = (year) => {
 		let sum_earnings = this.sum_data(year, "przychody");
 		let sum_profits = this.sum_data(year, "zysk_ze_sprzedazy");
-		return parseFloat((this._data[year]["kurs_waluty"]*sum_profits*1000) / (this._data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*sum_profits*1000) / (this.data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
 	}
 	earnings_quality = (year) => {
 		let sum_flow = this.sum_data(year, "przeplyw_pieniezny_z_dzialalnosci_operacyjnej");
@@ -127,7 +131,18 @@ class Indicators{
 	operating_margin = (year) => {
 		let sum_operating = this.sum_data(year, "zysk_operacyjny");
 		let sum_earnings = this.sum_data(year, "przychody");
-		return parseFloat((this._data[year]["kurs_waluty"]*sum_operating*1000)/(this._data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
+		return parseFloat((this.data[year]["kurs_waluty"]*sum_operating*1000)/(this.data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
+	}
+	enterprise_value = (year) => {
+		let capitalization = this.data[year]["cena_akcji"] * this.data[year]["akcje"];
+		return parseFloat(capitalization + this.data[year]["zobowiazania_dlugoterminowe"]*1000*this.data[year]["kurs_waluty"] + this.data[year]["zobowiazania_krotkoterminowe"]*1000*this.data[year]["kurs_waluty"] - this.data[year]["gotowka"]*1000*this.data[year]["kurs_waluty"]).toFixed(2);
+	}
+	enterprise_value_ebitda = (year) => {
+		let sum_ebitda = this.data[year]["ebitda"]*1000*this.data[year]["kurs_waluty"];
+		return parseFloat(this.enterprise_value(year) / sum_ebitda).toFixed(2);
+	}
+	first_coverage_ratio = (year) => {
+		return parseFloat((this.data[year]["kapital_wlasny"]*1000*this.data[year]["kurs_waluty"]) / (this.data[year]["aktywa_trwale"]*1000*this.data[year]["kurs_waluty"])).toFixed(2);
 	}
 	piotrkowski_fscore = (year) => {
 		if(year <= this.start_year)
@@ -151,12 +166,20 @@ class Indicators{
 		// zmniejszyło się zadłużenie krótkoterminowe
 		points += (this.current_ratio(year) > this.current_ratio(year_before) ? 1 : 0);
 		// nie zwiększa się liczba akcji w obiegu
-		points += (this._data[year]["akcje"] <= this._data[year_before]["akcje"] ? 1 : 0);
+		points += (this.data[year]["akcje"] <= this.data[year_before]["akcje"] ? 1 : 0);
 		// wzrost produktywności aktywów
 		points += (this.asset_turnover_ratio(year) > this.asset_turnover_ratio(year_before) ? 1 : 0);
 		// wzrost marży sprzedaży
 		points += (this.gross_margin_ratio(year) > this.gross_margin_ratio(year_before) ? 1 : 0);
 		return points;
+	}
+	altman_score = (year) => {
+		let x1 = (this.data[year]["aktywa"]*1000*this.data[year]["kurs_waluty"] - this.data[year]["zobowiazania_krotkoterminowe"]*1000*this.data[year]["kurs_waluty"]) / (this.data[year]["aktywa"]*1000*this.data[year]["kurs_waluty"]) * 6.56;
+		let x2 = (this.sum_data(year, "zysk_netto")*1000*this.data[year]["kurs_waluty"]) / (this.data[year]["aktywa"]*1000*this.data[year]["kurs_waluty"]) * 3.26; // trzeba od zysku netto odjąć wypłacone dywidendy
+		let x3 = (this.sum_data(year, "zysk_operacyjny")*1000*this.data[year]["kurs_waluty"]) / (this.data[year]["aktywa"]*1000*this.data[year]["kurs_waluty"]) * 6.72;
+		let x4 = (this.data[year]["kapital_wlasny"]*1000*this.data[year]["kurs_waluty"]) / (this.data[year]["zobowiazania_krotkoterminowe"]*1000*this.data[year]["kurs_waluty"] + this.data[year]["zobowiazania_dlugoterminowe"]*1000*this.data[year]["kurs_waluty"]) * 1.05;
+		let score = x1 + x2 + x3 + x4 + 3.25;
+		return parseFloat(score).toFixed(2);
 	}
 	historical_min = (func) => {
 		let min = Number.MAX_SAFE_INTEGER;
@@ -213,7 +236,7 @@ class Indicators{
 	}
 	load_data = () => {
 		d3.json("php/getalldata.php?" + "stock_name=" + this.stock_name + "&start_year=" + this.start_year + "&end_year=" + this.end_year).then( d => {
-			this._data = d;
+			this.data = d;
 			this.init();
 		});
 	}
@@ -253,12 +276,12 @@ class Indicators{
 			.attr("height", this.button_height);
 	}
   init_inputs = () => {
-		for(let i = 0; i < this._table.length; i++) {
+		for(let i = 0; i < this.table.length; i++) {
 			d3.select(this.container)
 				.select(".button-div")
 				.append("button")
 					.classed("indicatorbtn", true)
-					.html(this._table[i].name)
+					.html(this.table[i].name)
 					.on("click", (ev) => {
 						this.activebtn = ev.target.innerHTML;
 						this.init();
@@ -284,17 +307,18 @@ class Indicators{
 							.html("Slider");
 		let data_index = 0;
 		if(this.activebtn != undefined) {
-			for(let i = 0; i < this._table.length; i++) {
-				if(this._table[i].name == this.activebtn) {
+			for(let i = 0; i < this.table.length; i++) {
+				if(this.table[i].name == this.activebtn) {
 					data_index = i;
 					break;
 				}
 			}
 		}
-		const data_table = this._table[data_index].table;
+		const data_table = this.table[data_index].table;
 		const rows = table.selectAll(".table-row")
 										 .data(data_table)
 										 .enter()
+										 .filter(d => !isNaN(d.function(this.end_year + "_" + this.end_quarter)))
 										 .append("tr")
 										 	.classed("table-row", true);
 		rows.append("td")
@@ -307,13 +331,13 @@ class Indicators{
 														.append("div")
 															.classed("row-slider-div", true);
 		let slider_el = slider_divs.nodes();
-		slider_el.forEach((item, i) => {
-			let max = parseFloat(this.historical_max(data_table[i]["function"]));
-			let min = parseFloat(this.historical_min(data_table[i]["function"]));
-			let median = parseFloat(this.historical_median(data_table[i]["function"]));
+		rows.each( (d,i) => {
+			let max = parseFloat(this.historical_max(d["function"]));
+			let min = parseFloat(this.historical_min(d["function"]));
+			let median = parseFloat(this.historical_median(d["function"]));
 			if(min != max && !isNaN(max) && !isNaN(min) && !isNaN(median)) {
-				noUiSlider.create(item, {
-		      start: [median, parseFloat(data_table[i]["function"](this.end_year + "_" + this.end_quarter))],
+				noUiSlider.create(slider_el[i], {
+		      start: [median, parseFloat(d["function"](this.end_year + "_" + this.end_quarter))],
 		      behaviour: 'unconstrained-tap',
 					tooltips: [false, true],
 					connect: [false, true, false],
@@ -323,7 +347,7 @@ class Indicators{
 		          density: 10,
 							format: wNumb({
 		            decimals: 2,
-								suffix: data_table[i]["suffix"]
+								suffix: d["suffix"]
 	        		}),
 							stepped: true
 		      },
@@ -332,12 +356,12 @@ class Indicators{
 		          'max': max
 		      }
 				});
-				let handles = d3.select(item)
+				let handles = d3.select(slider_el[i])
 												.selectAll(".noUi-handle").nodes();
 				d3.select(handles[0])
 					.classed("handle-invisible", true);
-				item.noUiSlider.on("change", () => {
-					item.noUiSlider.set([median, parseFloat(data_table[i]["function"](this.end_year + "_" + this.end_quarter))]);
+				slider_el[i].noUiSlider.on("change", () => {
+					slider_el[i].noUiSlider.set([median, parseFloat(d["function"](this.end_year + "_" + this.end_quarter))]);
 				});
 			}
 		});

@@ -17,7 +17,7 @@
     for($i = 0; $i < count($data); $i++) {
       $object = new stdClass();
       $object->{"year"} = $data[$i]["wyplata_za_rok"];
-      if(isset($data[$i]["cena_akcji"])) {
+      if(is_null($data[$i]["cena_akcji"])) {
         $myquery = "SELECT * FROM `obecnie_cena` WHERE idspolki='{$stock_value}';";
         $price = sql_getdatarecord($sqli, $myquery);
         $object->{"stock_price"} = $price["cena"];

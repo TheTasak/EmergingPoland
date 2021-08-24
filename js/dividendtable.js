@@ -28,6 +28,7 @@ class DividendTable{
             dividend_ratio += parseFloat(current_ratio);
           }
           let current_yield = 0;
+          console.log(this._data[j].stock_price + " " + this._data[j].year);
           if(this._data[j].stock_price != null) {
             current_yield = parseFloat(this._data[j].value * this._data[j].exchange_rate / this._data[j].stock_price * 100).toFixed(2);
             dividend_yield += parseFloat(current_yield);
