@@ -142,6 +142,14 @@ class Stock{
         let temp = document.getElementById(buttons[i].value);
         temp.classList.add("hidden-div");
       }
+      let removed = 0;
+      for(let i = 0; i < this.containers.length; i++) {
+        // usuń przycisk pokazujący zawartość jeżeli kontener jest pusty
+        if(this.containers[i].innerHTML.length == 7) {
+          buttons[i-removed].remove();
+          removed++;
+        }
+      }
       this.load_layout();
     }).catch(error => {
       console.error(error);
