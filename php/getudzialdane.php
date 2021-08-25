@@ -8,12 +8,14 @@
 	}
   if(isset($_GET['lang'])) {
     $lang = $_GET['lang'];
+  } else {
+    $lang = "pl";
   }
 	$sqli = sql_open();
 
 	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
   $stock = sql_getdatarecord($sqli, $myquery);
-	$stock_value = reset($stock);
+	$stock_value = $stock["idspolki"];
 
 	$myquery = "SELECT DISTINCT rynek  FROM `{$year}_udzial` WHERE idspolki='{$stock_value}';";
   $tables = sql_getdataarray($sqli, $myquery);
@@ -31,12 +33,12 @@
 
       $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$podzial[$j]["podzial"]}';";
       $tlumaczenie = sql_getdatarecord($sqli, $myquery);
-      if(null !== $tlumaczenie) {
+      if(isset($tlumaczenie)) {
         $podzial_object->{"translate"} = $tlumaczenie[$lang];
       } else {
         $myquery = "SELECT * FROM `tlumaczenie` WHERE baza='{$podzial[$j]["podzial"]}';";
         $tlumaczenie = sql_getdatarecord($sqli, $myquery);
-        if(null !== $tlumaczenie) {
+        if(isset($tlumaczenie)) {
           $podzial_object->{"translate"} = $tlumaczenie[$lang];
         } else {
           $podzial_object->{"translate"} = $podzial[$j]["podzial"];

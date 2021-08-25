@@ -18,10 +18,11 @@ function loadPage(){
       const container4 = document.getElementById("dywidenda");
       const container5 = document.getElementById("mapa");
       const container6 = document.getElementById("podzial_przychodow");
-      const container7 = document.getElementById("akcjonariat");
-      const container8 = document.getElementById("inne");
+      const container7 = document.getElementById("podzial_sektorow");
+      const container8 = document.getElementById("akcjonariat");
+      const container9 = document.getElementById("inne");
 
-      let container_table = [container1, container2, container3, container4, container5, container6, container7, container8];
+      let container_table = [container1, container2, container3, container4, container5, container6, container7, container8, container9];
       page_object = new Stock(name, container_table, language);
       document.getElementById("lang-pl").href = "stockpage.php?stock=" + name.trim() + "&lang=pl";
       document.getElementById("lang-en").href = "stockpage.php?stock=" + name.trim() + "&lang=en";

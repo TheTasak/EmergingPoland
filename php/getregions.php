@@ -18,7 +18,7 @@
 	$myquery = "SELECT * FROM `{$year}_regiony` WHERE idspolki='{$stock_value}';";
   $data = sql_getdataarray($sqli, $myquery);
   for($i = 0; $i < count($data); $i++) {
-    $myquery = "SELECT * FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["regiony"]}';";
+    $myquery = "SELECT baza, strona, $lang FROM `tlumaczenie_kraje` WHERE baza='{$data[$i]["regiony"]}';";
     $country = sql_getdatarecord($sqli, $myquery);
     $country_arr = explode(",", $country["strona"]);
 

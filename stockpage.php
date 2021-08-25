@@ -48,6 +48,7 @@
         <button class="stockbtn" type="button" onclick="setActive(this)" value="dywidenda">Dywidenda</button>
         <button class="stockbtn" type="button" onclick="setActive(this)" value="mapa">Mapa</button>
         <button class="stockbtn" type="button" onclick="setActive(this)" value="podzial_przychodow">Podział przychodów</button>
+        <button class="stockbtn" type="button" onclick="setActive(this)" value="podzial_sektorow">Podział sektorów</button>
         <button class="stockbtn" type="button" onclick="setActive(this)" value="akcjonariat">Akcjonariat</button>
         <button class="stockbtn" type="button" onclick="setActive(this)" value="inne">Inne</button>
       </div>
@@ -62,6 +63,8 @@
       <div class="content" id="mapa">
       </div>
       <div class="content" id="podzial_przychodow">
+      </div>
+      <div class="content" id="podzial_sektorow">
       </div>
       <div class="content" id="akcjonariat">
       </div>

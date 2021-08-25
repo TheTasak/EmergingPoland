@@ -157,20 +157,19 @@ class Indicators{
 		// spółka zanotowała dodatnie przepływy pieniężne
 		points += (this.sum_data(year, "przeplyw_pieniezny_z_dzialalnosci_operacyjnej") > 0 ? 1 : 0);
 		// spółka zwiększyła roa r/r
-
-		points += (this.roa(year) > this.roa(year_before) ? 1 : 0);
+		points += (parseFloat(this.roa(year)) > parseFloat(this.roa(year_before)) ? 1 : 0);
 		// wartość przepływów pieniężnych większa niż zysk
-		points += (this.earnings_quality(year) >= 1 ? 1 : 0);
+		points += (parseFloat(this.earnings_quality(year)) >= 1 ? 1 : 0);
 		// zmniejszył się stosunek zadłużenia do aktywów
-		points += (this.longtermdebt_ratio(year) < this.longtermdebt_ratio(year_before) ? 1 : 0);
+		points += (parseFloat(this.longtermdebt_ratio(year)) < parseFloat(this.longtermdebt_ratio(year_before)) ? 1 : 0);
 		// zmniejszyło się zadłużenie krótkoterminowe
-		points += (this.current_ratio(year) > this.current_ratio(year_before) ? 1 : 0);
+		points += (parseFloat(this.current_ratio(year)) > parseFloat(this.current_ratio(year_before)) ? 1 : 0);
 		// nie zwiększa się liczba akcji w obiegu
-		points += (this.data[year]["akcje"] <= this.data[year_before]["akcje"] ? 1 : 0);
+		points += (parseInt(this.data[year]["akcje"]) <= parseInt(this.data[year_before]["akcje"]) ? 1 : 0);
 		// wzrost produktywności aktywów
-		points += (this.asset_turnover_ratio(year) > this.asset_turnover_ratio(year_before) ? 1 : 0);
+		points += (parseFloat(this.asset_turnover_ratio(year)) > parseFloat(this.asset_turnover_ratio(year_before)) ? 1 : 0);
 		// wzrost marży sprzedaży
-		points += (this.gross_margin_ratio(year) > this.gross_margin_ratio(year_before) ? 1 : 0);
+		points += (parseFloat(this.gross_margin_ratio(year)) > parseFloat(this.gross_margin_ratio(year_before)) ? 1 : 0);
 		return points;
 	}
 	altman_score = (year) => {

@@ -549,7 +549,6 @@ class SectorChart{
           .call(d3.axisLeft(this.yScale).tickSize(-this.width+this.padding_horizontal).tickFormat("").ticks(10));
     let scale = this.xScale;
     let current_interval = this.current_chart_interval;
-    console.log(this.current_interval);
     this.svg.selectAll(".bar-group")
             .each( function(d, i) {
                 d3.select(this)
