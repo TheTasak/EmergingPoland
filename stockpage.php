@@ -13,23 +13,29 @@
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js" defer></script>
 
-    <script src="js/datatable.js?v=1" defer></script>
-    <script src="js/innebarchart.js?v=1" defer></script>
-    <script src="js/dane_barchart.js?v=1" defer></script>
-    <script src="js/earnings_barchart.js?v=1" defer></script>
-    <script src="js/dividendtable.js?v=1" defer></script>
-    <script src="js/dividendchart.js?v=1" defer></script>
-  	<script src="js/treechart.js?v=1" defer></script>
-    <script src="js/udzial_treechart.js?v=1" defer></script>
-    <script src="js/sectordane_barchart.js?v=1" defer></script>
-    <script src="js/innedane_circlechart.js?v=1" defer></script>
-    <script src="js/map.js?v=1" defer></script>
-    <script src="js/akcje_chart.js?v=1" defer></script>
-    <script src="js/indicatortable.js?v=1" defer></script>
-    <script src="js/basicinfotable.js?v=1" defer></script>
-    <script src="js/stock.js?v=1" defer></script>
-    <script src="js/navbar.js?v=1" defer></script>
-    <script src="js/script.js?v=1" defer></script>
+    <script type="text/javascript">
+      var versionUpdate = (new Date()).getTime();
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = "js/datatable.js?v=" + versionUpdate;
+      document.head.appendChild(script);
+    </script>
+    <script src="js/innebarchart.js" defer></script>
+    <script src="js/dane_barchart.js" defer></script>
+    <script src="js/earnings_barchart.js" defer></script>
+    <script src="js/dividendtable.js" defer></script>
+    <script src="js/dividendchart.js" defer></script>
+  	<script src="js/treechart.js" defer></script>
+    <script src="js/udzial_treechart.js" defer></script>
+    <script src="js/sectordane_barchart.js" defer></script>
+    <script src="js/innedane_circlechart.js" defer></script>
+    <script src="js/map.js" defer></script>
+    <script src="js/akcje_chart.js" defer></script>
+    <script src="js/indicatortable.js" defer></script>
+    <script src="js/basicinfotable.js" defer></script>
+    <script src="js/stock.js" defer></script>
+    <script src="js/navbar.js" defer></script>
+    <script src="js/script.js" defer></script>
   </head>
   <body id="body">
     <?php include "./header.html" ?>

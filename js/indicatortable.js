@@ -121,6 +121,8 @@ class Indicators{
 	gross_margin_ratio = (year) => {
 		let sum_earnings = this.sum_data(year, "przychody");
 		let sum_profits = this.sum_data(year, "zysk_ze_sprzedazy");
+		if(isNaN(sum_profits) || sum_profits == 0)
+			return NaN;
 		return parseFloat((this.data[year]["kurs_waluty"]*sum_profits*1000) / (this.data[year]["kurs_waluty"]*sum_earnings*1000) * 100).toFixed(2);
 	}
 	earnings_quality = (year) => {

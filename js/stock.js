@@ -82,11 +82,11 @@ class Stock{
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
         this.modules.push(new TreeChart(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
-        let container2 = d3.select(this.containers[5])
+        /*let container2 = d3.select(this.containers[5])
                           .append("div")
                           .classed("chart-div", true);
         let con2_node = d3.select(container2.nodes()[0]).nodes()[0];
-        this.modules.push(new EarningsChart(con2_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+        this.modules.push(new EarningsChart(con2_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));*/
       }
       if(d.podzial_sektorow != null) {
         let container1 = d3.select(this.containers[6])
@@ -102,12 +102,12 @@ class Stock{
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
         this.modules.push(new AkcjeChart(con1_node, this.stock_name, this.start_year, this.end_report));
       }
-      if(d.udzial != null) {
+      if(d.inne_dane != null) {
         let container1 = d3.select(this.containers[8])
                           .append("div")
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new TreeChartUdzial(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+        this.modules.push(new CircleChart(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
       }
       if(d.inne != null) {
         let container1 = d3.select(this.containers[8])
@@ -116,12 +116,12 @@ class Stock{
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
         this.modules.push(new InneChart(con1_node, this.stock_name, this.start_year, this.end_report, this.language));
       }
-      if(d.inne_dane != null) {
+      if(d.udzial != null) {
         let container1 = d3.select(this.containers[8])
                           .append("div")
                           .classed("chart-div", true);
         let con1_node = d3.select(container1.nodes()[0]).nodes()[0];
-        this.modules.push(new CircleChart(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
+        this.modules.push(new TreeChartUdzial(con1_node, this.stock_name, this.start_year, this.end_report, this.currency, this.language));
       }
       if(d.kraje != null) {
         let container1 = d3.select(this.containers[4])

@@ -3,54 +3,75 @@
 	if(isset($_GET['stock_name'])) {
 		$stock_name = $_GET['stock_name'];
 	}
-  if(isset($_GET['date'])) {
-		$date = $_GET['date'];
+  if(isset($_GET['year'])) {
+		$year = $_GET['year'];
 	}
   if(isset($_GET['lang'])) {
-		$language = $_GET['lang'];
-	}
+		$lang = $_GET['lang'];
+	} else {
+    $lang = "pl";
+  }
 
   $sqli = sql_open();
 	$myquery = "SELECT idspolki FROM `spis` WHERE spolki='{$stock_name}';";
   $stock = sql_getdatarecord($sqli, $myquery);
-	$stock_value = reset($stock);
+	$stock_value = $stock["idspolki"];
 
-	$myquery = "SELECT * FROM `{$date}_podzial_przychodow` WHERE idspolki='{$stock_value}';";
-  $data = sql_getdataarray($sqli, $myquery);
-
-  $translate_data = array();
-  for($i = 0; $i < count($data); $i++){
-    $temp = $data[$i]["sposoby_uzyskania_przychodu"];
-
-    $myquery = "SELECT {$language} FROM `tlumaczenie` WHERE baza='{$temp}';";
-    $translate = sql_getdatarecord($sqli, $myquery);
-
-    if(null !== $translate){
-      $translate = reset($translate);
-    }
-    else{
-      $translate = $data[$i]['sposoby_uzyskania_przychodu'];
-    }
+	$myquery = "SELECT DISTINCT grupa FROM `{$year}_podzial_przychodow` WHERE idspolki='{$stock_value}';";
+  $groups = sql_getdataarray($sqli, $myquery);
+  $data = new stdClass();
+  $data->{"name"} = "chart";
+  $arr = array();
+  for($i = 0; $i < count($groups); $i++) {
+    $myquery = "SELECT * FROM `{$year}_podzial_przychodow` WHERE idspolki='{$stock_value}' AND grupa='{$groups[$i]["grupa"]}';";
+    $data_column = sql_getdataarray($sqli, $myquery);
     $object = new stdClass();
-    $object->{"name"} = $data[$i]['sposoby_uzyskania_przychodu'];
-    $object->{"translate"} = $translate;
-    if(null !== $data[$i][$date . "_1"]) {
-      $object->{"quarter1"} = $data[$i][$date . "_1"];
+    $object->{"name"} = $groups[$i]["grupa"];
+    $myquery = "SELECT $lang FROM `tlumaczenie` WHERE baza='{$groups[$i]["grupa"]}';";
+    $translate = sql_getdatarecord($sqli, $myquery);
+    if(isset($translate[$lang])) {
+      $object->{"translate"} = $translate[$lang];
+    } else {
+      $object->{"translate"} = $groups[$i]["grupa"];
     }
-    if(null !== $data[$i][$date . "_2"]) {
-      $object->{"quarter2"} = $data[$i][$date . "_2"];
+    $children_arr = array();
+    for($j = 0; $j < count($data_column); $j++) {
+      $data_object = new stdClass();
+      if(isset($data_column[$j]["sposoby_uzyskania_przychodu"])) {
+        $name = $data_column[$j]["sposoby_uzyskania_przychodu"];
+      } else {
+        $name = $groups[$i]["grupa"];
+      }
+      $data_object->{"name"} = $name;
+      $myquery = "SELECT $lang FROM `tlumaczenie` WHERE baza='{$name}';";
+      $translate = sql_getdatarecord($sqli, $myquery);
+      if(isset($translate[$lang])) {
+        $data_object->{"translate"} = $translate[$lang];
+      } else {
+        $data_object->{"translate"} = $name;
+      }
+      
+      if(isset($data_column[$j][$year . "_1"])) {
+        $data_object->{"quarter1"} = $data_column[$j][$year . "_1"];
+      }
+      if(isset($data_column[$j][$year . "_2"])) {
+        $data_object->{"quarter2"} = $data_column[$j][$year . "_2"];
+      }
+      if(isset($data_column[$j][$year . "_3"])) {
+        $data_object->{"quarter3"} = $data_column[$j][$year . "_3"];
+      }
+      if(isset($data_column[$j][$year . "_4"])) {
+        $data_object->{"quarter4"} = $data_column[$j][$year . "_4"];
+      }
+      if(isset($data_column[$j][$year])) {
+        $data_object->{"year"} = $data_column[$j][$year];
+      }
+      $children_arr[] = $data_object;
     }
-    if(null !== $data[$i][$date . "_3"]) {
-      $object->{"quarter3"} = $data[$i][$date . "_3"];
-    }
-    if(null !== $data[$i][$date . "_4"]) {
-      $object->{"quarter4"} = $data[$i][$date . "_4"];
-    }
-    if(null !== $data[$i][$date]) {
-      $object->{"year"} = $data[$i][$date];
-    }
-    $translate_data[$i] = $object;
+    $object->{"children"} = $children_arr;
+    $arr[] = $object;
   }
-    echo json_encode($translate_data);
-    mysqli_close($sqli);
+  $data->{"children"} = $arr;
+  echo json_encode($data);
+  mysqli_close($sqli);
 ?>

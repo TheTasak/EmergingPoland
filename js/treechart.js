@@ -15,32 +15,35 @@ class TreeChart{
     this.load_data();
   }
   load_data = () => {
-    d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&date=" + this.year + "&lang=" + this.language).then((d) => {
-      this._data = d;
+    d3.json("php/getearnings.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
+      this.data = d;
       this.change_chart();
-      this.get_suffix();
       this.init();
     });
   }
   change_chart = () => {
     let temp_array = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
-		this.array_interval = [];
-		temp_array.forEach((item, i) => {
-			let new_arr = d3.map(this._data, d => d[item]).filter(value => value != undefined && !isNaN(value));
+		this.array_interval = temp_array;
+		/*temp_array.forEach((item, i) => {
+			let new_arr = d3.map(this.data, d => d[item]).filter(value => value != undefined && !isNaN(value));
 			if(new_arr.length != 0)
 				this.array_interval.push(item);
-		});
+		});*/
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_interval != undefined && this.array_interval.includes(select_list_interval.value))
       this.current_chart_interval = select_list_interval.value;
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
-    this._data.forEach((item, i) => {
-      item[this.current_chart_interval] = parseFloat(item[this.current_chart_interval]);
+    this.data.children.sort((a,b) => {
+      let a_sum = d3.sum(a.children, d => d[this.current_chart_interval]);
+      let b_sum = d3.sum(b.children, d => d[this.current_chart_interval]);
+      return b_sum - a_sum;
     });
-    this.current_data = d3.filter(this._data, d => !isNaN(d[this.current_chart_interval]));
-    this.current_data.sort((a,b) => (a[this.current_chart_interval] < b[this.current_chart_interval]) ? 1 : -1);
-    this.current_data = {"name": "chart", "translate": "", "children": this.current_data};
+    this.data.children.forEach((item, i) => {
+      item.children.sort((a, b) => {
+        return b[this.current_chart_interval] - a[this.current_chart_interval];
+      });
+    });
   }
   get_suffix = () => {
     //Zwraca końcówkę danych na podstawie ilości zer na końcu
@@ -147,7 +150,7 @@ class TreeChart{
   }
   init_chart = () => {
     this.svg.html("");
-    if(this.current_data.children.length == 0) {
+    if(this.data.children.length == 0) {
       this.svg.append("text")
               .attr("text-anchor", "middle")
               .attr("x", this.width/2)
@@ -157,25 +160,19 @@ class TreeChart{
               .attr("font-size", "26px");
       return;
     }
-    const data = Object.assign({}, this.current_data);
-    data.children = d3.filter(data.children, d => d[this.current_chart_interval] > 0);
-    let root = d3.hierarchy(data);
+    let root = d3.hierarchy(this.data);
     root.sum(d => d[this.current_chart_interval]);
 
-    let treemap_layout = d3.treemap();
-    treemap_layout
-      .size([this.width, this.svg_height])
-      .paddingOuter(5);
+    let treemap_layout = d3.treemap()
+                           .size([this.width, this.svg_height])
+                           .paddingOuter(5);
     treemap_layout(root);
-    let colors = d3.scaleLinear()
-            .domain([d3.min(data.children, d => d[this.current_chart_interval]),d3.max(data.children, d => d[this.current_chart_interval])])
-            .range(["rgb(150,255,150)", "green"]);
+
 
     const g = this.svg.append("g");
     g.selectAll("rect")
-          .data(root.descendants())
+          .data(root.leaves())
           .enter()
-          .filter(d => d.data.name != "chart")
           .append("rect")
           .attr('x', d => d.x0)
           .attr('y', d => d.y0)
@@ -183,25 +180,30 @@ class TreeChart{
           .attr('height', d => d.y1 - d.y0)
           .attr('stroke', "black")
           .attr('stroke-width', "1")
-          .attr("fill", d => colors(d.data[this.current_chart_interval]))
+          .attr("fill", d => {
+            let colors = d3.scaleLinear()
+                          .domain([d3.min(d.parent.children, data => data.value),d3.max(d.parent.children, data => data.value)])
+                          .range(["rgb(150,255,150)", "green"]);
+            return colors(d.data[this.current_chart_interval]);
+          })
           .classed("treechart-chunk", true);
 
     g.selectAll("text")
-          .data(root.descendants())
+          .data(root.leaves())
           .enter()
           .filter(d => d.data.name != "chart")
           .append("text")
             .text(d => d.data.translate)
             .attr("x", d => d.x0 + (d.x1 - d.x0) / 2)
-            .attr("y", d =>  {
-              let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
+            .attr("y", d => {
+              let cut_text = parseInt((d.x1 - d.x0)*1.5 / d.data.translate.length);
               cut_text = cut_text > 36 ? 36 : cut_text;
               cut_text = cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text;
               return d.y0 + (d.y1 - d.y0) / 2 + (cut_text / 2);
             })
             .attr("font-family", "monospace")
             .attr("font-size", (d) => {
-                let cut_text = parseInt((d.x1 - d.x0) / d.data.translate.length);
+                let cut_text = parseInt((d.x1 - d.x0)*1.5 / d.data.translate.length);
                 cut_text = (cut_text > 36 ? 36 : cut_text);
                 cut_text = (cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text);
                 return String(cut_text) + "px";
@@ -221,7 +223,12 @@ class TreeChart{
               .attr("pointer-events", "none")
               .style("user-select", "none")
               .classed("tooltip", true);
-    const tooltiptext = this.svg.append("text")
+    const tooltiptextgroup = this.svg.append("text")
+              .attr("pointer-events", "none")
+              .style("user-select", "none")
+              .style("font-weight", "bold")
+              .classed("tooltip-text", true);
+    const tooltiptextvalue = this.svg.append("text")
               .attr("pointer-events", "none")
               .style("user-select", "none")
               .classed("tooltip-text", true);
@@ -232,7 +239,14 @@ class TreeChart{
           ev.target.style.opacity = "1";
         })
   			.on("mousemove", (ev, d) => {
-  				let tooltipsize = [String(d.data.translate + splitValue(d.data[this.current_chart_interval]) + this.suffix + this.currency).length*10+10, 40];
+          let children_value = d.data.translate + " " + splitValue(d.data[this.current_chart_interval]) + "tys " + this.currency;
+          let parent_value = d.parent.data.translate;
+          let value = parent_value.length > children_value.length ? parent_value : children_value;
+
+          let font = parseInt(this.width*1.5 / value.length);
+          font = font > 16 ? 16 : font;
+          console.log(font);
+  				let tooltipsize = [font*value.length*0.6+10, 80];
           let tooltippos = [ev.offsetX, ev.offsetY];
 
           if(tooltippos[0]+tooltipsize[0] > this.width)
@@ -244,19 +258,26 @@ class TreeChart{
 		        .attr("width", tooltipsize[0])
 		        .attr("height", tooltipsize[1])
             .style("opacity", "0.7");
-
-  			tooltiptext
-  				.attr("x", tooltippos[0] + tooltipsize[0]/2)
-  				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/2)
-  				.attr("display", "inherit")
-  				.text(d.data.translate + " " + splitValue(d.data[this.current_chart_interval]) + this.suffix + " " + this.currency);
-
+          tooltiptextgroup
+    				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+    				.attr("y", (tooltippos[1]+5) + tooltipsize[1]/3)
+            .attr("font-size", font + "px")
+    				.attr("display", "inherit")
+    				.text(parent_value);
+    			tooltiptextvalue
+    				.attr("x", tooltippos[0] + tooltipsize[0]/2)
+    				.attr("y", (tooltippos[1]+10) + tooltipsize[1]/3 * 2)
+            .attr("font-size", font + "px")
+    				.attr("display", "inherit")
+    				.text(children_value);
   			})
   			.on("mouseout", (ev, d) => {
   				tooltip
   					.style("opacity", "0")
             .attr("width", "0px");
-  				tooltiptext
+  				tooltiptextgroup
+  					.attr("display", "none");
+          tooltiptextvalue
   					.attr("display", "none");
           this.svg.selectAll(".treechart-chunk")
                   .style("opacity", "1");

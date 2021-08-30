@@ -17,19 +17,24 @@ class TreeChartUdzial{
   }
   load_data = () => {
     d3.json("php/getudzialdane.php?stock_name=" + this.stock_name + "&year=" + this.year + "&lang=" + this.language).then((d) => {
-      this._data = d;
+      this.data = d;
+      if(this.data.length <= 0 && this.year > this.start_year){
+				this.year--;
+				this.load_data();
+				return;
+			}
       this.change_chart();
       this.init();
     });
   }
   change_chart = () => {
     const select_list_type = this.container.getElementsByClassName("chart-input")[0];
-    if(select_list_type != undefined && select_list_type.value < this._data.length) {
+    if(select_list_type != undefined && select_list_type.value < this.data.length) {
       this.current_chart_index = select_list_type.value;
     }
     else
       this.current_chart_index = 0;
-    this.current_data = this._data[this.current_chart_index];
+    this.current_data = this.data[this.current_chart_index];
     this.current_data.children.forEach((item, i) => {
       item.year = parseFloat(item.year);
     });
@@ -118,10 +123,10 @@ class TreeChartUdzial{
 				                 .on("change", this.load_data)
 				                 .classed("chart-input", true);
     //Załadowanie opcji do pola
-  	for(let i = 0; i < this._data.length; i++){
+  	for(let i = 0; i < this.data.length; i++){
   		field_type.append("option")
   			         .attr("value", i)
-  			         .text(this._data[i].name);
+  			         .text(this.data[i].name);
   	}
     //Ustawienie opcji pola na ostatnio wybraną
   	const select_list_type = this.container.getElementsByClassName("chart-input")[0];
