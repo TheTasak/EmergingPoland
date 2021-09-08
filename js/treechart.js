@@ -23,17 +23,29 @@ class TreeChart{
   }
   change_chart = () => {
     let temp_array = ["quarter1", "quarter2", "quarter3", "quarter4", "year"];
-		this.array_interval = temp_array;
-		/*temp_array.forEach((item, i) => {
-			let new_arr = d3.map(this.data, d => d[item]).filter(value => value != undefined && !isNaN(value));
-			if(new_arr.length != 0)
-				this.array_interval.push(item);
-		});*/
+		this.array_interval = [];
+		temp_array.forEach((item, i) => {
+      let is_interval_present = false;
+			this.data.children.forEach((child, num) => {
+        if(!is_interval_present) {
+          for(let i = 0; i < child.children.length; i++) {
+            if(child.children[i][item] != undefined && child.children[i][item] > 0 ) {
+              this.array_interval.push(item);
+              is_interval_present = true;
+              break;
+            }
+          }
+        }
+      });
+		});
     const select_list_interval = this.container.getElementsByClassName("chart-input")[0];
     if(select_list_interval != undefined && this.array_interval.includes(select_list_interval.value))
       this.current_chart_interval = select_list_interval.value;
     else
       this.current_chart_interval = this.array_interval[this.array_interval.length-1];
+    this.data.children.forEach((item, i) => {
+      item.children = d3.filter(item.children, d => parseFloat(d[this.current_chart_interval]) > 0);
+    });
     this.data.children.sort((a,b) => {
       let a_sum = d3.sum(a.children, d => d[this.current_chart_interval]);
       let b_sum = d3.sum(b.children, d => d[this.current_chart_interval]);
@@ -199,7 +211,7 @@ class TreeChart{
               let cut_text = parseInt((d.x1 - d.x0)*1.5 / d.data.translate.length);
               cut_text = cut_text > 36 ? 36 : cut_text;
               cut_text = cut_text > (d.y1 - d.y0) / 2 ? (d.y1 - d.y0) / 2 : cut_text;
-              return d.y0 + (d.y1 - d.y0) / 2 + (cut_text / 2);
+              return d.y0 + (d.y1 - d.y0) / 2 + (cut_text / 3);
             })
             .attr("font-family", "monospace")
             .attr("font-size", (d) => {
@@ -245,7 +257,6 @@ class TreeChart{
 
           let font = parseInt(this.width*1.5 / value.length);
           font = font > 16 ? 16 : font;
-          console.log(font);
   				let tooltipsize = [font*value.length*0.6+10, 80];
           let tooltippos = [ev.offsetX, ev.offsetY];
 

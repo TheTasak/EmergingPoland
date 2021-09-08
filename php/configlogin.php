@@ -1,8 +1,8 @@
 <?php
   $host = "localhost";
-  $username = "homeuser";
+  $username = "u723121803_loginuser";
   $password = "Admin123";
-  $database = "login";
+  $database = "u723121803_login";
 
   /* Attempt to connect to MySQL database */
   $link = mysqli_connect($host, $username, $password, $database);

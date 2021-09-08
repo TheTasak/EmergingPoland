@@ -168,7 +168,7 @@ class DataTable{
         rows.filter(d => isNaN(d[i]))
           .append("td")
           .style("text-align", "right")
-          .html("Brak danych");
+          .html("-");
       }
       let percent = rows.append("td")
             .style("text-align", "right");
@@ -200,7 +200,7 @@ class DataTable{
           rows.filter(d => d[quarter] != quarter && isNaN(d[quarter]))
             .append("td")
             .style("text-align", "right")
-            .html("Brak danych");
+            .html("-");
         }
       }
     }

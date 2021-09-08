@@ -2,9 +2,9 @@
   function sql_open()
   {
     $host = "localhost";
-    $username = "homeuser";
+    $username = "u723121803_homeuser";
     $password = "Admin123";
-    $database = "stronka";
+    $database = "u723121803_stronka";
     $mysqli = new mysqli($host, $username, $password, $database);
     $mysqli->set_charset('utf8mb4');
 

@@ -191,7 +191,7 @@ class WorldMap{
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let arr_index = this.country_arr.findIndex(searchIndex, d.properties["name"]);
-					return arr_index != -1 && !isNaN(this.country_arr[arr_index][this.current_chart_interval]);
+					return arr_index != -1 && !isNaN(this.country_arr[arr_index][this.current_chart_interval]) && this.country_arr[arr_index][this.current_chart_interval] > 0;
 				})
 				.attr("fill",	(d) => {
 					let arr_index = this.country_arr.findIndex(searchIndex, d.properties["name"]);
@@ -206,7 +206,7 @@ class WorldMap{
 		this.svg.selectAll("path")
 			.filter( (d) => {
 					let arr_index = this.country_arr.findIndex(searchIndex, d.properties["name"]);
-					return arr_index == -1 || isNaN(this.country_arr[arr_index][this.current_chart_interval]);
+					return arr_index == -1 || isNaN(this.country_arr[arr_index][this.current_chart_interval]) || this.country_arr[arr_index][this.current_chart_interval] <= 0;
 				})
 				.attr("fill", "#e0e0e0")
 				.classed("country", true);
