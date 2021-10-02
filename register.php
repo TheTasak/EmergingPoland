@@ -8,6 +8,7 @@ $username_err = $email_err = $password_err = $confirm_password_err = "";
 <html>
 <head>
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/forms.css?v=1">
 
@@ -17,36 +18,46 @@ $username_err = $email_err = $password_err = $confirm_password_err = "";
 <body>
     <?php include "./header.html" ?>
     <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
-    <div class="form">
-        <h2>Rejestracja</h2>
-        <p>Wypełnij formularz, aby utworzyć konto.</p>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-input-group">
-                <label>Nazwa użytkownika</label>
-                <input type="text" autocomplete="no" name="username" class="form-input <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
-                <span class="invalid-feedback"><?php echo $username_err; ?></span>
+    <div class="form row align-items-center">
+        <div class="col-md-12">
+          <h2>Rejestracja</h2>
+          <p>Wypełnij formularz, aby utworzyć konto.</p>
+          <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="text" autocomplete="no" name="username" placeholder="username" id="floatUsername" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
+                  <label for="floatUsername">Nazwa użytkownika</label>
+                  <span class="invalid-feedback"><?php echo $username_err; ?></span>
+              </div>
             </div>
-            <div class="form-input-group">
-                <label>E-mail</label>
-                <input type="email" autocomplete="yes" name="email" class="form-input <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
-                <span class="invalid-feedback"><?php echo $email_err; ?></span>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="email" autocomplete="yes" name="email" placeholder="email" id="floatEmail" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
+                  <label for="floatEmail">E-mail</label>
+                  <span class="invalid-feedback"><?php echo $email_err; ?></span>
+              </div>
             </div>
-            <div class="form-input-group">
-                <label>Hasło</label>
-                <input type="password" autocomplete="yes" name="password" class="form-input <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $password; ?>">
-                <span class="invalid-feedback"><?php echo $password_err; ?></span>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="password" autocomplete="yes" name="password" placeholder="password" id="floatPassword" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $password; ?>">
+                  <label for="floatPassword">Hasło</label>
+                  <span class="invalid-feedback"><?php echo $password_err; ?></span>
+              </div>
             </div>
-            <div class="form-input-group">
-                <label>Potwierdź hasło</label>
-                <input type="password" autocomplete="yes" name="confirm_password" class="form-input <?php echo (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $confirm_password; ?>">
-                <span class="invalid-feedback"><?php echo $confirm_password_err; ?></span>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="password" autocomplete="yes" name="confirm_password" placeholder="password confirm" id="floatPasswordConfirm" class="form-control <?php echo (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $confirm_password; ?>">
+                  <label for="floatPasswordConfirm">Potwierdź hasło</label>
+                  <span class="invalid-feedback"><?php echo $confirm_password_err; ?></span>
+              </div>
             </div>
-            <div class="form-button-group">
-                <input type="submit" class="form-button" value="Wyślij">
-                <input type="reset" class="form-button" value="Reset">
+            <div class="mb-3">
+                <input type="submit" class="btn btn-primary btn-lg" value="Wyślij">
+                <input type="reset" class="btn btn-secondary btn-lg" value="Reset">
             </div>
             <p>Już masz konto? <a href="login.php">Zaloguj się.</a></p>
         </form>
+      </div>
     </div>
     <?php include "./footer.html" ?>
 </body>

@@ -327,7 +327,7 @@ class Indicators{
 				.html(d => d.name);
 		rows.append("td")
 				.style("text-align", "center")
-				.html(d => parseFloat(d.function(this.end_year + "_" + this.end_quarter)) + d.suffix);
+				.html(d => splitValue(parseFloat(d.function(this.end_year + "_" + this.end_quarter))) + d.suffix);
 		const slider_divs = rows.append("td")
 														.append("div")
 															.classed("row-slider-div", true);

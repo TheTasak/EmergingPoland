@@ -1,18 +1,20 @@
 body{
   background-color: #fafafa;
   min-height: 0%;
-  height: 100%;
+  height: 95%;
 }
 .form{
-  font-family: Helvetica, sans-serif;
-  padding: 0px 25px;
-  margin-top: 100px;
+  height: 100%;
+  margin: 50px 0;
   letter-spacing: .05rem;
   text-align: center;
 }
 .form a{
   text-decoration: none;
   transition: 0.2s;
+}
+.form .input-short{
+  width: 50%;
 }
 .form a:visited{
   color: blue;
@@ -23,61 +25,6 @@ body{
 .form h2{
   font-size: 32px;
   letter-spacing: .1rem;
-}
-.form .form-input-group{
-  padding: 10px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.form .form-input{
-  padding: 5px;
-  width: 30%;
-  min-width: 200px;
-  border: 1px solid #a0a0a0;
-  border-radius: 4px;
-}
-@media (max-width: 1200px){
-  .form .form-input{
-    width: 50%;
-  }
-}
-@media (max-width: 900px){
-  .form .form-input{
-    width: 70%;
-  }
-}
-.form .form-input:focus{
-  background-color: #fafafa;
-  border: 1px dotted black;
-}
-.form .form-button-group{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 20px;
-}
-.form .form-button{
-  width: 80px;
-  color: white;
-  font-size: 16px;
-  padding: 10px 0;
-  border-radius: 8px;
-  border: none;
-  transition: 0.2s background-color ease-out;
-}
-.form .form-button[type=submit]{
-  background-color: #007bff;
-}
-.form .form-button[type=reset]{
-  background-color: #6c757d;
-}
-.form .form-button:hover[type=submit]{
-  background-color: #429cfc;
-}
-.form .form-button:hover[type=reset]{
-  background-color: #87929c;
 }
 .form .invalid-feedback{
   color: red;

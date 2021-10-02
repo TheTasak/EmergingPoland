@@ -8,6 +8,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/forms.css?v=1">
 
@@ -17,7 +18,8 @@
 <body>
     <?php include "./header.html" ?>
     <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
-    <div class="form">
+    <div class="form row align-items-center">
+      <div class="col-md-12">
         <h2>Logowanie</h2>
         <p>Wypełnij formularz aby się zalogować.</p>
         <?php
@@ -26,21 +28,26 @@
         }
         ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-input-group">
-                <label>Nazwa użytkownika</label>
-                <input type="text" name="username" class="form-input <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
-                <span class="invalid-feedback"><?php echo $username_err; ?></span>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="text" name="username" id="floatUsername" placeholder="User" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
+                  <label for="floatUsername">Nazwa użytkownika</label>
+                  <span class="invalid-feedback"><?php echo $username_err; ?></span>
+              </div>
             </div>
-            <div class="form-input-group">
-                <label>Hasło</label>
-                <input type="password" name="password" class="form-input <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
-                <span class="invalid-feedback"><?php echo $password_err; ?></span>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="password" name="password" id="floatPassword" placeholder="Password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
+                  <label for="floatPassword">Hasło</label>
+                  <span class="invalid-feedback"><?php echo $password_err; ?></span>
+              </div>
             </div>
-            <div class="form-button-group">
-                <input type="submit" class="form-button" value="Wyślij">
+            <div class="mb-3">
+                <input type="submit" class="btn btn-primary btn-lg" value="Wyślij">
             </div>
             <p>Nie masz konta? <a href="register.php">Zarejestruj się.</a></p>
         </form>
+      </div>
     </div>
     <?php include "./footer.html" ?>
 </body>
