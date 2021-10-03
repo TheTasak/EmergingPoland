@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
+    
     <script src="libs/wNumb.js" defer></script>
   	<link href="libs/nouislider.css" rel="stylesheet">
   	<script src="libs/nouislider.js" defer></script>

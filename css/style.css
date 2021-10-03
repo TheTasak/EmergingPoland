@@ -98,21 +98,6 @@ button{
   text-decoration: none;
   font-size: 40px;
 }
-.openbtn{
-  background: none;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  text-align: center;
-  font-family: Helvetica, sans-serif;
-  text-decoration: none;
-  font-size: 40px;
-  margin-left: 10px;
-  transition: 0.5s ease-out;
-}
-.openbtn:hover{
-  color: white;
-}
 /* header */
 header{
   width: 100%;
@@ -125,35 +110,11 @@ header{
   z-index: 1;
 }
 nav{
-  margin: 0 auto;
-  width: 60%;
-  float: left;
-  display: flex;
-  height: 100%;
-  flex-wrap: nowrap;
-  align-content: center;
   color: white;
 }
 .navbtn{
-  font-size: min(4vw,32px);
-  font-family: Georgia,serif;
-  color: white;
-}
-header #jezyki{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2%;
-  margin-right: 20px;
-  margin-top: 5px;
-}
-header #jezyki img{
-  width: min(10vw, 60px);
-  height: auto;
-  border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.2);
+  font-size: 24px;
+  font-family: Georgia;
 }
 /* content */
 main{
@@ -601,46 +562,8 @@ footer{
 #login a:hover{
   color: red;
 }
-/* main menu gallery */
-.slideshow-container {
-  position: relative;
-}
-.slideshow-container .title{
-  font-size: 32px;
-  font-family: Helvetica;
-  text-align: center;
-  letter-spacing: 0.04em;
-}
-.slide {
-  display: flex;
-  justify-content: center;
-}
-.slide img{
-  width: 100%;
-  max-width: 1000px;
-  height: auto;
-  box-shadow: 4px 4px 16px 4px #aeaeae;
-  user-select: none;
-}
-.prev, .next {
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  width: auto;
-  padding: 16px;
-  color: black;
-  font-weight: bold;
-  font-size: 18px;
-  transition: ease-out 0.5s;
-  border-radius: 0 3px 3px 0;
-  user-select: none;
-}
-.next {
-  right: 0;
-  border-radius: 3px 0 0 3px;
-}
-.prev:hover, .next:hover {
-  color: #223322;
+.carousel-item img{
+  margin: auto;
 }
 .dots{
   padding: 20px 0;
@@ -656,7 +579,7 @@ footer{
   display: inline-block;
   transition: background-color 0.6s ease;
 }
-.active, .dot:hover {
+.active-dot, .dot:hover {
   background-color: #717171;
 }
 .clicked-dot {

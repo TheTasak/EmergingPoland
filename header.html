@@ -9,16 +9,43 @@
         </div>
     </div>
     <header>
-      <nav>
-        <button class="openbtn" onclick="openNav()">&#8801;</button>
-        <button class="navbtn" onclick="location.href='main.php';">Emerging Poland</button>
+      <nav class="navbar navbar-expand-lg navbar-dark justify-content-center">
+        <div class="container-fluid">
+          <button class="btn btn-primary btn-lg" onclick="openNav()">&#8801;</button>
+          <button class="navbtn navbar-brand" onclick="location.href='main.php';">Emerging Poland</button>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="indekspage.php?indeks=wig20">Wig20</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="indekspage.php?indeks=mwig40">mWig40</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="indekspage.php?indeks=swig80">sWig80</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Język
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a id="lang-pl" class="dropdown-item">Polski</a></li>
+                  <li><a id="lang-en" class="dropdown-item">English</a></li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="login.php">Zaloguj się</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </nav>
-      <div id="jezyki">
-        język
-        <a id="lang-pl"><img src="https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg"></a>
-        <a id="lang-en"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flag_of_Great_Britain_%281707%E2%80%931800%29.svg/255px-Flag_of_Great_Britain_%281707%E2%80%931800%29.svg.png"></a>
-        <button class="loginbtn" onclick="location.href='login.php';">Zaloguj się</button>
-      </div>
     </header>
   </body>
 </html>

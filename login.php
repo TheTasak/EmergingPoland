@@ -3,56 +3,6 @@
   $username = $password = "";
   $username_err = $password_err = $login_err = "";
 ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css?v=1">
-    <link rel="stylesheet" href="css/forms.css?v=1">
-
-    <script src="https://d3js.org/d3.v6.js" defer></script>
-    <script src="js/navbar.js?v=1" defer></script>
-</head>
-<body>
-    <?php include "./header.html" ?>
-    <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
-    <div class="form row align-items-center">
-      <div class="col-md-12">
-        <h2>Logowanie</h2>
-        <p>Wypełnij formularz aby się zalogować.</p>
-        <?php
-        if(!empty($login_err)){
-            echo '<div class="alert alert-danger">' . $login_err . '</div>';
-        }
-        ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="d-flex justify-content-center">
-              <div class="form-floating mb-3 input-short">
-                  <input type="text" name="username" id="floatUsername" placeholder="User" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
-                  <label for="floatUsername">Nazwa użytkownika</label>
-                  <span class="invalid-feedback"><?php echo $username_err; ?></span>
-              </div>
-            </div>
-            <div class="d-flex justify-content-center">
-              <div class="form-floating mb-3 input-short">
-                  <input type="password" name="password" id="floatPassword" placeholder="Password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
-                  <label for="floatPassword">Hasło</label>
-                  <span class="invalid-feedback"><?php echo $password_err; ?></span>
-              </div>
-            </div>
-            <div class="mb-3">
-                <input type="submit" class="btn btn-primary btn-lg" value="Wyślij">
-            </div>
-            <p>Nie masz konta? <a href="register.php">Zarejestruj się.</a></p>
-        </form>
-      </div>
-    </div>
-    <?php include "./footer.html" ?>
-</body>
-</html>
-
 <?php
 // Initialize the session
 session_start();
@@ -133,3 +83,53 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     mysqli_close($link);
 }
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="css/style.css?v=1">
+    <link rel="stylesheet" href="css/forms.css?v=1">
+
+    <script src="https://d3js.org/d3.v6.js" defer></script>
+    <script src="js/navbar.js?v=1" defer></script>
+</head>
+<body>
+    <?php include "./header.html" ?>
+    <input type="hidden" id="language" value='<?php echo (isset($_GET['lang']) ? $_GET['lang'] : "pl")  ?>'>
+    <div class="form row align-items-center">
+      <div class="col-md-12">
+        <h2>Logowanie</h2>
+        <p>Wypełnij formularz aby się zalogować.</p>
+        <?php
+        if(!empty($login_err)){
+            echo '<div class="alert alert-danger">' . $login_err . '</div>';
+        }
+        ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="text" name="username" id="floatUsername" placeholder="User" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
+                  <label for="floatUsername">Nazwa użytkownika</label>
+                  <span class="invalid-feedback"><?php echo $username_err; ?></span>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center">
+              <div class="form-floating mb-3 input-short">
+                  <input type="password" name="password" id="floatPassword" placeholder="Password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
+                  <label for="floatPassword">Hasło</label>
+                  <span class="invalid-feedback"><?php echo $password_err; ?></span>
+              </div>
+            </div>
+            <div class="mb-3"><i class="fas fa-sign-in-alt"></i>
+                <button type="submit" class="btn btn-primary btn-lg">Wyślij</button>
+            </div>
+            <p>Nie masz konta? <a href="register.php">Zarejestruj się.</a></p>
+        </form>
+      </div>
+    </div>
+    <?php include "./footer.html" ?>
+</body>
+</html>
