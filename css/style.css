@@ -26,68 +26,6 @@ body{
 #bodynolimit{
   min-height: 1%;
 }
-/* side nav */
-.sidenav{
-  height: 100vh;
-  width: 0;
-  position: fixed;
-  z-index: 2;
-  top: 0;
-  left: 0;
-  background-color: rgba(4,23,2,0.9);
-  overflow-x: hidden;
-  transition: 0.5s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.sidenav a{
-  padding: 10px 0;
-  text-decoration: none;
-  text-align: center;
-  font-size: 3vh;
-  color: white;
-  display: block;
-  transition: 0.5s;
-}
-.sidenav a:hover{
-  color: gray;
-}
-.closebtn{
-  position: absolute;
-  top: 1vh;
-  color: white;
-  right: 25px;
-  margin-left: 50px;
-  transition: 0.5s;
-  z-index: 9;
-}
-.closebtn:hover{
-  color: gray;
-}
-/* side nav links */
-#links-main{
-  width: 50%;
-  height: 100%;
-  margin: 0 auto;
-  position: relative;
-  transition: 0.5s;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-#links-secondary{
-  width: 0;
-  max-height: 90%;
-  position: relative;
-  transition: 0.5s;
-  margin-top: auto;
-  margin-bottom: auto;
-  overflow-y: auto;
-}
-#links-main a {
-  padding: 30px 0;
-}
 button{
   background: none;
   border: none;
@@ -113,6 +51,7 @@ nav{
   color: white;
 }
 .navbtn{
+  margin-left: 10px;
   font-size: 24px;
   font-family: Georgia;
 }

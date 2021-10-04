@@ -45,7 +45,6 @@ function loadPage(){
     document.getElementById("lang-pl").href = window.location.href;
     document.getElementById("lang-en").href = window.location.href;
   }
-  getStocks();
 }
 function draw() {
   if(page_object != undefined)

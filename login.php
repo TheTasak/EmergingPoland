@@ -88,13 +88,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/forms.css?v=1">
 
     <script src="https://d3js.org/d3.v6.js" defer></script>
-    <script src="js/navbar.js?v=1" defer></script>
 </head>
 <body>
     <?php include "./header.html" ?>

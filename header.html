@@ -1,34 +1,44 @@
 <!DOCTYPE HTML>
 <html>
   <body>
-    <div id="sidenav" class="sidenav">
-      <button class="closebtn" type="button" onclick="closeNav()">&times;</button>
-      <div id="links-main">
-        </div>
-      <div id="links-secondary">
-        </div>
-    </div>
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark justify-content-center">
         <div class="container-fluid">
-          <button class="btn btn-primary btn-lg" onclick="openNav()">&#8801;</button>
-          <button class="navbtn navbar-brand" onclick="location.href='main.php';">Emerging Poland</button>
+          <a class="navbtn navbar-brand" href="main.php">Emerging Poland</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+            <span class="navbar-toggler-icon"></span>
+          </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                <a class="nav-link active" aria-current="page" href="main.php">Strona główna</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="indekspage.php?indeks=wig20">Wig20</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarwigDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Wig20
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarwigDropdown">
+                  <li><a class="dropdown-item" href="indekspage.php?indeks=wig20">Indeks</a></li>
+                  <li><a class="dropdown-item" href="indeksstocks.php?indeks=wig20">Spółki</a></li>
+                </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="indekspage.php?indeks=mwig40">mWig40</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarmwigDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  mWig40
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarmwigDropdown">
+                  <li><a class="dropdown-item" href="indekspage.php?indeks=mwig40">Indeks</a></li>
+                  <li><a class="dropdown-item" href="indeksstocks.php?indeks=mwig40">Spółki</a></li>
+                </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="indekspage.php?indeks=swig80">sWig80</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarswigDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  sWig80
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarswigDropdown">
+                  <li><a class="dropdown-item" href="indekspage.php?indeks=swig80">Indeks</a></li>
+                  <li><a class="dropdown-item" href="indeksstocks.php?indeks=swig80">Spółki</a></li>
+                </ul>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

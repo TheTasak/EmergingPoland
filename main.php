@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v6.js" defer></script>
-    <script src="js/navbar.js" defer></script>
   </head>
   <body id="bodynolimit">
     <?php include "./header.html" ?>
@@ -73,5 +72,6 @@
         <p>Nie masz jeszcze konta? <a href="register.php">Zarejestruj się!</a> Jesteś już zarejestrowany? <a href="login.php">Zaloguj się!</a></p>
       </div>
     </main>
+    <?php include "./footer.html" ?>
   </body>
 </html>
