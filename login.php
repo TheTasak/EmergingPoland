@@ -90,6 +90,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/forms.css?v=1">
@@ -112,21 +113,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="text" name="username" id="floatUsername" placeholder="User" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
-                  <label for="floatUsername">Nazwa użytkownika</label>
+                  <label for="floatUsername"><i class="bi bi-person-fill" style="color:blue"></i> Nazwa użytkownika</label>
                   <span class="invalid-feedback"><?php echo $username_err; ?></span>
               </div>
             </div>
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="password" name="password" id="floatPassword" placeholder="Password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
-                  <label for="floatPassword">Hasło</label>
+                  <label for="floatPassword"><i class="bi bi-key-fill" style="color:blue"></i> Hasło</label>
                   <span class="invalid-feedback"><?php echo $password_err; ?></span>
               </div>
             </div>
             <div class="mb-3"><i class="fas fa-sign-in-alt"></i>
-                <button type="submit" class="btn btn-primary btn-lg">Wyślij</button>
+                <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-cursor-fill"></i> Wyślij</button>
             </div>
-            <p>Nie masz konta? <a href="register.php">Zarejestruj się.</a></p>
+            <p>Nie masz konta? <a href="register.php" class="link-primary">Zarejestruj się.</a></p>
         </form>
       </div>
     </div>

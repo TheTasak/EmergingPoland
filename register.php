@@ -13,6 +13,7 @@ $username_err = $email_err = $password_err = $confirm_password_err = "";
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="https://d3js.org/d3.v6.js" defer></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css?v=1">
     <link rel="stylesheet" href="css/forms.css?v=1">
 </head>
@@ -27,36 +28,36 @@ $username_err = $email_err = $password_err = $confirm_password_err = "";
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="text" autocomplete="no" name="username" placeholder="username" id="floatUsername" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
-                  <label for="floatUsername">Nazwa użytkownika</label>
+                  <label for="floatUsername"><i class="bi bi-person-fill" style="color:blue"></i> Nazwa użytkownika</label>
                   <span class="invalid-feedback"><?php echo $username_err; ?></span>
               </div>
             </div>
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="email" autocomplete="yes" name="email" placeholder="email" id="floatEmail" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
-                  <label for="floatEmail">E-mail</label>
+                  <label for="floatEmail"><i class="bi bi-envelope-fill" style="color:blue"></i> E-mail</label>
                   <span class="invalid-feedback"><?php echo $email_err; ?></span>
               </div>
             </div>
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="password" autocomplete="yes" name="password" placeholder="password" id="floatPassword" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $password; ?>">
-                  <label for="floatPassword">Hasło</label>
+                  <label for="floatPassword"><i class="bi bi-key-fill" style="color:blue"></i> Hasło</label>
                   <span class="invalid-feedback"><?php echo $password_err; ?></span>
               </div>
             </div>
             <div class="d-flex justify-content-center">
               <div class="form-floating mb-3 input-short">
                   <input type="password" autocomplete="yes" name="confirm_password" placeholder="password confirm" id="floatPasswordConfirm" class="form-control <?php echo (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $confirm_password; ?>">
-                  <label for="floatPasswordConfirm">Potwierdź hasło</label>
+                  <label for="floatPasswordConfirm"><i class="bi bi-check-square-fill" style="color:blue"></i></i> Potwierdź hasło</label>
                   <span class="invalid-feedback"><?php echo $confirm_password_err; ?></span>
               </div>
             </div>
             <div class="mb-3">
-                <input type="submit" class="btn btn-primary btn-lg" value="Wyślij">
-                <input type="reset" class="btn btn-secondary btn-lg" value="Reset">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-cursor-fill"></i> Wyślij</button>
+                <button type="reset" class="btn btn-secondary btn-lg"><i class="bi bi-trash-fill"></i> Reset</button>
             </div>
-            <p>Już masz konto? <a href="login.php">Zaloguj się.</a></p>
+            <p>Już masz konto? <a href="login.php" class="link-primary">Zaloguj się.</a></p>
         </form>
       </div>
     </div>

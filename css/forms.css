@@ -11,16 +11,14 @@ body{
 }
 .form a{
   text-decoration: none;
-  transition: 0.2s;
 }
 .form .input-short{
   width: 50%;
 }
-.form a:visited{
-  color: blue;
-}
-.form a:hover{
-  color: red;
+@media (max-width: 1200px){
+  .form .input-short{
+    width: 100%;
+  }
 }
 .form h2{
   font-size: 32px;
