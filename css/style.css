@@ -26,16 +26,6 @@ body{
 #bodynolimit{
   min-height: 1%;
 }
-button{
-  background: none;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  text-align: center;
-  font-family: Helvetica, sans-serif;
-  text-decoration: none;
-  font-size: 40px;
-}
 /* header */
 header{
   width: 100%;
@@ -179,22 +169,6 @@ main h1{
 .chart-input img{
   width: 50px;
 }
-.chart-button{
-  font-size: min(3vw, 14px);
-  margin-left: 10px;
-  background-color: #fefefe;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #f0f0f0 #e0e0e0 #a0a0a0 #e0e0e0;
-  border-radius: 8px;
-  padding: 6px 14px;
-  user-select: none;
-  box-shadow: 3px 2px 4px #a0a0a0;
-  transition: background-color 0.5s;
-}
-.chart-button:hover{
-  background-color: #f0f0f0;
-}
 .noUi-target{
 	font-size: 12px;
 	z-index: 0;
@@ -209,7 +183,7 @@ main h1{
 .input-div{
   display: flex;
   justify-content: center;
-  gap: 2%;
+  gap: 3%;
 }
 .input-div > .noUi-target{
   width: 50%;
@@ -231,18 +205,6 @@ main h1{
   display: flex;
   flex-direction: column;
   align-content: center;
-}
-.tabledata-div table{
-	border-collapse: collapse;
-}
-.tabledata-div tr:nth-child(even){
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #a0a0a0;
-  border-top: 1px solid #a0a0a0;
-}
-.tabledata-div td{
-  padding: 5px 8px;
-  font-size: min(2vw, 18px);
 }
 .table-div{
 	max-height: 100%;
@@ -343,26 +305,6 @@ main h1{
 .indicatorbtn:hover{
   background-color: #f0f0f0;
 }
-.indicator-table-nosliders{
-	display: flex;
-  font-size: min(2.5vw, 18px);
-}
-.indicator-table-nosliders table{
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-}
-.indicator-table-nosliders td{
-  padding: 30px 20px 35px 0;
-}
-.indicator-table-nosliders tr:nth-child(even){
-  border-bottom: 1px solid #a0a0a0;
-  border-top: 1px solid #a0a0a0;
-  background-color: #f0f0f0;
-}
-.indicator-table-nosliders tr:first-child{
-  font-weight: bold;
-}
 .info-table{
   overflow: auto;
   height: 100%;
@@ -370,17 +312,6 @@ main h1{
 	justify-content: center;
   align-items: center;
   font-size: min(4vw, 18px);
-}
-.info-table table{
-  border-collapse: collapse;
-  border-radius: 10px;
-  box-shadow: 4px 4px 16px 4px #e0e0e0;
-}
-.info-table td{
-  padding: 20px 0 20px 10px;
-}
-.info-table tr:not(:last-child){
-  border-bottom: 1px solid #aeaeae;
 }
 .info-table .table-title{
   font-weight: bold;
@@ -503,6 +434,12 @@ footer{
 }
 .carousel-item img{
   margin: auto;
+  width: 50%;
+}
+@media (max-width: 1200px){
+  .carousel-item img{
+    width: 100%;
+  }
 }
 .dots{
   padding: 20px 0;

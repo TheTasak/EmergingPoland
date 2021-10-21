@@ -159,7 +159,7 @@ class Chart{
 
     //Przyciski do zmiany typu wykresu i zamiany na tabelę
     slider_button_div.append("button")
-        .classed("chart-button", true)
+        .classed("btn btn-outline-dark", true)
         .attr("type", "button")
         .on("click", () => {this.chart_type = (this.chart_type == "year" ? "quarter" : "year"); this.load_data();})
         .html( this.chart_type == "year" ? "<b>Rok</b>/Kwartał" : "Rok/<b>Kwartał</b>");

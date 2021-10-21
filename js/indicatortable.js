@@ -292,19 +292,22 @@ class Indicators{
 	init_table = () => {
 		const table = d3.select(this.container)
 			.select(".svg-div")
-			.classed("indicator-table-nosliders", true)
 			.append("table")
-				.attr("width", "100%");
+				.classed("table table-hover", true)
+				.append("tbody");
 
 		const first_row = table.append("tr");
-		first_row.append("td")
+		first_row.append("th")
 						 .style("text-align", "center")
+						 .attr("width", "25%")
 						 .html("Nazwa wskaźnika");
-		first_row.append("td")
+		first_row.append("th")
 						 .style("text-align", "center")
+						 .attr("width", "40%")
 						 .html("Aktualna wartość");
-		first_row.append("td")
+		first_row.append("th")
 							.style("text-align", "center")
+							.attr("width", "100%")
 							.html("Slider");
 		let data_index = 0;
 		if(this.activebtn != undefined) {
@@ -323,12 +326,15 @@ class Indicators{
 										 .append("tr")
 										 	.classed("table-row", true);
 		rows.append("td")
-				.style("text-align", "right")
+				.style("padding", "40px 10px 40px 10px")
+				.style("text-align", "left")
 				.html(d => d.name);
 		rows.append("td")
+				.style("padding", "40px 10px 40px 10px")
 				.style("text-align", "center")
 				.html(d => splitValue(parseFloat(d.function(this.end_year + "_" + this.end_quarter))) + d.suffix);
 		const slider_divs = rows.append("td")
+														.style("padding", "40px 10px 40px 10px")
 														.append("div")
 															.classed("row-slider-div", true);
 		let slider_el = slider_divs.nodes();

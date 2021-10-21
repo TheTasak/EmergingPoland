@@ -6,9 +6,9 @@
     <title>Strona główna | EmergingPoland</title>
     <meta name="description" content="Skaner spółek GPW przedstawiający dane w sposób graficzny">
     <meta name="keywords" content="GPW, inwestowanie, investing, WSE, stock, stock market, giełda, emerging, poland, emerging markets">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v6.js" defer></script>
   </head>
   <body id="bodynolimit">
@@ -37,25 +37,25 @@
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img src="img/mainpagescreen1.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen1.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen2.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen2.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen3.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen3.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen4.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen4.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen5.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen5.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen6.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen6.png" class="d-block" alt="wykres">
           </div>
           <div class="carousel-item">
-            <img src="img/mainpagescreen7.png" class="d-block w-50" alt="wykres">
+            <img src="img/mainpagescreen7.png" class="d-block" alt="wykres">
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#slideshow" data-bs-slide="prev">

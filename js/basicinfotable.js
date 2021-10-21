@@ -56,7 +56,9 @@ class BasicInfo{
     const table = d3.select(this.container)
 			.select(".info-table")
       .append("table")
-        .attr("width", "80%");
+				.classed("table w-75 table-hover", true)
+        .attr("width", "80%")
+				.append("tbody");
 		table.append("tr")
 				 .append("td")
 				 .attr("colspan", "2")

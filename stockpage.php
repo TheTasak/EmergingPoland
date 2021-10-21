@@ -4,18 +4,17 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title><?php echo $_GET['stock'] ?> | EmergingPoland</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
 
     <script src="libs/wNumb.js" defer></script>
     <link href="libs/nouislider.css" rel="stylesheet">
     <script src="libs/nouislider.js" defer></script>
     <link rel="stylesheet" href="css/style.css?v=1">
-    
+
     <script src="https://d3js.org/d3.v6.js" defer></script>
     <script src="https://d3js.org/d3-scale.v3.js" defer></script>
   	<script src="https://d3js.org/d3-geo-projection.v2.js" defer></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" defer></script>
 
     <script src="js/datatable.js" defer></script>
     <script src="js/innebarchart.js" defer></script>
@@ -32,8 +31,8 @@
     <script src="js/indicatortable.js" defer></script>
     <script src="js/basicinfotable.js" defer></script>
     <script src="js/stock.js" defer></script>
-    <script src="js/navbar.js" defer></script>
     <script src="js/script.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body id="body">
     <?php include "./header.html" ?>
