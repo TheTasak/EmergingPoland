@@ -1,82 +1,59 @@
 <?php
-  // Define variables and initialize with empty values
   $username = $password = "";
   $username_err = $password_err = $login_err = "";
-?>
-<?php
-// Initialize the session
-session_start();
 
-// Check if the user is already logged in, if yes then redirect him to welcome page
-if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
-    header("location: welcome.php");
-    exit;
-}
+  require_once("php/configlogin.php");
 
-// Include config file
-require_once("php/configlogin.php");
-// Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+  session_start();
+  if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+      header("location: welcome.php");
+      exit;
+  }
 
-    // Check if username is empty
-    if(empty(trim($_POST["username"]))){
-        $username_err = "Proszę wpisz nazwę użytkownika.";
-    } else{
-        $username = trim($_POST["username"]);
-    }
+  if($_SERVER["REQUEST_METHOD"] == "POST"){
+      if(empty(trim($_POST["username"]))){
+          $username_err = "Proszę wpisz nazwę użytkownika.";
+      } else{
+          $username = trim($_POST["username"]);
+      }
 
-    // Check if password is empty
-    if(empty(trim($_POST["password"]))){
-        $password_err = "Proszę wpisz hasło.";
-    } else{
-        $password = trim($_POST["password"]);
-    }
+      if(empty(trim($_POST["password"]))){
+          $password_err = "Proszę wpisz hasło.";
+      } else{
+          $password = trim($_POST["password"]);
+      }
 
-    // Validate credentials
-    if(empty($username_err) && empty($password_err)){
-        // Prepare a select statement
-        $sql = "SELECT id, username, password, role FROM users WHERE username = ?";
-        if($stmt = mysqli_prepare($link, $sql)){
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_username);
-            $param_username = $username;
+      if(empty($username_err) && empty($password_err)){
+          $sql = "SELECT id, username, password, role FROM users WHERE username = ?";
+          if($stmt = mysqli_prepare($link, $sql)) {     
+              mysqli_stmt_bind_param($stmt, "s", $username);
 
-            if(mysqli_stmt_execute($stmt)){
-                mysqli_stmt_store_result($stmt);
-
-                // Check if username exists, if yes then verify password
-                if(mysqli_stmt_num_rows($stmt) == 1){
-                    // Bind result variables
+              if(mysqli_stmt_execute($stmt)) {
+                  mysqli_stmt_store_result($stmt);
+                  if(mysqli_stmt_num_rows($stmt) == 1) {
                     mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $role);
                     if(mysqli_stmt_fetch($stmt)){
-                        if(password_verify($password, $hashed_password)){
-                            // Password is correct, so start a new session
-                            session_start();
-
-                            // Store data in session variables
+                        if(password_verify($password, $hashed_password)) {
                             $_SESSION["loggedin"] = true;
                             $_SESSION["id"] = $id;
                             $_SESSION["username"] = $username;
                             $_SESSION["role"] = $role;
 
-                            // Redirect user to welcome page
                             header("location: welcome.php");
                         } else{
-                            // Password is not valid, display a generic error message
                             $login_err = "Nieprawidłowa nazwa użytkownika lub hasło.";
                         }
                     }
-                } else{
-                    // Username doesn't exist, display a generic error message
-                    $login_err = "Nieprawidłowa nazwa użytkownika lub hasło.";
-                }
-            } else{
-                echo "Coś poszło nie tak. Spróbuj jeszcze raz.";
-            }
+                  } else{
+                      $login_err = "Nieprawidłowa nazwa użytkownika lub hasło.";
+                  }
+              } else{
+                  echo "Coś poszło nie tak. Spróbuj jeszcze raz.";
+              }
 
-            // Close statement
-            mysqli_stmt_close($stmt);
-        }
+              // Close statement
+              mysqli_stmt_close($stmt);
+          }
     }
 
     // Close connection
